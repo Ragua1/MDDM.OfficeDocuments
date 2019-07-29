@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+*.suo
+/.vs
+/OpenXmlApi/.vs/OpenXmlApi/v15
+/OpenXmlApi/OpenXmlApi/bin
+/OpenXmlApi/OpenXmlApi/obj
