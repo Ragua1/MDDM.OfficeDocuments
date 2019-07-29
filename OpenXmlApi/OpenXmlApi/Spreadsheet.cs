@@ -1,10 +1,10 @@
-﻿using DocumentFormat.OpenXml.Packaging;
-using OpenXmlApi.Interfaces;
-using OpenXmlApi.Styles;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DocumentFormat.OpenXml.Packaging;
+using OpenXmlApi.Interfaces;
+using OpenXmlApi.Styles;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OpenXmlApi
