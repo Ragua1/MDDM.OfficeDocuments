@@ -16,3 +16,5 @@ Just simple OpenXml Api skeleton
 
 ## Write down more todos required to complete solution to some prototype
 **TBC**
+
+## Specify outputs 
