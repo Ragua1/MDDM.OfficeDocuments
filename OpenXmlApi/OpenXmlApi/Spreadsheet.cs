@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Schema;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using OpenXmlApi.Emums;
 using OpenXmlApi.Interfaces;
 using OpenXmlApi.Styles;
+using Color = System.Drawing.Color;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OpenXmlApi
@@ -29,7 +33,40 @@ namespace OpenXmlApi
 
         private Spreadsheet(SpreadsheetDocument document, bool createNew)
         {
-            throw new NotImplementedException();
+            // Create a spreadsheet document
+            // By default, AutoSave = true, Editable = true, and Type = xlsx.
+            this.document = document;
+
+            if (createNew)
+            {
+                this.document.AddWorkbookPart();
+                this.WorkbookPart.Workbook = new SpreadsheetLib.Workbook();
+
+                // Add Sheets to the Workbook.
+                this.WorkbookPart.Workbook.AppendChild(new SpreadsheetLib.Sheets());
+
+                // Add the WorkbookStylesPart.
+                this.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+
+                //Init Stylesheet
+                InitStylesheet();
+            }
+            else
+            {
+                if (this.WorkbookPart?.Workbook == null)
+                {
+                    throw new XmlSchemaValidationException("The document is not valid!");
+                }
+
+                if (this.WorkbookPart.WorkbookStylesPart == null)
+                {
+                    // Add the WorkbookStylesPart.
+                    this.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+
+                    //Init Stylesheet
+                    InitStylesheet();
+                }
+            }
         }
 
         /// <summary>
@@ -39,7 +76,9 @@ namespace OpenXmlApi
         /// <exception cref="DirectoryNotFoundException">Exception for not exist path of file</exception>
         public static Spreadsheet Create(string filepath)
         {
-            throw new NotImplementedException();
+            var document = SpreadsheetDocument.Create(Path.GetFullPath(filepath), SpreadsheetDocumentType.Workbook);
+
+            return new Spreadsheet(document, true);
         }
 
         /// <summary>
@@ -49,12 +88,27 @@ namespace OpenXmlApi
         /// <exception cref="DirectoryNotFoundException">Exception for not exist path of file</exception>
         public static Spreadsheet Create(Stream stream)
         {
-            throw new NotImplementedException();
+            var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+
+            return new Spreadsheet(document, true);
         }
 
         private static Spreadsheet Open(SpreadsheetDocument document, bool isEditable)
         {
-            throw new NotImplementedException();
+            var writer = new Spreadsheet(document, false)
+            {
+                IsEditable = isEditable
+            };
+
+            foreach (var worksheetPart in writer.WorkbookPart.WorksheetParts)
+            {
+                var sheetData = worksheetPart.Worksheet.GetFirstChild<SpreadsheetLib.SheetData>();
+
+                var worksheet = new Worksheet(writer, worksheetPart, sheetData);
+                writer.Worksheets.Add(worksheet);
+            }
+
+            return writer;
         }
 
         /// <summary>
@@ -96,7 +150,27 @@ namespace OpenXmlApi
         /// <returns>Created worksheet</returns>
         public IWorksheet AddWorksheet(string sheetName = null, IStyle sheetStyle = null)
         {
-            throw new NotImplementedException();
+            var sheetData = new SpreadsheetLib.SheetData();
+
+            // Add a blank WorksheetPart.
+            var worksheetPart = this.WorkbookPart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = new SpreadsheetLib.Worksheet(sheetData);
+
+            string relationshipId = this.WorkbookPart.GetIdOfPart(worksheetPart);
+
+            // Get a unique ID for the new worksheet.
+            uint sheetId = this.Sheets.Elements<SpreadsheetLib.Sheet>().Any()
+                ? this.Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.SheetId.Value).Max() + 1
+                : 1;
+
+            // Append the new worksheet and associate it with the workbook.
+            var sheet = new SpreadsheetLib.Sheet { Id = relationshipId, SheetId = sheetId, Name = sheetName ?? $"Sheet {sheetId}" };
+            this.Sheets.Append(sheet);
+
+            var worksheet = new Worksheet(this, worksheetPart, sheetData, this.defaultStyle?.CreateMergedStyle(sheetStyle));
+            this.Worksheets.Add(worksheet);
+
+            return worksheet;
         }
 
         /// <summary>
@@ -120,7 +194,15 @@ namespace OpenXmlApi
         /// <returns>Worksheet or null</returns>
         public IWorksheet GetWorksheet(string name)
         {
-            throw new NotImplementedException();
+            var sheet = this.Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == name);
+            if (sheet == null)
+            {
+                return null;
+            }
+
+            return this.Worksheets.FirstOrDefault(
+                w => this.WorkbookPart.GetIdOfPart(((Worksheet)w).WorksheetPart) == sheet.Id
+            );
         }
 
         public string[] GetWorksheetsName()
@@ -133,7 +215,11 @@ namespace OpenXmlApi
         /// </summary>
         public void Close()
         {
-            throw new NotImplementedException();
+            if (this.IsEditable)
+            {
+                this.WorkbookPart.Workbook.Save();
+            }
+            this.document.Close();
         }
         /// <summary>
         /// Close document resources
@@ -145,12 +231,29 @@ namespace OpenXmlApi
 
         private IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
         {
-            throw new NotImplementedException();
+            return new Style(stylesheet ?? this.Stylesheet, font, fill, border, numberFormat, alignment);
         }
 
         private SpreadsheetLib.Stylesheet InitStylesheet()
         {
-            throw new NotImplementedException();
+            var stylesheet = this.WorkbookStylesPart.Stylesheet = new SpreadsheetLib.Stylesheet();
+
+            stylesheet.CellFormats = new SpreadsheetLib.CellFormats();
+            stylesheet.Fills = new SpreadsheetLib.Fills(
+                new SpreadsheetLib.Fill { PatternFill = new SpreadsheetLib.PatternFill { PatternType = SpreadsheetLib.PatternValues.None } },
+                new SpreadsheetLib.Fill { PatternFill = new SpreadsheetLib.PatternFill { PatternType = SpreadsheetLib.PatternValues.Gray125 } }
+            );
+
+            this.defaultStyle = CreateStyle(
+                stylesheet,
+                new Font { FontSize = 11, Color = Color.Black, FontName = FontNameValues.Calibri },
+                null,
+                new Border()
+            );
+
+            stylesheet.CellStyleFormats = new SpreadsheetLib.CellStyleFormats(this.defaultStyle.Element.CloneNode(true));
+
+            return stylesheet;
         }
     }
 }
