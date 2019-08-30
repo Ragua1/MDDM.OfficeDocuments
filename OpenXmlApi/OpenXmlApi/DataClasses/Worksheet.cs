@@ -13,40 +13,40 @@ namespace OpenXmlApi.DataClasses
         public SpreadsheetLib.SheetData Element { get; }
         internal WorksheetPart WorksheetPart { get; }
         public IRow CurrentRow => GetRow();
-        public ICell CurrentCell => this.CurrentRow?.CurrentCell;
+        public ICell CurrentCell => CurrentRow?.CurrentCell;
 
         // collection of existed rows
         public IList<IRow> Rows { get; } = new List<IRow>();
         // collection of existed cells with custom width
-        public IList<ICell> Cells { get { return this.Rows?.SelectMany(c => c.Cells).ToList(); } }
+        public IList<ICell> Cells { get { return Rows?.SelectMany(c => c.Cells).ToList(); } }
 
         public SpreadsheetLib.Columns Columns
         {
             get
             {
-                if (this.columns == null)
+                if (columns == null)
                 {
-                    this.columns = new SpreadsheetLib.Columns();
-                    this.WorksheetPart.Worksheet.InsertBefore(this.columns, this.WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
+                    columns = new SpreadsheetLib.Columns();
+                    WorksheetPart.Worksheet.InsertBefore(columns, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
                 }
-                return this.columns;
+                return columns;
             }
         }
         public SpreadsheetLib.MergeCells MergeCells
         {
             get
             {
-                if (this.mergeCells == null)
+                if (mergeCells == null)
                 {
-                    this.mergeCells = new SpreadsheetLib.MergeCells();
-                    this.WorksheetPart.Worksheet.InsertAfter(this.mergeCells, this.WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
+                    mergeCells = new SpreadsheetLib.MergeCells();
+                    WorksheetPart.Worksheet.InsertAfter(mergeCells, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
                 }
-                return this.mergeCells;
+                return mergeCells;
             }
         }
 
-        private uint NextRowIndex => (this.CurrentRow?.RowIndex ?? 0) + 1;
-        private uint NextCellIndex => (this.CurrentCell?.ColumnIndex ?? 0) + 1;
+        private uint NextRowIndex => (CurrentRow?.RowIndex ?? 0) + 1;
+        private uint NextCellIndex => (CurrentCell?.ColumnIndex ?? 0) + 1;
 
         private uint currentRow = 1;
         private SpreadsheetLib.Columns columns;
@@ -54,27 +54,27 @@ namespace OpenXmlApi.DataClasses
 
         internal Worksheet(Spreadsheet spreadsheet, WorksheetPart worksheetPart, SpreadsheetLib.SheetData sheetData, IStyle cellStyle = null) : base(null, cellStyle)
         {
-            this.Spreadsheet = spreadsheet;
-            this.WorksheetPart = worksheetPart;
-            this.Element = sheetData;
-            this.Worksheet = this;
+            Spreadsheet = spreadsheet;
+            WorksheetPart = worksheetPart;
+            Element = sheetData;
+            Worksheet = this;
 
             //load rows and cells
             var rows = sheetData.Elements<SpreadsheetLib.Row>();
             foreach (var rowElement in rows)
             {
-                this.Rows.Insert(0, new Row(this, rowElement));
+                Rows.Insert(0, new Row(this, rowElement));
 
-                if (rowElement.RowIndex > this.currentRow)
+                if (rowElement.RowIndex > currentRow)
                 {
-                    this.currentRow = rowElement.RowIndex;
+                    currentRow = rowElement.RowIndex;
                 }
             }
         }
 
         public IRow AddRow(IStyle style = null)
         {
-            return AddRow(this.NextRowIndex, style);
+            return AddRow(NextRowIndex, style);
         }
 
         public IRow AddRow(uint rowIndex, IStyle style = null)
@@ -84,12 +84,12 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCell(IStyle style)
         {
-            return AddCell(this.NextCellIndex, this.currentRow, style);
+            return AddCell(NextCellIndex, currentRow, style);
         }
 
         public ICell AddCell(uint columnIndex, IStyle style = null)
         {
-            return AddCell(columnIndex, this.currentRow, style);
+            return AddCell(columnIndex, currentRow, style);
         }
 
         public ICell AddCell(uint columnIndex, uint rowIndex, IStyle style = null)
@@ -101,12 +101,12 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCellWithValue<T>(T value, IStyle style = null)
         {
-            return AddCellWithValue(this.NextCellIndex, this.currentRow, value, style);
+            return AddCellWithValue(NextCellIndex, currentRow, value, style);
         }
 
         public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
         {
-            return AddCellWithValue(columnIndex, this.currentRow, value, style);
+            return AddCellWithValue(columnIndex, currentRow, value, style);
         }
 
         public ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
@@ -118,12 +118,12 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCellWithFormula(string formula, IStyle style = null)
         {
-            return AddCellWithFormula(this.NextCellIndex, this.currentRow, formula, style);
+            return AddCellWithFormula(NextCellIndex, currentRow, formula, style);
         }
 
         public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null)
         {
-            return AddCellWithFormula(columnIndex, this.currentRow, formula, style);
+            return AddCellWithFormula(columnIndex, currentRow, formula, style);
         }
 
         public ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle style = null)
@@ -135,7 +135,7 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null)
         {
-            return AddCellOnRange(beginColumn, endColumn, this.currentRow, style);
+            return AddCellOnRange(beginColumn, endColumn, currentRow, style);
         }
 
         public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle style = null)
@@ -174,7 +174,7 @@ namespace OpenXmlApi.DataClasses
 
             // Create the merged cell and append it to the MergeCells collection.
             var mergeCell = new SpreadsheetLib.MergeCell { Reference = $"{fromCell}:{toCell}" };
-            this.Worksheet.MergeCells.Append(mergeCell);
+            Worksheet.MergeCells.Append(mergeCell);
 
             return mergedCell;
         }
@@ -203,7 +203,7 @@ namespace OpenXmlApi.DataClasses
 
         public IRow GetRow()
         {
-            return GetRow(this.currentRow);
+            return GetRow(currentRow);
         }
 
         public IRow GetRow(uint rowIndex)
@@ -212,7 +212,7 @@ namespace OpenXmlApi.DataClasses
             {
                 throw new ArgumentException($"Invalid argument column index '{rowIndex}'");
             }
-            return this.Rows?.FirstOrDefault(r => r.RowIndex == rowIndex);
+            return Rows?.FirstOrDefault(r => r.RowIndex == rowIndex);
         }
 
         private IRow GetOrCreateRow(uint rowIndex, IStyle style)
@@ -227,14 +227,14 @@ namespace OpenXmlApi.DataClasses
             {
                 row = new Row(this, rowIndex);
 
-                style = this.Style?.CreateMergedStyle(style) ?? style;
+                style = Style?.CreateMergedStyle(style) ?? style;
 
-                this.Rows.Insert(0, row);
-                this.Element.Append(row.Element);
+                Rows.Insert(0, row);
+                Element.Append(row.Element);
 
-                if (rowIndex > this.currentRow)
+                if (rowIndex > currentRow)
                 {
-                    this.currentRow = rowIndex;
+                    currentRow = rowIndex;
                 }
             }
 
@@ -245,7 +245,7 @@ namespace OpenXmlApi.DataClasses
 
         public void SetColumnWidth(double widthValue)
         {
-            SetColumnWidth(this.CurrentCell?.ColumnIndex ?? 0, widthValue);
+            SetColumnWidth(CurrentCell?.ColumnIndex ?? 0, widthValue);
         }
 
         public void SetColumnWidth(uint columnIndex, double widthValue)
@@ -255,11 +255,11 @@ namespace OpenXmlApi.DataClasses
                 return;
             }
 
-            var column = this.Columns.Elements<SpreadsheetLib.Column>().FirstOrDefault(c => c.Max == columnIndex);
+            var column = Columns.Elements<SpreadsheetLib.Column>().FirstOrDefault(c => c.Max == columnIndex);
             if (column == null)
             {
                 column = new SpreadsheetLib.Column { BestFit = true, CustomWidth = false, Width = widthValue, Min = columnIndex, Max = columnIndex };
-                this.Worksheet.Columns.Append(column);
+                Worksheet.Columns.Append(column);
             }
             else
             {

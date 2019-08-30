@@ -11,10 +11,10 @@ namespace OpenXmlApi.DataClasses
         public DocumentFormat.OpenXml.Spreadsheet.CellFormat Element { get; }
         public uint StyleIndex { get; }
 
-        public int FontId => Convert.ToInt32(this.Element.FontId.Value);
-        public int FillId => Convert.ToInt32(this.Element.FillId.Value);
-        public int BorderId => Convert.ToInt32(this.Element.BorderId.Value);
-        public int NumberFormatId => Convert.ToInt32(this.Element.NumberFormatId?.Value ?? 0);
+        public int FontId => Convert.ToInt32(Element.FontId.Value);
+        public int FillId => Convert.ToInt32(Element.FillId.Value);
+        public int BorderId => Convert.ToInt32(Element.BorderId.Value);
+        public int NumberFormatId => Convert.ToInt32(Element.NumberFormatId?.Value ?? 0);
 
         internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null)
             : this(stylesheet, GetFontId(stylesheet, font), GetFillId(stylesheet, fill), GetBorderId(stylesheet, border), GetNumberFormatId(stylesheet, numberFormat))
@@ -24,8 +24,8 @@ namespace OpenXmlApi.DataClasses
         { }
         internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, int fontId = 0, int fillId = 0, int borderId = 0, int numberFormatId = 0, Alignment alignment = null)
         {
-            this.Stylesheet = stylesheet;
-            this.Element = new DocumentFormat.OpenXml.Spreadsheet.CellFormat
+            Stylesheet = stylesheet;
+            Element = new DocumentFormat.OpenXml.Spreadsheet.CellFormat
             {
                 FormatId = Convert.ToUInt32(0),
                 FontId = Convert.ToUInt32(fontId),
@@ -35,31 +35,31 @@ namespace OpenXmlApi.DataClasses
 
             if (numberFormatId >= 0)
             {
-                this.Element.NumberFormatId = Convert.ToUInt32(numberFormatId);
+                Element.NumberFormatId = Convert.ToUInt32(numberFormatId);
             }
 
             if (alignment != null)
             {
-                this.Element.Alignment = (DocumentFormat.OpenXml.Spreadsheet.Alignment)alignment.Element.CloneNode(true);
+                Element.Alignment = (DocumentFormat.OpenXml.Spreadsheet.Alignment)alignment.Element.CloneNode(true);
             }
 
-            this.StyleIndex = GetStyleIndex(stylesheet, this.Element);
+            StyleIndex = GetStyleIndex(stylesheet, Element);
         }
         internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, uint styleIndex)
         {
-            this.Stylesheet = stylesheet;
+            Stylesheet = stylesheet;
 
             var cfs = stylesheet.CellFormats ?? new DocumentFormat.OpenXml.Spreadsheet.CellFormats();
             var cellFormats = cfs.Elements<DocumentFormat.OpenXml.Spreadsheet.CellFormat>().ToList();
-            this.Element = cellFormats.ElementAt(Convert.ToInt32(styleIndex));
+            Element = cellFormats.ElementAt(Convert.ToInt32(styleIndex));
 
-            this.StyleIndex = styleIndex;
+            StyleIndex = styleIndex;
         }
 
         public IStyle CreateMergedStyle(IStyle style)
         {
-            int fontId = this.FontId, fillId = this.FillId, borderId = this.BorderId, numberFormatId = this.NumberFormatId;
-            var alignment = this.Element.Alignment != null ? new Alignment(this.Element.Alignment) : null;
+            int fontId = FontId, fillId = FillId, borderId = BorderId, numberFormatId = NumberFormatId;
+            var alignment = Element.Alignment != null ? new Alignment(Element.Alignment) : null;
             if (style == null)
             {
                 return this;// new Style(this.Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
@@ -67,8 +67,8 @@ namespace OpenXmlApi.DataClasses
 
             if (fontId != style.FontId && style.FontId > 0) // Id == 0 is default style
             {
-                var fonts = this.Stylesheet.Fonts.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ToList();
-                var font1 = fonts.ElementAt(this.FontId);
+                var fonts = Stylesheet.Fonts.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ToList();
+                var font1 = fonts.ElementAt(FontId);
                 var font2 = fonts.ElementAt(style.FontId);
                 var font = Utils.MergeFonts(font1, font2);
                 fontId = GetFontId(style.Stylesheet, font);
@@ -76,8 +76,8 @@ namespace OpenXmlApi.DataClasses
 
             if (fillId != style.FillId && style.FillId > 0) // Id == 0 is default style
             {
-                var fills = this.Stylesheet.Fills.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ToList();
-                var fill1 = fills.ElementAt(this.FillId);
+                var fills = Stylesheet.Fills.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ToList();
+                var fill1 = fills.ElementAt(FillId);
                 var fill2 = fills.ElementAt(style.FillId);
                 var fill = Utils.MergeFills(fill1, fill2);
                 fillId = GetFillId(style.Stylesheet, fill);
@@ -85,8 +85,8 @@ namespace OpenXmlApi.DataClasses
 
             if (borderId != style.BorderId && style.BorderId > 0) // Id == 0 is default style
             {
-                var borders = this.Stylesheet.Borders.Elements<DocumentFormat.OpenXml.Spreadsheet.Border>().ToList();
-                var border1 = borders.ElementAt(this.BorderId);
+                var borders = Stylesheet.Borders.Elements<DocumentFormat.OpenXml.Spreadsheet.Border>().ToList();
+                var border1 = borders.ElementAt(BorderId);
                 var border2 = borders.ElementAt(style.BorderId);
                 var border = Utils.MergeBorders(border1, border2);
                 borderId = GetBorderId(style.Stylesheet, border);
@@ -99,13 +99,13 @@ namespace OpenXmlApi.DataClasses
 
             if (!string.IsNullOrEmpty(style.Element.Alignment?.InnerXml))
             {
-                if (string.IsNullOrEmpty(this.Element.Alignment?.InnerXml))
+                if (string.IsNullOrEmpty(Element.Alignment?.InnerXml))
                 {
                     alignment = new Alignment(style.Element.Alignment); // Alignment cannot be merged
                 }
             }
 
-            return new Style(this.Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
+            return new Style(Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
         }
 
         private static int GetFontId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font font)
