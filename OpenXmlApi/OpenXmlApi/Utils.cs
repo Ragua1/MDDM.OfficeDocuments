@@ -28,7 +28,7 @@ namespace OpenXmlApi
 
         private static bool CompareXml(XElement elm1, XElement elm2)
         {
-            return XElement.DeepEquals(
+            return XNode.DeepEquals(
                 Normalize(elm1),
                 Normalize(elm2)
             );
@@ -40,7 +40,7 @@ namespace OpenXmlApi
             {
                 return new XElement(element.Name, element.Attributes().Where(a => a.Name.Namespace == XNamespace.Xmlns)
                     .OrderBy(a => a.Name.ToString()), element.Elements().OrderBy(a => a.Name.ToString())
-                    .Select(e => Normalize(e)));
+                    .Select(Normalize));
             }
 
             if (element.IsEmpty || string.IsNullOrEmpty(element.Value))

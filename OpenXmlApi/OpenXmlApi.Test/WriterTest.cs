@@ -9,15 +9,18 @@ using Color = System.Drawing.Color;
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class WriterTest
+    public class WriterTest : ExcelBaseTest
     {
+       
+
+
         [TestMethod]
         public void CreateNewFile()
         {
             var filePath = GetFilepath("doc1.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 ;
             }
@@ -31,7 +34,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc2.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 var style = writer.CreateStyle();
 
@@ -50,7 +53,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc3.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 var style = writer.CreateStyle(
                     new Font { FontSize = 12, Color = Color.Aqua, FontName = FontNameValues.Tahoma },
@@ -75,7 +78,7 @@ namespace OpenXmlApi.Test
 
             try
             {
-                using (var writer = Spreadsheet.Create(filePath))
+                using (var writer = CreateTestee(filePath))
                 {
                     Assert.Fail();
                 }
@@ -94,7 +97,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc5.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 var sheetName = "Test1";
                 var sheet1 = writer.AddWorksheet(sheetName);
@@ -112,12 +115,12 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc6.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 writer.AddWorksheet("Test1");
             }
 
-            using (var writer = Spreadsheet.Open(filePath))
+            using (var writer = CreateOpenTestee(filePath))
             {
                 Assert.IsTrue(writer.Worksheets.Any());
             }
@@ -129,12 +132,12 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc7.xlsx");
             DeleteFile(filePath);
 
-            using (var writer = Spreadsheet.Create(filePath))
+            using (var writer = CreateTestee(filePath))
             {
                 writer.AddWorksheet("Test1");
             }
 
-            using (var writer = Spreadsheet.Open(filePath))
+            using (var writer = CreateOpenTestee(filePath))
             {
                 Assert.IsTrue(writer.Worksheets.Any());
                 Assert.IsNull(writer.GetWorksheet("Test"));
@@ -146,7 +149,7 @@ namespace OpenXmlApi.Test
         {
             var stream = new MemoryStream();
 
-            using (var writer = Spreadsheet.Create(stream))
+            using (var writer = CreateTestee(stream))
             {
                 writer.AddWorksheet("Test1");
             }
@@ -157,12 +160,12 @@ namespace OpenXmlApi.Test
         {
             var stream = new MemoryStream();
 
-            using (var writer = Spreadsheet.Create(stream))
+            using (var writer = CreateTestee(stream))
             {
                 writer.AddWorksheet("Test1");
             }
 
-            using (var writer = Spreadsheet.Open(stream))
+            using (var writer = CreateOpenTestee(stream))
             {
                 Assert.IsTrue(writer.Worksheets.Any());
             }

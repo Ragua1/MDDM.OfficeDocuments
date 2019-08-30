@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenXmlApi.Interfaces;
-using OpenXmlApi.Styles;
 using Color = System.Drawing.Color;
+using Font = OpenXmlApi.Styles.Font;
+using NumberingFormat = OpenXmlApi.Styles.NumberingFormat;
 
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class CellTest
+    public class CellTest : ExcelBaseTest
     {
         [TestMethod]
         public void CreateCell()
         {
             var filePath = GetFilepath("doc1.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell();
                 Assert.IsNotNull(cell, "New cell cannot be null");
-                Assert.IsNotNull(cell.Element, "Cells element cannot be null");
+                Assert.IsNotNull(((IOpenXmlWrapper<Cell>)cell).Element, "Cells element cannot be null");
                 Assert.IsInstanceOfType(cell, typeof(ICell), "Expected ICell type.");
 
                 Assert.IsTrue(sheet.CurrentRow.Cells.Contains(cell));
@@ -32,7 +34,7 @@ namespace OpenXmlApi.Test
         public void CreateCellWithValue()
         {
             var filePath = GetFilepath("doc2.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Aloha";
@@ -45,7 +47,7 @@ namespace OpenXmlApi.Test
         public void SetString()
         {
             var filePath = GetFilepath("doc3.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Aloha";
@@ -64,7 +66,7 @@ namespace OpenXmlApi.Test
         public void SetInteger()
         {
             var filePath = GetFilepath("doc4.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = 165752313;
@@ -91,7 +93,7 @@ namespace OpenXmlApi.Test
         public void SetIntegerWithStyle()
         {
             var filePath = GetFilepath("doc5.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(numberFormat: new NumberingFormat("#,##0x"));
@@ -120,7 +122,7 @@ namespace OpenXmlApi.Test
         public void SetDouble()
         {
             var filePath = GetFilepath("doc6.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = 165752313.216546;
@@ -145,7 +147,7 @@ namespace OpenXmlApi.Test
         public void SetDoubleWithStyle()
         {
             var filePath = GetFilepath("doc7.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(numberFormat: new NumberingFormat("#,##0.##x"));
@@ -174,7 +176,7 @@ namespace OpenXmlApi.Test
         public void SetLong()
         {
             var filePath = GetFilepath("doc100.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = 165752313216546;
@@ -199,7 +201,7 @@ namespace OpenXmlApi.Test
         public void SetLongWithStyle()
         {
             var filePath = GetFilepath("doc101.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(numberFormat: new NumberingFormat("#,##0x"));
@@ -228,7 +230,7 @@ namespace OpenXmlApi.Test
         public void SetDecimal()
         {
             var filePath = GetFilepath("doc102.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = 165752313216546.6516511m;
@@ -253,7 +255,7 @@ namespace OpenXmlApi.Test
         public void SetDecimalWithStyle()
         {
             var filePath = GetFilepath("doc103.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(numberFormat: new NumberingFormat("#,##0.##0x"));
@@ -284,7 +286,7 @@ namespace OpenXmlApi.Test
         public void SetDate()
         {
             var filePath = GetFilepath("doc8.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = DateTime.Now;
@@ -309,7 +311,7 @@ namespace OpenXmlApi.Test
         public void SetDateWithStyle()
         {
             var filePath = GetFilepath("doc9.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(numberFormat: new NumberingFormat("d/m/yyyy H:mm:ss"));
@@ -341,7 +343,7 @@ namespace OpenXmlApi.Test
         public void SetBoolean()
         {
             var filePath = GetFilepath("doc10.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = true;
@@ -358,7 +360,7 @@ namespace OpenXmlApi.Test
         public void SetFormula()
         {
             var filePath = GetFilepath("doc11.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var formula = "Sum(A1:A5)";
@@ -372,7 +374,7 @@ namespace OpenXmlApi.Test
         public void CellInheritStyleFromRow()
         {
             var filePath = GetFilepath("doc12.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(new Font { Color = Color.DarkGoldenrod });
@@ -390,7 +392,7 @@ namespace OpenXmlApi.Test
         public void CellInheritStyleFromSheet()
         {
             var filePath = GetFilepath("doc13.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(new Font { Color = Color.DarkGoldenrod });
                 var sheet = w.AddWorksheet("Sheet 1", s);
@@ -407,7 +409,7 @@ namespace OpenXmlApi.Test
         public void CellHasCorrectIndexes1()
         {
             var filePath = GetFilepath("doc14.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell(5, 3);
@@ -422,7 +424,7 @@ namespace OpenXmlApi.Test
         public void CellHasCorrectIndexes2()
         {
             var filePath = GetFilepath("doc15.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow(3);
@@ -442,7 +444,7 @@ namespace OpenXmlApi.Test
         public void CellHasCorrectIndexes3()
         {
             var filePath = GetFilepath("doc16.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell(5, 3);
@@ -452,7 +454,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual("E3", cell.CellReference);
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
                 var row = sheet.GetRow(3);
@@ -474,7 +476,7 @@ namespace OpenXmlApi.Test
         public void CellSetAndGetBoolValue()
         {
             var filePath = GetFilepath("doc17.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -483,7 +485,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(true, cell.GetBoolValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -501,7 +503,7 @@ namespace OpenXmlApi.Test
         public void CellSetAndGetIntValue()
         {
             var filePath = GetFilepath("doc18.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -510,7 +512,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(int.MaxValue, cell.GetIntValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -528,7 +530,7 @@ namespace OpenXmlApi.Test
         public void CellSetAndGetLongValue()
         {
             var filePath = GetFilepath("doc19.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -537,7 +539,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(long.MaxValue, cell.GetLongValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -556,7 +558,7 @@ namespace OpenXmlApi.Test
         {
             var filePath = GetFilepath("doc19.xlsx");
             var value = 16831231.1564d;
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -565,7 +567,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(value, cell.GetDoubleValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -583,7 +585,7 @@ namespace OpenXmlApi.Test
         public void CellSetAndGetDecimalValue()
         {
             var filePath = GetFilepath("doc20.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -592,7 +594,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(decimal.MaxValue, cell.GetDecimalValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -611,7 +613,7 @@ namespace OpenXmlApi.Test
         {
             var filePath = GetFilepath("doc21.xlsx");
             var value = "Alohomora";
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -620,7 +622,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(value, cell.GetStringValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -636,7 +638,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc22.xlsx");
             var value = DateTime.Now;
             var format = "dd.MM.yyyy hh:mm:ss";
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -645,7 +647,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(value.ToString(format), cell.GetDateValue().ToString(format));
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -664,7 +666,7 @@ namespace OpenXmlApi.Test
         {
             var filePath = GetFilepath("doc23.xlsx");
             var value = "Aika";
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCell(5, 3);
@@ -673,7 +675,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(value, cell.GetStringValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -689,7 +691,7 @@ namespace OpenXmlApi.Test
         {
             var filePath = GetFilepath("doc24.xlsx");
             var formula = "SUM(C1:C4)";
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var row = sheet.AddRow(3);
@@ -702,7 +704,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(formula, cell.GetFormula());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -718,7 +720,7 @@ namespace OpenXmlApi.Test
         {
             var filePath = GetFilepath("doc25.xlsx");
             var formula = "SUM(C1:C4)";
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var row = sheet.AddRow(3);
@@ -731,7 +733,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(formula, cell.GetFormula());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var sheet = w.Worksheets.First();
 
@@ -757,7 +759,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc26.xlsx");
             var format = "dd.MM.yyyy hh:mm:ss";
             var value = DateTime.Now.ToString(format);
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
                 var cell = sheet.AddCellWithValue(5, 3, value);
@@ -765,7 +767,7 @@ namespace OpenXmlApi.Test
                 Assert.AreEqual(value, cell.GetStringValue());
             }
 
-            using (var w = Spreadsheet.Open(filePath))
+            using (var w = CreateOpenTestee(filePath))
             {
                 var time = DateTime.Parse(value);
                 var sheet = w.Worksheets.First();

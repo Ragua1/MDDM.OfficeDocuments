@@ -1,16 +1,17 @@
 ﻿using System;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OpenXmlApi.Interfaces
 {
     /// <summary>
     /// Interface of cell
     /// </summary>
-    public interface ICell : IBase
+    public interface ICell : IBase, IOpenXmlWrapper<Cell>
     {
-        /// <summary>
-        /// Instance of cell element
-        /// </summary>
-        DocumentFormat.OpenXml.Spreadsheet.Cell Element { get; }
+        ///// <summary>
+        ///// Instance of cell element
+        ///// </summary>
+        //DocumentFormat.OpenXml.Spreadsheet.Cell Element { get; }
         /// <summary>
         /// Excel reference of cell
         /// </summary>
@@ -36,31 +37,13 @@ namespace OpenXmlApi.Interfaces
         /// </summary>
         /// <param name="value">Cell value</param>
         void SetValue(bool value);
-        /// <summary>
-        /// Set cell integer value
-        /// </summary>
-        /// <param name="value">Cell value</param>
-        void SetValue(int value);
-        /// <summary>
-        /// Set cell long value
-        /// </summary>
-        /// <param name="value">Cell value</param>
-        void SetValue(long value);
-        /// <summary>
-        /// Set cell double value
-        /// </summary>
-        /// <param name="value">Cell value</param>
-        void SetValue(double value);
-        /// <summary>
-        /// Set cell decimal value
-        /// </summary>
-        /// <param name="value">Cell value</param>
-        void SetValue(decimal value);
+
         /// <summary>
         /// Set cell date value
         /// </summary>
         /// <param name="value">Cell value</param>
         void SetValue(DateTime value);
+
         /// <summary>
         /// Set cell string value
         /// </summary>

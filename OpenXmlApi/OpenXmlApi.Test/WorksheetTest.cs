@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class WorksheetTest
+    public class WorksheetTest : ExcelBaseTest
     {
         [TestMethod]
         public void CreateCellOnWrongColumnIndex()
@@ -16,7 +16,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc1.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     sheet.AddCell(0);
@@ -34,7 +34,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc2.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     sheet.AddCell(5, 0);
@@ -50,7 +50,7 @@ namespace OpenXmlApi.Test
         public void CreateCellOnSpecificColumnIndex()
         {
             var filePath = GetFilepath("doc3.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell(5);
@@ -64,7 +64,7 @@ namespace OpenXmlApi.Test
         public void CreateCellOnSpecificRowIndexAndColumnIndex()
         {
             var filePath = GetFilepath("doc4.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell(5, 4);
@@ -78,7 +78,7 @@ namespace OpenXmlApi.Test
         public void CreateCellWithStyle()
         {
             var filePath = GetFilepath("doc5.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(new Font { Color = Color.Blue }, new Fill(Color.BurlyWood), new Border(BorderStyleValues.Hair), new NumberingFormat("0"));

@@ -6,13 +6,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class StyleTest
+    public class StyleTest : ExcelBaseTest
     {
         [TestMethod]
         public void BasicStyle()
         {
             var filePath = GetFilepath("doc1.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle();
 
@@ -29,7 +29,7 @@ namespace OpenXmlApi.Test
         public void SpecificFontStyle()
         {
             var filePath = GetFilepath("doc2.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     new Font { FontSize = 15, Color = Color.Blue, FontName = FontNameValues.Tahoma, Bold = true, Italic = true, Underline = UnderlineValues.Double }
@@ -48,7 +48,7 @@ namespace OpenXmlApi.Test
         public void SpecificFillStyle()
         {
             var filePath = GetFilepath("doc3.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     fill: new Fill(Color.Blue, Color.White)
@@ -67,7 +67,7 @@ namespace OpenXmlApi.Test
         public void SpecificBorderStyle()
         {
             var filePath = GetFilepath("doc4.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var b = new Border
                 {
@@ -94,7 +94,7 @@ namespace OpenXmlApi.Test
         public void SpecificBorderStyle1()
         {
             var filePath = GetFilepath("doc5.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     border: new Border(BorderStyleValues.Medium)
@@ -113,7 +113,7 @@ namespace OpenXmlApi.Test
         public void SpecificNumberFormatStyle()
         {
             var filePath = GetFilepath("doc6.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     numberFormat: new NumberingFormat("@")
@@ -132,7 +132,7 @@ namespace OpenXmlApi.Test
         public void SpecificAlignmentStyle()
         {
             var filePath = GetFilepath("doc7.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     alignment: new Alignment
@@ -159,7 +159,7 @@ namespace OpenXmlApi.Test
         public void MergeStyles()
         {
             var filePath = GetFilepath("doc8.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s1 = w.CreateStyle(
                     font: new Font { FontSize = 15, Color = Color.Brown, FontName = FontNameValues.Calibri },
@@ -185,7 +185,7 @@ namespace OpenXmlApi.Test
         public void MergeStylesToKnownStyle()
         {
             var filePath = GetFilepath("doc9.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s_old = w.CreateStyle(
                     font: new Font { FontSize = 20, Color = Color.Brown, FontName = FontNameValues.Tahoma },
@@ -219,7 +219,7 @@ namespace OpenXmlApi.Test
         public void MergeStylesWithNull()
         {
             var filePath = GetFilepath("doc10.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s_old = w.CreateStyle(
                     font: new Font { FontSize = 20, Color = Color.Brown, FontName = FontNameValues.Tahoma, Bold = true },

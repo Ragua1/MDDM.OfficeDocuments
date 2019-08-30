@@ -13,7 +13,7 @@ using Color = System.Drawing.Color;
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class CreationTest
+    public class CreationTest : ExcelBaseTest
     {
         public static readonly Random Rnd = new Random();
 
@@ -21,7 +21,7 @@ namespace OpenXmlApi.Test
         public void BasicFile()
         {
             var filePath = GetFilepath("doc1.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 ;
             }
@@ -31,7 +31,7 @@ namespace OpenXmlApi.Test
         public void CustomFile1()
         {
             var filePath = GetFilepath("doc2.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var s = w.CreateStyle(
                     new Font { FontSize = 10, Color = Color.Black, FontName = FontNameValues.Arial },
@@ -184,7 +184,7 @@ namespace OpenXmlApi.Test
 
             var headers = new List<string> { "p.è.", "Id místa", "Hodnota 1", "Hodnota 2" };
 
-            using (var w = Spreadsheet.Create(filepath))
+            using (var w = CreateTestee(filepath))
             {
                 var ws = w.AddWorksheet("MySheet - 1");
 
@@ -271,7 +271,7 @@ namespace OpenXmlApi.Test
         public void OpenAndAdjustCustomFile1()
         {
             var filepath = GetFilepath("doc4.xlsx");
-            using (var writer = Spreadsheet.Create(filepath))
+            using (var writer = CreateTestee(filepath))
             {
                 var s = writer.CreateStyle(
                     font: new Font { FontName = FontNameValues.Arial, FontSize = 20, Bold = true, Color = Color.DarkBlue, Underline = UnderlineValues.Double },
@@ -308,7 +308,7 @@ namespace OpenXmlApi.Test
                 }
             }
 
-            using (var writer = Spreadsheet.Open(filepath))
+            using (var writer = CreateOpenTestee(filepath))
             {
                 var sheet = writer.Worksheets.First();
 
@@ -335,7 +335,7 @@ namespace OpenXmlApi.Test
             {
                 fileStream.Write(Resources.Example_1, 0, Resources.Example_1.Length);
 
-                using (var writer = Spreadsheet.Open(fileStream))
+                using (var writer = CreateOpenTestee(fileStream))
                 {
                     var sheet = writer.Worksheets.First();
 
@@ -364,7 +364,7 @@ namespace OpenXmlApi.Test
             {
                 fileStream.Write(Resources.Example_1, 0, Resources.Example_1.Length);
 
-                using (var writer = Spreadsheet.Open(fileStream))
+                using (var writer = CreateOpenTestee(fileStream))
                 {
                     var sheet = writer.Worksheets.First();
 

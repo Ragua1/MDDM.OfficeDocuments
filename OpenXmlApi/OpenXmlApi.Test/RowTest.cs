@@ -7,13 +7,13 @@ using Color = System.Drawing.Color;
 namespace OpenXmlApi.Test
 {
     [TestClass]
-    public class RowTest
+    public class RowTest : ExcelBaseTest
     {
         [TestMethod]
         public void CreateRow()
         {
             var filePath = GetFilepath("doc1.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -31,7 +31,7 @@ namespace OpenXmlApi.Test
         public void CreateRowWithStyle()
         {
             var filePath = GetFilepath("doc2.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var s = w.CreateStyle(new Font { Color = Color.Coral }, new Fill(Color.Black));
@@ -45,7 +45,7 @@ namespace OpenXmlApi.Test
         public void CreateRowOnSpecificRowIndex()
         {
             var filePath = GetFilepath("doc3.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow(5);
@@ -60,7 +60,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc4.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     sheet.AddRow(0);
@@ -76,7 +76,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndAddCell()
         {
             var filePath = GetFilepath("doc5.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -92,7 +92,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndAddCellWithValue()
         {
             var filePath = GetFilepath("doc6.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Alea iacta est";
@@ -117,7 +117,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndAddCellWithFormula()
         {
             var filePath = GetFilepath("doc7.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Sum(A1:A2)";
@@ -141,7 +141,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc8.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     sheet.AddCellWithValue(0, 0);
@@ -159,7 +159,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc9.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     sheet.AddCellWithFormula(0, "0");
@@ -175,7 +175,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndCellOnRange()
         {
             var filePath = GetFilepath("doc10.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -193,7 +193,7 @@ namespace OpenXmlApi.Test
             var filePath = GetFilepath("doc11.xlsx");
             try
             {
-                using (var w = Spreadsheet.Create(filePath))
+                using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
                     var row = sheet.AddRow();
@@ -210,7 +210,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndCellOnWrongRange()
         {
             var filePath = GetFilepath("doc12.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -224,7 +224,7 @@ namespace OpenXmlApi.Test
         public void CreateRowAndCellOnBigRange()
         {
             var filePath = GetFilepath("doc13.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -238,7 +238,7 @@ namespace OpenXmlApi.Test
         public void GetCellByName()
         {
             var filePath = GetFilepath("doc14.xlsx");
-            using (var w = Spreadsheet.Create(filePath))
+            using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Alea iacta est";

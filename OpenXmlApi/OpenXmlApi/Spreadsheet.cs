@@ -17,131 +17,65 @@ namespace OpenXmlApi
     /// <summary>
     /// Class of Spreadsheet
     /// </summary>
-    public class Spreadsheet : IDisposable
+    public class Spreadsheet : IDisposable, ISpreadsheet
     {
         /// <summary>
         /// Collection of worksheet in document
         /// </summary>
         public readonly List<IWorksheet> Worksheets = new List<IWorksheet>();
         private readonly SpreadsheetDocument document;
-        internal WorkbookPart WorkbookPart => this.document.WorkbookPart;
-        private SpreadsheetLib.Sheets Sheets => this.document.WorkbookPart.Workbook.Sheets;
-        internal WorkbookStylesPart WorkbookStylesPart => this.WorkbookPart.WorkbookStylesPart;
+        public WorkbookPart WorkbookPart => document.WorkbookPart;
+        public SpreadsheetLib.Sheets Sheets => document.WorkbookPart.Workbook.Sheets;
+        public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart;
         private IStyle defaultStyle;
         private bool IsEditable = true;
 
-        internal SpreadsheetLib.Stylesheet Stylesheet => this.WorkbookStylesPart.Stylesheet ?? InitStylesheet();
+        public SpreadsheetLib.Stylesheet Stylesheet => WorkbookStylesPart.Stylesheet ?? InitStylesheet();
 
-        private Spreadsheet(SpreadsheetDocument document, bool createNew)
+        public Spreadsheet(Stream stream, bool open)
         {
             // Create a spreadsheet document
             // By default, AutoSave = true, Editable = true, and Type = xlsx.
-            this.document = document;
 
-            if (createNew)
+            document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+
+            if (open)
             {
-                this.document.AddWorkbookPart();
-                this.WorkbookPart.Workbook = new SpreadsheetLib.Workbook();
-
-                // Add Sheets to the Workbook.
-                this.WorkbookPart.Workbook.AppendChild(new SpreadsheetLib.Sheets());
-
-                // Add the WorkbookStylesPart.
-                this.WorkbookPart.AddNewPart<WorkbookStylesPart>();
-
-                //Init Stylesheet
-                InitStylesheet();
-            }
-            else
-            {
-                if (this.WorkbookPart?.Workbook == null)
+                if (WorkbookPart?.Workbook == null)
                 {
                     throw new XmlSchemaValidationException("The document is not valid!");
                 }
 
-                if (this.WorkbookPart.WorkbookStylesPart == null)
+                if (WorkbookPart.WorkbookStylesPart == null)
                 {
                     // Add the WorkbookStylesPart.
-                    this.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+                    WorkbookPart.AddNewPart<WorkbookStylesPart>();
 
                     //Init Stylesheet
                     InitStylesheet();
                 }
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
-        /// </summary>
-        /// <param name="filepath">The filepath of document</param>
-        /// <exception cref="DirectoryNotFoundException">Exception for not exist path of file</exception>
-        public static Spreadsheet Create(string filepath)
-        {
-            var document = SpreadsheetDocument.Create(Path.GetFullPath(filepath), SpreadsheetDocumentType.Workbook);
-
-            return new Spreadsheet(document, true);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <exception cref="DirectoryNotFoundException">Exception for not exist path of file</exception>
-        public static Spreadsheet Create(Stream stream)
-        {
-            var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-
-            return new Spreadsheet(document, true);
-        }
-
-        private static Spreadsheet Open(SpreadsheetDocument document, bool isEditable)
-        {
-            var writer = new Spreadsheet(document, false)
+            else
             {
-                IsEditable = isEditable
-            };
+                document.AddWorkbookPart();
+                WorkbookPart.Workbook = new SpreadsheetLib.Workbook();
 
-            foreach (var worksheetPart in writer.WorkbookPart.WorksheetParts)
-            {
-                var sheetData = worksheetPart.Worksheet.GetFirstChild<SpreadsheetLib.SheetData>();
+                // Add Sheets to the Workbook.
+                WorkbookPart.Workbook.AppendChild(new SpreadsheetLib.Sheets());
 
-                var worksheet = new Worksheet(writer, worksheetPart, sheetData);
-                writer.Worksheets.Add(worksheet);
+                // Add the WorkbookStylesPart.
+                WorkbookPart.AddNewPart<WorkbookStylesPart>();
+
+                //Init Stylesheet
+                InitStylesheet();
             }
-
-            return writer;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spreadsheet"/> class for existing file
-        /// </summary>
-        /// <param name="filepath">The filepath of document</param>
-        /// <returns>Instance of <see cref="Spreadsheet"/></returns>
-        public static Spreadsheet Open(string filepath)
-        {
-            return Open(SpreadsheetDocument.Open(Path.GetFullPath(filepath), true), true);
-        }
+        public Spreadsheet(string filePath, bool open) : this(File.OpenRead(filePath), open) { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spreadsheet"/> class for existing file
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="isEditable"></param>
-        /// <returns>Instance of <see cref="Spreadsheet"/></returns>
-        public static Spreadsheet Open(Stream stream, bool isEditable = true)
-        {
-            return Open(SpreadsheetDocument.Open(stream, isEditable), isEditable);
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Spreadsheet"/> class for existing file or create new file
-        /// </summary>
-        /// <param name="filepath">The filepath of document</param>
-        /// <returns>Instance of <see cref="Spreadsheet"/></returns>
-        public static Spreadsheet OpenOrCreate(string filepath)
-        {
-            return File.Exists(filepath) ? Open(filepath) : Create(filepath);
-        }
+
+       
 
         /// <summary>
         /// Create worksheet and apply 'style'
@@ -154,22 +88,22 @@ namespace OpenXmlApi
             var sheetData = new SpreadsheetLib.SheetData();
 
             // Add a blank WorksheetPart.
-            var worksheetPart = this.WorkbookPart.AddNewPart<WorksheetPart>();
+            var worksheetPart = WorkbookPart.AddNewPart<WorksheetPart>();
             worksheetPart.Worksheet = new SpreadsheetLib.Worksheet(sheetData);
 
-            string relationshipId = this.WorkbookPart.GetIdOfPart(worksheetPart);
+            var relationshipId = WorkbookPart.GetIdOfPart(worksheetPart);
 
             // Get a unique ID for the new worksheet.
-            uint sheetId = this.Sheets.Elements<SpreadsheetLib.Sheet>().Any()
-                ? this.Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.SheetId.Value).Max() + 1
+            var sheetId = Sheets.Elements<SpreadsheetLib.Sheet>().Any()
+                ? Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.SheetId.Value).Max() + 1
                 : 1;
 
             // Append the new worksheet and associate it with the workbook.
             var sheet = new SpreadsheetLib.Sheet { Id = relationshipId, SheetId = sheetId, Name = sheetName ?? $"Sheet {sheetId}" };
-            this.Sheets.Append(sheet);
+            Sheets.Append(sheet);
 
-            var worksheet = new Worksheet(this, worksheetPart, sheetData, this.defaultStyle?.CreateMergedStyle(sheetStyle));
-            this.Worksheets.Add(worksheet);
+            var worksheet = new Worksheet(this, worksheetPart, sheetData, defaultStyle?.CreateMergedStyle(sheetStyle));
+            Worksheets.Add(worksheet);
 
             return worksheet;
         }
@@ -185,7 +119,7 @@ namespace OpenXmlApi
         /// <returns>Created style</returns>
         public IStyle CreateStyle(Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
         {
-            return CreateStyle(this.Stylesheet, font, fill, border, numberFormat, alignment);
+            return CreateStyle(Stylesheet, font, fill, border, numberFormat, alignment);
         }
 
         /// <summary>
@@ -195,20 +129,20 @@ namespace OpenXmlApi
         /// <returns>Worksheet or null</returns>
         public IWorksheet GetWorksheet(string name)
         {
-            var sheet = this.Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == name);
+            var sheet = Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == name);
             if (sheet == null)
             {
                 return null;
             }
 
-            return this.Worksheets.FirstOrDefault(
-                w => this.WorkbookPart.GetIdOfPart(((Worksheet)w).WorksheetPart) == sheet.Id
+            return Worksheets.FirstOrDefault(
+                w => WorkbookPart.GetIdOfPart(((Worksheet)w).WorksheetPart) == sheet.Id
             );
         }
 
         public string[] GetWorksheetsName()
         {
-            return this.Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.Name.Value).ToArray();
+            return Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.Name.Value).ToArray();
         }
 
         /// <summary>
@@ -216,11 +150,11 @@ namespace OpenXmlApi
         /// </summary>
         public void Close()
         {
-            if (this.IsEditable)
+            if (IsEditable)
             {
-                this.WorkbookPart.Workbook.Save();
+                WorkbookPart.Workbook.Save();
             }
-            this.document.Close();
+            document.Close();
         }
         /// <summary>
         /// Close document resources
@@ -230,14 +164,14 @@ namespace OpenXmlApi
             Close();
         }
 
-        private IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
+        public IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
         {
-            return new Style(stylesheet ?? this.Stylesheet, font, fill, border, numberFormat, alignment);
+            return new Style(stylesheet ?? Stylesheet, font, fill, border, numberFormat, alignment);
         }
 
-        private SpreadsheetLib.Stylesheet InitStylesheet()
+        public SpreadsheetLib.Stylesheet InitStylesheet()
         {
-            var stylesheet = this.WorkbookStylesPart.Stylesheet = new SpreadsheetLib.Stylesheet();
+            var stylesheet = WorkbookStylesPart.Stylesheet = new SpreadsheetLib.Stylesheet();
 
             stylesheet.CellFormats = new SpreadsheetLib.CellFormats();
             stylesheet.Fills = new SpreadsheetLib.Fills(
@@ -245,14 +179,14 @@ namespace OpenXmlApi
                 new SpreadsheetLib.Fill { PatternFill = new SpreadsheetLib.PatternFill { PatternType = SpreadsheetLib.PatternValues.Gray125 } }
             );
 
-            this.defaultStyle = CreateStyle(
+            defaultStyle = CreateStyle(
                 stylesheet,
                 new Font { FontSize = 11, Color = Color.Black, FontName = FontNameValues.Calibri },
                 null,
                 new Border()
             );
 
-            stylesheet.CellStyleFormats = new SpreadsheetLib.CellStyleFormats(this.defaultStyle.Element.CloneNode(true));
+            stylesheet.CellStyleFormats = new SpreadsheetLib.CellStyleFormats(defaultStyle.Element.CloneNode(true));
 
             return stylesheet;
         }

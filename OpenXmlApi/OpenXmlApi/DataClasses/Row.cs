@@ -9,18 +9,18 @@ namespace OpenXmlApi.DataClasses
     {
         public DocumentFormat.OpenXml.Spreadsheet.Row Element { get; }
         public IList<ICell> Cells { get; } = new List<ICell>();
-        public ICell CurrentCell => this.Cells.FirstOrDefault(x => x.ColumnIndex == this.currentCellIndex);
+        public ICell CurrentCell => Cells.FirstOrDefault(x => x.ColumnIndex == currentCellIndex);
 
         public uint RowIndex { get; }
 
-        private uint NextCellIndex => this.currentCellIndex + 1;
+        private uint NextCellIndex => currentCellIndex + 1;
         private uint currentCellIndex = 0;
 
         internal Row(IWorksheet worksheet, uint rowIndex, IStyle cellStyle = null)
             : base(worksheet, cellStyle)
         {
-            this.RowIndex = rowIndex;
-            this.Element = new DocumentFormat.OpenXml.Spreadsheet.Row
+            RowIndex = rowIndex;
+            Element = new DocumentFormat.OpenXml.Spreadsheet.Row
             {
                 RowIndex = rowIndex
             };
@@ -28,24 +28,24 @@ namespace OpenXmlApi.DataClasses
         internal Row(IWorksheet worksheet, DocumentFormat.OpenXml.Spreadsheet.Row element)
             : base(worksheet, element.StyleIndex ?? 0)
         {
-            this.RowIndex = element.RowIndex;
-            this.Element = element;
+            RowIndex = element.RowIndex;
+            Element = element;
 
             foreach (var cellElement in element.Elements<DocumentFormat.OpenXml.Spreadsheet.Cell>())
             {
-                var cell = new Cell(this.Worksheet, cellElement);
-                this.Cells.Insert(0, cell);
+                var cell = new Cell(Worksheet, cellElement);
+                Cells.Insert(0, cell);
 
-                if (cell.ColumnIndex > this.currentCellIndex)
+                if (cell.ColumnIndex > currentCellIndex)
                 {
-                    this.currentCellIndex = cell.ColumnIndex;
+                    currentCellIndex = cell.ColumnIndex;
                 }
             }
         }
 
         public ICell AddCell(IStyle style = null)
         {
-            return AddCell(this.NextCellIndex, style);
+            return AddCell(NextCellIndex, style);
         }
 
         public ICell AddCell(uint columnIndex, IStyle style = null)
@@ -55,7 +55,7 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCellWithValue<T>(T value, IStyle style = null)
         {
-            return AddCellWithValue(this.NextCellIndex, value, style);
+            return AddCellWithValue(NextCellIndex, value, style);
         }
 
         public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
@@ -69,7 +69,7 @@ namespace OpenXmlApi.DataClasses
 
         public ICell AddCellWithFormula(string formula, IStyle style = null)
         {
-            return AddCellWithFormula(this.NextCellIndex, formula, style);
+            return AddCellWithFormula(NextCellIndex, formula, style);
         }
 
         public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null)
@@ -104,7 +104,7 @@ namespace OpenXmlApi.DataClasses
 
             // Create the merged cell and append it to the MergeCells collection.
             var mergeCell = new DocumentFormat.OpenXml.Spreadsheet.MergeCell { Reference = $"{fromCell}:{toCell}" };
-            this.Worksheet.MergeCells.Append(mergeCell);
+            Worksheet.MergeCells.Append(mergeCell);
 
             return mergedCell;
         }
@@ -115,7 +115,7 @@ namespace OpenXmlApi.DataClasses
             {
                 throw new ArgumentException($"Invalid argument column index '{columnIndex}'");
             }
-            return this.Cells?.FirstOrDefault(c => c.ColumnIndex == columnIndex);
+            return Cells?.FirstOrDefault(c => c.ColumnIndex == columnIndex);
         }
 
         public ICell GetCell(string columnName)
@@ -136,7 +136,7 @@ namespace OpenXmlApi.DataClasses
                 columnIndex += (uint)(i * ('Z' - 'A') + (ch - 'A' + 1));
             }
 
-            return this.GetCell(columnIndex);
+            return GetCell(columnIndex);
         }
 
         private ICell GetOrCreateCell(uint columnIndex, IStyle style)
@@ -156,7 +156,7 @@ namespace OpenXmlApi.DataClasses
 
             }*/
 
-            style = this.Style?.CreateMergedStyle(style) ?? style;
+            style = Style?.CreateMergedStyle(style) ?? style;
 
             cell.AddStyle(style);
 
@@ -171,10 +171,10 @@ namespace OpenXmlApi.DataClasses
             {
                 if (GetCell(i) == null) // add too missing previous cells in same row
                 {
-                    cell = new Cell(this.Worksheet, i, this.RowIndex);
+                    cell = new Cell(Worksheet, i, RowIndex);
 
-                    this.Cells.Add(cell);
-                    this.Element.Append(cell.Element);
+                    Cells.Add(cell);
+                    Element.Append(cell.Element);
                 }
             }
             /*
@@ -183,9 +183,9 @@ namespace OpenXmlApi.DataClasses
             this.Cells.Insert(0, cell);
             this.Element.Append(cell.Element);
             */
-            if (columnIndex > this.currentCellIndex)
+            if (columnIndex > currentCellIndex)
             {
-                this.currentCellIndex = columnIndex;
+                currentCellIndex = columnIndex;
             }
 
             return cell;
