@@ -5,7 +5,7 @@ using DocumentFormat.OpenXml.Packaging;
 using OpenXmlApi.Interfaces;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OpenXmlApi
+namespace OpenXmlApi.DataClasses
 {
     internal class Worksheet : Base, IWorksheet
     {

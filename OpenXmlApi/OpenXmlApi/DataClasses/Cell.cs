@@ -5,7 +5,7 @@ using OpenXmlApi.Interfaces;
 using OpenXmlApi.Styles;
 using OpenXmlSs = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OpenXmlApi
+namespace OpenXmlApi.DataClasses
 {
     internal class Cell : Base, ICell
     {

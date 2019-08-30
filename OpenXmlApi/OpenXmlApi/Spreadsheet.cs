@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Schema;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using OpenXmlApi.DataClasses;
 using OpenXmlApi.Emums;
 using OpenXmlApi.Interfaces;
 using OpenXmlApi.Styles;

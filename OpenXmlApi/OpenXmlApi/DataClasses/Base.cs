@@ -2,7 +2,7 @@
 using OpenXmlApi.Interfaces;
 using OpenXmlApi.Styles;
 
-namespace OpenXmlApi
+namespace OpenXmlApi.DataClasses
 {
     internal abstract class Base : IBase
     {

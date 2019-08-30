@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenXmlApi", "OpenXmlApi\OpenXmlApi.csproj", "{641DE469-222F-4C98-A2DC-8EDD46C2A02E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenXmlApi.Test", "OpenXmlApi.Test\OpenXmlApi.Test.csproj", "{D524179D-438E-46A5-8414-D99FD9AD72EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenXmlApi.Test", "OpenXmlApi.Test\OpenXmlApi.Test.csproj", "{D524179D-438E-46A5-8414-D99FD9AD72EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

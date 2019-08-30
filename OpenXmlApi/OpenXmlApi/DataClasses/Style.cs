@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using OpenXmlApi.Interfaces;
+using OpenXmlApi.Styles;
 
-namespace OpenXmlApi.Styles
+namespace OpenXmlApi.DataClasses
 {
     internal class Style : IStyle
     {
