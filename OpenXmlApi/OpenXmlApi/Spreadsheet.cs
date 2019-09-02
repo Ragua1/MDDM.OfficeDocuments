@@ -65,6 +65,14 @@ namespace OpenXmlApi
                     //Init Stylesheet
                     InitStylesheet();
                 }
+
+                foreach (var worksheetPart in WorkbookPart.WorksheetParts)
+                {
+                    var sheetData = worksheetPart.Worksheet.GetFirstChild<SpreadsheetLib.SheetData>();
+
+                    var worksheet = new Worksheet(this, worksheetPart, sheetData);
+                    Worksheets.Add(worksheet);
+                }
             }
         }
 
