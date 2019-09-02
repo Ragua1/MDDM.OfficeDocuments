@@ -18,7 +18,7 @@ namespace OpenXmlApi.Styles
         /// <param name="fill">Spreadsheet fill.</param>
         public Fill(DocumentFormat.OpenXml.Spreadsheet.Fill fill = null)
         {
-            this.Element = fill ?? new DocumentFormat.OpenXml.Spreadsheet.Fill
+            Element = fill ?? new DocumentFormat.OpenXml.Spreadsheet.Fill
             {
                 PatternFill = new DocumentFormat.OpenXml.Spreadsheet.PatternFill()
             };
@@ -38,7 +38,7 @@ namespace OpenXmlApi.Styles
         /// <param name="pattern">The pattern.</param>
         public Fill(string foregroundColor, DocumentFormat.OpenXml.Spreadsheet.PatternValues pattern = DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid)
         {
-            this.Element = new DocumentFormat.OpenXml.Spreadsheet.Fill
+            Element = new DocumentFormat.OpenXml.Spreadsheet.Fill
             {
                 PatternFill = new DocumentFormat.OpenXml.Spreadsheet.PatternFill
                 {
@@ -55,7 +55,7 @@ namespace OpenXmlApi.Styles
         /// <param name="pattern">The pattern.</param>
         public Fill(Color backgroundColor, Color foregroundColor, DocumentFormat.OpenXml.Spreadsheet.PatternValues pattern = DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid)
         {
-            this.Element = new DocumentFormat.OpenXml.Spreadsheet.Fill
+            Element = new DocumentFormat.OpenXml.Spreadsheet.Fill
             {
                 PatternFill = new DocumentFormat.OpenXml.Spreadsheet.PatternFill
                 {
@@ -72,7 +72,7 @@ namespace OpenXmlApi.Styles
         /// <param name="fill">Spreadsheet fill for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
         {
-            return Utils.CompareXml(fill.OuterXml, this.Element.OuterXml);
+            return Utils.CompareXml(fill.OuterXml, Element.OuterXml);
         }
     }
 }

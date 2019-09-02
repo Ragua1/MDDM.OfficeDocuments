@@ -32,14 +32,25 @@ namespace OpenXmlApi
 
         public SpreadsheetLib.Stylesheet Stylesheet => WorkbookStylesPart.Stylesheet ?? InitStylesheet();
 
-        public Spreadsheet(Stream stream, bool open)
+        protected internal Spreadsheet(SpreadsheetDocument document, bool createNew)
         {
-            // Create a spreadsheet document
-            // By default, AutoSave = true, Editable = true, and Type = xlsx.
+            this.document = document;
 
-            document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
+            if (createNew)
+            {
+                document.AddWorkbookPart();
+                WorkbookPart.Workbook = new SpreadsheetLib.Workbook();
 
-            if (open)
+                // Add Sheets to the Workbook.
+                WorkbookPart.Workbook.AppendChild(new SpreadsheetLib.Sheets());
+
+                // Add the WorkbookStylesPart.
+                WorkbookPart.AddNewPart<WorkbookStylesPart>();
+
+                //Init Stylesheet
+                InitStylesheet();
+            }
+            else
             {
                 if (WorkbookPart?.Workbook == null)
                 {
@@ -54,28 +65,36 @@ namespace OpenXmlApi
                     //Init Stylesheet
                     InitStylesheet();
                 }
-            }
-            else
-            {
-                document.AddWorkbookPart();
-                WorkbookPart.Workbook = new SpreadsheetLib.Workbook();
 
-                // Add Sheets to the Workbook.
-                WorkbookPart.Workbook.AppendChild(new SpreadsheetLib.Sheets());
+                foreach (var worksheetPart in WorkbookPart.WorksheetParts)
+                {
+                    var sheetData = worksheetPart.Worksheet.GetFirstChild<SpreadsheetLib.SheetData>();
 
-                // Add the WorkbookStylesPart.
-                WorkbookPart.AddNewPart<WorkbookStylesPart>();
-
-                //Init Stylesheet
-                InitStylesheet();
+                    var worksheet = new Worksheet(this, worksheetPart, sheetData);
+                    Worksheets.Add(worksheet);
+                }
             }
         }
 
-        public Spreadsheet(string filePath, bool open) : this(File.OpenRead(filePath), open) { }
+        public Spreadsheet(Stream stream, bool createNew) :
+            this(createNew
+                ? SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook)
+                : SpreadsheetDocument.Open(stream, true),
+                createNew)
+        {
+            // Create a spreadsheet document
+            // By default, AutoSave = true, Editable = true, and Type = xlsx.
 
+            //document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
 
+           
+        }
 
-       
+        public Spreadsheet(string filePath, bool createNew) : 
+            this(createNew
+                ? SpreadsheetDocument.Create(Path.GetFullPath(filePath), SpreadsheetDocumentType.Workbook)
+                : SpreadsheetDocument.Open(Path.GetFullPath(filePath), true),
+                createNew) { }
 
         /// <summary>
         /// Create worksheet and apply 'style'
@@ -161,7 +180,10 @@ namespace OpenXmlApi
         /// </summary>
         public void Dispose()
         {
-            Close();
+            using (document)
+            {
+                Close();
+            }
         }
 
         public IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)

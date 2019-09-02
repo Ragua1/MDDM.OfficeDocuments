@@ -11,17 +11,17 @@ namespace OpenXmlApi.DataClasses
 
         protected Base(IWorksheet worksheet, IStyle cellStyle = null)
         {
-            this.Worksheet = worksheet;
+            Worksheet = worksheet;
             AddStyle(cellStyle);
         }
         protected Base(IWorksheet worksheet, uint cellStyle)
         {
-            this.Worksheet = worksheet;
+            Worksheet = worksheet;
 
             if (cellStyle > 0)
             {
-                this.Style = new Style(this.Worksheet.Spreadsheet.Stylesheet, cellStyle);
-                AddStyle(this.Style);
+                Style = new Style(Worksheet.Spreadsheet.Stylesheet, cellStyle);
+                AddStyle(Style);
             }
         }
 
@@ -34,10 +34,10 @@ namespace OpenXmlApi.DataClasses
         {
             foreach (var style in styles.Where(s => s != null))
             {
-                this.Style = this.Style?.CreateMergedStyle(style) ?? style;
+                Style = Style?.CreateMergedStyle(style) ?? style;
             }
 
-            return this.Style;
+            return Style;
         }
     }
 }
