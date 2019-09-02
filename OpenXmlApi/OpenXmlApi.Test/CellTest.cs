@@ -22,7 +22,7 @@ namespace OpenXmlApi.Test
                 var sheet = w.AddWorksheet("Sheet 1");
                 var cell = sheet.AddCell();
                 Assert.IsNotNull(cell, "New cell cannot be null");
-                Assert.IsNotNull(((IOpenXmlWrapper<Cell>)cell).Element, "Cells element cannot be null");
+                Assert.IsNotNull(cell.Element, "Cells element cannot be null");
                 Assert.IsInstanceOfType(cell, typeof(ICell), "Expected ICell type.");
 
                 Assert.IsTrue(sheet.CurrentRow.Cells.Contains(cell));
@@ -37,7 +37,7 @@ namespace OpenXmlApi.Test
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
-                var value = "Aloha";
+                const string value = "Aloha";
                 var cell = sheet.AddCellWithValue(value);
                 Assert.AreEqual(cell.Value, value);
             }
@@ -400,7 +400,7 @@ namespace OpenXmlApi.Test
 
                 Assert.AreEqual(
                     sheet.Style.StyleIndex, cell.Style.StyleIndex,
-                    $"Cell not inherit style. Sheet style '{sheet.Style.StyleIndex}', cell stylw {cell.Style.StyleIndex}"
+                    $"Cell not inherit style. Sheet style '{sheet.Style.StyleIndex}', cell style {cell.Style.StyleIndex}"
                 );
             }
         }
@@ -456,7 +456,9 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
+
                 var row = sheet.GetRow(3);
                 Assert.IsNotNull(row);
 
@@ -487,7 +489,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -514,7 +517,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -541,7 +545,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -569,7 +574,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -596,7 +602,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -624,7 +631,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -649,7 +657,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -677,7 +686,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -706,7 +716,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -735,7 +746,8 @@ namespace OpenXmlApi.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);
@@ -770,7 +782,8 @@ namespace OpenXmlApi.Test
             using (var w = CreateOpenTestee(filePath))
             {
                 var time = DateTime.Parse(value);
-                var sheet = w.Worksheets.First();
+                var sheet = w.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
                 Assert.IsNotNull(cell);

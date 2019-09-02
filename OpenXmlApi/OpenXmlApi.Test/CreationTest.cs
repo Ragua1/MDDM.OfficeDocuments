@@ -310,9 +310,11 @@ namespace OpenXmlApi.Test
 
             using (var writer = CreateOpenTestee(filepath))
             {
-                var sheet = writer.Worksheets.First();
+                var sheet = writer.Worksheets.FirstOrDefault();
+                Assert.IsNotNull(sheet);
 
-                var row = sheet.Rows.Last();
+                var row = sheet.Rows.LastOrDefault();
+                Assert.IsNotNull(row);
 
                 for (var i = 0; i < 1000; i++)
                 {
@@ -337,7 +339,8 @@ namespace OpenXmlApi.Test
 
                 using (var writer = CreateOpenTestee(fileStream))
                 {
-                    var sheet = writer.Worksheets.First();
+                    var sheet = writer.Worksheets.FirstOrDefault();
+                    Assert.IsNotNull(sheet);
 
                     for (var i = 0; i < 100; i++)
                     {
@@ -366,7 +369,8 @@ namespace OpenXmlApi.Test
 
                 using (var writer = CreateOpenTestee(fileStream))
                 {
-                    var sheet = writer.Worksheets.First();
+                    var sheet = writer.Worksheets.FirstOrDefault();
+                    Assert.IsNotNull(sheet);
 
                     for (var i = 0; i < 10; i++)
                     {
