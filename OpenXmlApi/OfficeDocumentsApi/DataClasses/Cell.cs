@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using OfficeDocumentsApi.Interfaces;
 using OfficeDocumentsApi.Styles;
-using OpenXmlSs = DocumentFormat.OpenXml.Spreadsheet;
+using OpenXml = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocumentsApi.DataClasses
 {
@@ -11,7 +11,7 @@ namespace OfficeDocumentsApi.DataClasses
     {
         private delegate T ParseDelegate<T>(string s, IFormatProvider provider);
 
-        public OpenXmlSs.Cell Element { get; }
+        public OpenXml.Cell Element { get; }
 
         public string CellReference { get; }
         public uint RowIndex => rowIndex > 0
@@ -42,7 +42,7 @@ namespace OfficeDocumentsApi.DataClasses
         {
             CellReference = cellReference;
 
-            Element = new OpenXmlSs.Cell
+            Element = new OpenXml.Cell
             {
                 CellReference = cellReference
             };
@@ -52,7 +52,7 @@ namespace OfficeDocumentsApi.DataClasses
                 Element.StyleIndex = Convert.ToUInt32(Style.StyleIndex);
             }
         }
-        internal Cell(IWorksheet worksheet, OpenXmlSs.Cell element)
+        internal Cell(IWorksheet worksheet, OpenXml.Cell element)
             : base(worksheet, element.StyleIndex ?? 0)
         {
             CellReference = element.CellReference;
@@ -83,10 +83,12 @@ namespace OfficeDocumentsApi.DataClasses
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:
                 case TypeCode.Int64:
+                    SetNumberValue(value, 1); // value 1 as number format "0"
+                    break;
                 case TypeCode.Decimal:
                 case TypeCode.Double:
                 case TypeCode.Single:
-                    SetNumberValue(value);
+                    SetNumberValue(value, 4); // value 4 as number format "#,##0.00"
                     break;
 
                 case TypeCode.DateTime:
@@ -101,71 +103,20 @@ namespace OfficeDocumentsApi.DataClasses
         }
         public void SetValue(bool value)
         {
-            SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Boolean);
+            SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Boolean);
         }
-        //public void SetValue(int value)
-        //{
-        //    if (Style == null || Style.NumberFormatId == 0)
-        //    {
-        //        var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 1); // "0"
-        //        AddStyle(s);
-        //    }
-
-        //    SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
-        //}
-        //public void SetValue(long value)
-        //{
-        //    if (Style == null || Style.NumberFormatId == 0)
-        //    {
-        //        var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 1); // "0"
-        //        AddStyle(s);
-        //    }
-
-        //    SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
-        //}
-
-        private void SetNumberValue<TNumber>(TNumber value) where  TNumber : class
+        
+        private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where  TNumber : class
         {
             if (Style == null || Style.NumberFormatId == 0)
             {
-                var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 1); // "0"
+                var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, numberFormatId: numberFormatId); // "0"
                 AddStyle(s);
             }
 
-            SetCellValue(((IConvertible)value).ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
+            SetCellValue(((IConvertible)value).ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Number);
         }
 
-        //public void SetValue(uint value)
-        //{
-        //    if (Style == null || Style.NumberFormatId == 0)
-        //    {
-        //        var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 1); // "0"
-        //        AddStyle(s);
-        //    }
-
-        //    SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
-        //}
-
-        //public void SetValue(double value)
-        //{
-        //    if (Style == null || Style.NumberFormatId == 0)
-        //    {
-        //        var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 4); // "#,##0.00"
-        //        AddStyle(s);
-        //    }
-
-        //    SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
-        //}
-        //public void SetValue(decimal value)
-        //{
-        //    if (Style == null || Style.NumberFormatId == 0)
-        //    {
-        //        var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 4); // "#,##0.00"
-        //        AddStyle(s);
-        //    }
-
-        //    SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXmlSs.CellValues.Number);
-        //}
         public void SetValue(DateTime value)
         {
             if (Style == null || Style.NumberFormatId == 0)
@@ -190,7 +141,7 @@ namespace OfficeDocumentsApi.DataClasses
                 AddStyle(s);
             }
 
-            SetCellValue(value, OpenXmlSs.CellValues.String);
+            SetCellValue(value, OpenXml.CellValues.String);
         }
 
         public void SetFormula(string formula)
@@ -199,7 +150,7 @@ namespace OfficeDocumentsApi.DataClasses
             {
                 return;
             }
-            Element.CellFormula = new OpenXmlSs.CellFormula(formula);
+            Element.CellFormula = new OpenXml.CellFormula(formula);
         }
         #endregion
 
@@ -218,7 +169,7 @@ namespace OfficeDocumentsApi.DataClasses
 
             var value = Element.CellValue?.Text;
 
-            if (!string.IsNullOrEmpty(value) && Element.DataType?.Value == OpenXmlSs.CellValues.SharedString)
+            if (!string.IsNullOrEmpty(value) && Element.DataType?.Value == OpenXml.CellValues.SharedString)
             {
                 var stringId = -1;
 
@@ -263,20 +214,10 @@ namespace OfficeDocumentsApi.DataClasses
         public DateTime GetDateValue(string format = null)
         {
             var cellValue = GetStringValue();
-            DateTime value;
 
-            try
-            {
-                value = format == null
+            return format == null
                     ? DateTime.FromOADate(double.Parse(cellValue, CultureInfo.InvariantCulture))
                     : DateTime.ParseExact(cellValue, format, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException)
-            {
-                throw;// new ApplicationServerException(MethodResult.IncorrectFormat);
-            }
-
-            return value;
         }
 
         public bool TryGetValue(out bool value)
@@ -375,44 +316,31 @@ namespace OfficeDocumentsApi.DataClasses
 
         private static uint GetExcelColumnIndex(string columnName)
         {
-            return (uint)columnName.ToUpper().
-                Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
+            return (uint)columnName
+                .ToUpper()
+                .Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
         }
 
-        private void SetCellValue(string value, OpenXmlSs.CellValues dataType = OpenXmlSs.CellValues.Error)
+        private void SetCellValue(string value, OpenXml.CellValues dataType = OpenXml.CellValues.Error)
         {
-            Element.CellValue = new OpenXmlSs.CellValue(value);
-            if (dataType != OpenXmlSs.CellValues.Error)
+            Element.CellValue = new OpenXml.CellValue(value);
+            if (dataType != OpenXml.CellValues.Error)
             {
                 Element.DataType = dataType;
             }
         }
-        private OpenXmlSs.SharedStringItem GetSharedStringItemById(int id)
+        private OpenXml.SharedStringItem GetSharedStringItemById(int id)
         {
-            return Worksheet.Spreadsheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<OpenXmlSs.SharedStringItem>().ElementAt(id);
+            return Worksheet.Spreadsheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<OpenXml.SharedStringItem>().ElementAt(id);
         }
         
         private T GetValue<T>(Func<string, T> parse) where T : IConvertible
         {
-            try
-            {
-                return parse(GetStringValue());
-            }
-            catch (FormatException)
-            {
-                throw;// new ApplicationServerException(MethodResult.IncorrectFormat);
-            }
+            return parse(GetStringValue());
         }
         private T GetInvariantValue<T>(Func<string, IFormatProvider, T> parse) where T : IConvertible
         {
-            try
-            {
-                return parse(GetStringValue(), CultureInfo.InvariantCulture);
-            }
-            catch (FormatException)
-            {
-                throw;// new ApplicationServerException(MethodResult.IncorrectFormat);
-            }
+            return parse(GetStringValue(), CultureInfo.InvariantCulture);
         }
     }
 }

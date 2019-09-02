@@ -1,6 +1,5 @@
-﻿using DocumentFormat.OpenXml.Packaging;
+﻿using System.Collections.Generic;
 using DocumentFormat.OpenXml.Spreadsheet;
-using OfficeDocumentsApi.Interfaces;
 using Alignment = OfficeDocumentsApi.Styles.Alignment;
 using Border = OfficeDocumentsApi.Styles.Border;
 using Fill = OfficeDocumentsApi.Styles.Fill;
@@ -37,7 +36,7 @@ namespace OfficeDocumentsApi.Interfaces
         /// <returns>Worksheet or null</returns>
         IWorksheet GetWorksheet(string name);
 
-        string[] GetWorksheetsName();
+        IEnumerable<string> GetWorksheetsName();
 
         /// <summary>
         /// Save and close document

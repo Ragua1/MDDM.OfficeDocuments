@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using OfficeDocumentsApi.Interfaces;
-using OfficeDocumentsApi.Styles;
 
 namespace OfficeDocumentsApi.DataClasses
 {

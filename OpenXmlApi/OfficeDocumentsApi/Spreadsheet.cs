@@ -159,7 +159,7 @@ namespace OfficeDocumentsApi
             );
         }
 
-        public string[] GetWorksheetsName()
+        public IEnumerable<string> GetWorksheetsName()
         {
             return Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.Name.Value).ToArray();
         }
