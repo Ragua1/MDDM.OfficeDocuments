@@ -45,3 +45,4 @@ msbuild.err
 msbuild.wrn
 
 *.dll
+/OpenXmlApi/.vs/OfficeDocumentsApi/v15/Server/sqlite3

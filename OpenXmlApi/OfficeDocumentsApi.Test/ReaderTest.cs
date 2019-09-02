@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace OpenXOfficeDocumentsApimlApi.Test
+namespace OfficeDocumentsApi.Test
 {
     [TestClass]
     public class ReaderTest
