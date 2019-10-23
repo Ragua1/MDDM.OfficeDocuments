@@ -2,12 +2,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Interfaces;
 using OfficeDocumentsApi.Styles;
+using OfficeDocumentsApi.Test.TestBases;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class RowTest : ExcelBaseTest
+    public class RowTest : SpreadsheetTestBase
     {
         [TestMethod]
         public void CreateRow()

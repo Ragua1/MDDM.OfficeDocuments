@@ -8,12 +8,13 @@ using OfficeDocumentsApi.Emums;
 using OfficeDocumentsApi.Interfaces;
 using OfficeDocumentsApi.Styles;
 using OfficeDocumentsApi.Test.Properties;
+using OfficeDocumentsApi.Test.TestBases;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class CreationTest : ExcelBaseTest
+    public class CreationTest : SpreadsheetTestBase
     {
         public static readonly Random Rnd = new Random();
 

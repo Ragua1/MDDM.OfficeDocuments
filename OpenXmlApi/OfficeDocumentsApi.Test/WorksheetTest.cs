@@ -4,11 +4,12 @@ using OfficeDocumentsApi.Styles;
 using OfficeDocumentsApi.Emums;
 using Color = System.Drawing.Color;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeDocumentsApi.Test.TestBases;
 
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class WorksheetTest : ExcelBaseTest
+    public class WorksheetTest : SpreadsheetTestBase
     {
         [TestMethod]
         public void CreateCellOnWrongColumnIndex()

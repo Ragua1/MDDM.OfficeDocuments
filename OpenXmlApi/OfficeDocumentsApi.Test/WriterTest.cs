@@ -4,12 +4,13 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Emums;
 using OfficeDocumentsApi.Styles;
+using OfficeDocumentsApi.Test.TestBases;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class WriterTest : ExcelBaseTest
+    public class WriterTest : SpreadsheetTestBase
     {
        
 

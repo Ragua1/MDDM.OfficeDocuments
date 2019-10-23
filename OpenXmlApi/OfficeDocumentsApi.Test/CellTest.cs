@@ -4,6 +4,7 @@ using System.Linq;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Interfaces;
+using OfficeDocumentsApi.Test.TestBases;
 using Color = System.Drawing.Color;
 using Font = OfficeDocumentsApi.Styles.Font;
 using NumberingFormat = OfficeDocumentsApi.Styles.NumberingFormat;
@@ -11,7 +12,7 @@ using NumberingFormat = OfficeDocumentsApi.Styles.NumberingFormat;
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class CellTest : ExcelBaseTest
+    public class CellTest : SpreadsheetTestBase
     {
         [TestMethod]
         public void CreateCell()

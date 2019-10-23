@@ -2,11 +2,12 @@
 using OfficeDocumentsApi.Emums;
 using Color = System.Drawing.Color;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeDocumentsApi.Test.TestBases;
 
 namespace OfficeDocumentsApi.Test
 {
     [TestClass]
-    public class StyleTest : ExcelBaseTest
+    public class StyleTest : SpreadsheetTestBase
     {
         [TestMethod]
         public void BasicStyle()
