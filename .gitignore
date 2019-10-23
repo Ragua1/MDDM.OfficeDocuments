@@ -46,6 +46,4 @@ msbuild.wrn
 
 *.dll
 /OpenXmlApi/.vs/OfficeDocumentsApi/v15/Server/sqlite3
-/OpenXmlApi/.vs/OfficeDocumentsApi/DesignTimeBuild/.dtbcache
-/OpenXmlApi/.vs/OfficeDocumentsApi/v16/Server/sqlite3
-/OpenXmlApi/.vs/OfficeDocumentsApi/v16/TestStore/0
+/OpenXmlApi/.vs/OfficeDocumentsApi

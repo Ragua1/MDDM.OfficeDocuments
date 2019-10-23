@@ -24,12 +24,12 @@ namespace OfficeDocumentsApi
         /// </summary>
         public readonly List<IWorksheet> Worksheets = new List<IWorksheet>();
         private readonly SpreadsheetDocument document;
-        public WorkbookPart WorkbookPart => document.WorkbookPart;
-        public SpreadsheetLib.Sheets Sheets => document.WorkbookPart.Workbook.Sheets;
-        public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart;
         private IStyle defaultStyle;
         private bool IsEditable = true;
 
+        public WorkbookPart WorkbookPart => document.WorkbookPart;
+        public SpreadsheetLib.Sheets Sheets => document.WorkbookPart.Workbook.Sheets;
+        public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart;
         public SpreadsheetLib.Stylesheet Stylesheet => WorkbookStylesPart.Stylesheet ?? InitStylesheet();
 
         protected internal Spreadsheet(SpreadsheetDocument document, bool createNew)
