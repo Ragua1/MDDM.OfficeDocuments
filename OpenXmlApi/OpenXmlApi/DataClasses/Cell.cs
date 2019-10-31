@@ -9,12 +9,13 @@ namespace OpenXmlApi.DataClasses
 {
     internal class Cell : Base, ICell
     {
-        private delegate T ParseDelegate<T>(string s, IFormatProvider provider);
+        private delegate T ParseDelegate<out T>(string s, IFormatProvider provider);
 
         public OpenXmlSs.Cell Element { get; }
 
         public string CellReference { get; }
-        public uint RowIndex => rowIndex > 0
+        public uint RowIndex => 
+            rowIndex > 0
             ? rowIndex
             : rowIndex = uint.Parse(new string(CellReference.Where(char.IsDigit).ToArray()));
 
@@ -28,8 +29,8 @@ namespace OpenXmlApi.DataClasses
             set => SetValue(value);
         }
 
-        private uint rowIndex = 0;
-        private uint columnIndex = 0;
+        private uint rowIndex;
+        private uint columnIndex;
 
         internal Cell(IWorksheet worksheet, uint column, uint row, IStyle cellStyle = null)
             : this(worksheet, GetExcelColumnName(column) + row, cellStyle)
@@ -204,10 +205,7 @@ namespace OpenXmlApi.DataClasses
         #endregion
 
         #region Get value/formula
-        public string GetFormula()
-        {
-            return Element.CellFormula?.Text;
-        }
+        public string GetFormula() => Element.CellFormula?.Text;
 
         public string GetStringValue()
         {
@@ -220,9 +218,7 @@ namespace OpenXmlApi.DataClasses
 
             if (!string.IsNullOrEmpty(value) && Element.DataType?.Value == OpenXmlSs.CellValues.SharedString)
             {
-                var stringId = -1;
-
-                if (int.TryParse(value.Trim(), out stringId))
+                if (int.TryParse(value.Trim(), out var stringId))
                 {
                     var item = GetSharedStringItemById(stringId);
 
@@ -235,30 +231,15 @@ namespace OpenXmlApi.DataClasses
             return value;
         }
 
-        public bool GetBoolValue()
-        {
-            return GetValue(bool.Parse);
-        }
+        public bool GetBoolValue() => GetValue(bool.Parse);
 
-        public int GetIntValue()
-        {
-            return GetValue(int.Parse);
-        }
+        public int GetIntValue() => GetValue(int.Parse);
 
-        public long GetLongValue()
-        {
-            return GetValue(long.Parse);
-        }
+        public long GetLongValue() => GetValue(long.Parse);
 
-        public double GetDoubleValue()
-        {
-            return GetInvariantValue(double.Parse);
-        }
+        public double GetDoubleValue() => GetInvariantValue(double.Parse);
 
-        public decimal GetDecimalValue()
-        {
-            return GetInvariantValue(decimal.Parse);
-        }
+        public decimal GetDecimalValue() => GetInvariantValue(decimal.Parse);
 
         public DateTime GetDateValue(string format = null)
         {
@@ -279,30 +260,15 @@ namespace OpenXmlApi.DataClasses
             return value;
         }
 
-        public bool TryGetValue(out bool value)
-        {
-            return bool.TryParse(GetStringValue(), out value);
-        }
+        public bool TryGetValue(out bool value) => bool.TryParse(GetStringValue(), out value);
 
-        public bool TryGetValue(out int value)
-        {
-            return int.TryParse(GetStringValue(), out value);
-        }
+        public bool TryGetValue(out int value) => int.TryParse(GetStringValue(), out value);
 
-        public bool TryGetValue(out long value)
-        {
-            return long.TryParse(GetStringValue(), out value);
-        }
+        public bool TryGetValue(out long value) => long.TryParse(GetStringValue(), out value);
 
-        public bool TryGetValue(out double value)
-        {
-            return double.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
-        }
+        public bool TryGetValue(out double value) => double.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
-        public bool TryGetValue(out decimal value)
-        {
-            return decimal.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
-        }
+        public bool TryGetValue(out decimal value) => decimal.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
         public bool TryGetValue(out string value)
         {
@@ -332,15 +298,10 @@ namespace OpenXmlApi.DataClasses
             }
         }
 
-        public bool HasValue()
-        {
-            return !string.IsNullOrEmpty(Element.CellValue?.Text);
-        }
+        public bool HasValue() => !string.IsNullOrEmpty(Element.CellValue?.Text);
 
-        public bool HasFormula()
-        {
-            return !string.IsNullOrEmpty(Element.CellFormula?.Text);
-        }
+        public bool HasFormula() => !string.IsNullOrEmpty(Element.CellFormula?.Text);
+
         #endregion
 
         public override IStyle AddStyle(params IStyle[] styles)
@@ -367,17 +328,14 @@ namespace OpenXmlApi.DataClasses
             {
                 var modulo = (dividend - 1) % 26;
                 columnName = Convert.ToChar(64 + 1 + modulo) + columnName;
-                dividend = (uint)((dividend - modulo) / 26);
+                dividend = (dividend - modulo) / 26u;
             }
 
             return columnName;
         }
 
-        private static uint GetExcelColumnIndex(string columnName)
-        {
-            return (uint)columnName.ToUpper().
-                Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
-        }
+        private static uint GetExcelColumnIndex(string columnName) =>
+            (uint)columnName.ToUpper().Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
 
         private void SetCellValue(string value, OpenXmlSs.CellValues dataType = OpenXmlSs.CellValues.Error)
         {
