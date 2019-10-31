@@ -2,6 +2,7 @@
 using System.IO;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace OfficeDocumentsApi
 {
@@ -29,12 +30,22 @@ namespace OfficeDocumentsApi
         {
             if (createNew)
             {
+                // Add a main document part. 
+                var mainPart = document.AddMainDocumentPart();
 
+                // Create the document structure and add some text.
+                mainPart.Document = new Document();
+                var body = mainPart.Document.AppendChild(new Body());
+                var para = body.AppendChild(new Paragraph());
+                var run = para.AppendChild(new Run());
+                run.AppendChild(new Text("Create text in body - CreateWordprocessingDocument"));
             }
             else
             {
 
             }
+
+            this.document = document;
         }
 
         #region IDisposable implementation
@@ -46,9 +57,9 @@ namespace OfficeDocumentsApi
         {
             if (IsEditable)
             {
-                //WorkbookPart.Workbook.Save();
+                document.Save();
             }
-            document.Close();
+            document?.Close();
         }
 
         /// <summary>

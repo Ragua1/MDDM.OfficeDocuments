@@ -7,6 +7,9 @@ namespace OfficeDocumentsApi.DataClasses
 {
     internal class Row : Base, IRow
     {
+        private static readonly HashSet<char> ColumnNames = new HashSet<char>(
+            new []{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' });
+
         public DocumentFormat.OpenXml.Spreadsheet.Row Element { get; }
         public IList<ICell> Cells { get; } = new List<ICell>();
         public ICell CurrentCell => Cells.FirstOrDefault(x => x.ColumnIndex == currentCellIndex);
@@ -120,15 +123,13 @@ namespace OfficeDocumentsApi.DataClasses
 
         public ICell GetCell(string columnName)
         {
-            var columnNames = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-
             uint columnIndex = 0;
             columnName = columnName.ToUpper();
 
             for (var i = 0; i < columnName.Length; i++)
             {
                 var ch = columnName[i];
-                if (!columnNames.Contains(ch))
+                if (!ColumnNames.Contains(ch))
                 {
                     throw new ArgumentException($"Invalid argument column name '{columnName}'");
                 }

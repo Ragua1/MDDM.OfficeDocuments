@@ -173,7 +173,7 @@ namespace OfficeDocumentsApi
             {
                 WorkbookPart.Workbook.Save();
             }
-            document.Close();
+            document?.Close();
         }
         /// <summary>
         /// Close document resources

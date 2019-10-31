@@ -13,10 +13,10 @@ namespace OfficeDocumentsApi.Test.Wordprocessing
         [TestMethod]
         public void BasicFile()
         {
-            var filename = "doc1.xlsx";
+            var filename = "doc1.docx";
             CleanFilepath(filename);
 
-            var filePath = GetFilepath(filename);
+            var filePath = filename;// GetFilepath(filename);
             using (var w = CreateTestee(filePath))
             {
                 ;
