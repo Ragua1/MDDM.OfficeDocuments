@@ -1,6 +1,9 @@
 # OfficeDocumentsApi
 OfficeDocumentsApi is a library for working with office documents (word, excel, powerpoint). OfficeDocumentsApi is able to read or create office documents without direct using xml structures like Open-XML-SDK.
 
+## Principles
+* MVP
+* Decoupling developers code from `Open-XML-SDK`
 
 # TODO
 Add support for Word documents
