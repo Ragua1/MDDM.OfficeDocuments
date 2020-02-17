@@ -7,5 +7,6 @@ namespace OfficeDocumentsApi.Word.Interfaces
     {
         List<Paragraph> Paragraphs { get; }
         IParagraph AddParagraph();
+        string GetAllTexts();
     }
 }

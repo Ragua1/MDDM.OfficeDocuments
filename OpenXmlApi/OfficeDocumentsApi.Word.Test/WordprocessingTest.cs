@@ -19,7 +19,6 @@ namespace OfficeDocumentsApi.Word.Test
 
             var texts = body.Paragraphs.Select(x => x.GetTexts()).Where(z => !string.IsNullOrEmpty(z)).ToArray();
             
-
             Assert.IsTrue(texts.Any());
         }
     }

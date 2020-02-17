@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OfficeDocumentsApi.Word.Interfaces;
 
 namespace OfficeDocumentsApi.Word.DataClasses
@@ -19,11 +20,6 @@ namespace OfficeDocumentsApi.Word.DataClasses
                     case DocumentFormat.OpenXml.Wordprocessing.Paragraph p:
                         Paragraphs.Add(new Paragraph(p));
                         break;
-                    case null:
-                        throw new ArgumentNullException();
-                        break;
-                    default:
-                        break;
                 }
             }
         }
@@ -34,6 +30,11 @@ namespace OfficeDocumentsApi.Word.DataClasses
             this.Element.AppendChild(paragraph);
 
             return new Paragraph(paragraph);
+        }
+
+        public string GetAllTexts()
+        {
+            return string.Join("\n", Paragraphs.Select(x => x.GetTexts()).Where(z => !string.IsNullOrEmpty(z)).ToArray());
         }
     }
 }

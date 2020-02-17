@@ -62,16 +62,6 @@ namespace OfficeDocumentsApi.Word
             this.document = document;
         }
 
-        public IBody AddBody()
-        {
-            var doc = this.document.MainDocumentPart.Document;
-
-            var bodyElement = new Body();
-            doc.AppendChild(bodyElement);
-
-            return new DataClasses.Body(bodyElement);
-        }
-
         public IBody GetBody()
         {
             var doc = this.document.MainDocumentPart.Document;

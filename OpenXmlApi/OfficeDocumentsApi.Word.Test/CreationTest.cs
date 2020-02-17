@@ -34,12 +34,12 @@ namespace OfficeDocumentsApi.Word.Test
             var filePath = filename;// GetFilepath(filename);
             using (var w = CreateTestee(filePath))
             {
-                var body = w.AddBody();
+                var body = w.GetBody();
                 body.AddParagraph()
                     .AddText($"Create text on first page - {DateTime.Now:s}")
                     .AddBreak(BreakType.Page);
                 
-                body = w.AddBody();
+                body = w.GetBody();
                 body.AddParagraph()
                     .AddText($"Create text on first page - {DateTime.Now:s}")
                     .AddBreak(BreakType.Page)

@@ -6,5 +6,6 @@ namespace OfficeDocumentsApi.Word.Interfaces
     {
         IParagraph AddText(string text);
         IParagraph AddBreak(BreakType type);
+        string GetTexts();
     }
 }
