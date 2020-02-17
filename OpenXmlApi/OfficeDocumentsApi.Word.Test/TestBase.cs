@@ -4,7 +4,7 @@ using OfficeDocumentsApi.Word.Interfaces;
 
 namespace OfficeDocumentsApi.Word.Test
 {
-    public class WordprocessingTestBase
+    public class TestBase
     {
         protected IWordprocessing CreateTestee(Stream stream) => new Word.Wordprocessing(stream, true);
         protected IWordprocessing CreateTestee(string filepath) => new Word.Wordprocessing(filepath, true);
