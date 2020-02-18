@@ -8,13 +8,13 @@ namespace OfficeDocumentsApi.Word.DataClasses
 {
     public class Paragraph : IParagraph
     {
-        internal DocumentFormat.OpenXml.Wordprocessing.Paragraph Element;
+        internal DocumentFormat.OpenXml.Wordprocessing.Paragraph Element { get; }
 
         public List<Run> RunList { get; } = new List<Run>();
 
         public Paragraph(DocumentFormat.OpenXml.Wordprocessing.Paragraph element)
         {
-            this.Element = element;
+            Element = element;
             foreach (var child in element.ChildElements)
             {
                 switch (child)
@@ -31,7 +31,7 @@ namespace OfficeDocumentsApi.Word.DataClasses
             var runElement = new DocumentFormat.OpenXml.Wordprocessing.Run();
             runElement.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(text));
 
-            this.Element.AppendChild(runElement);
+            Element.AppendChild(runElement);
             RunList.Add(new Run(runElement));
 
             return this;
@@ -60,7 +60,7 @@ namespace OfficeDocumentsApi.Word.DataClasses
             {
                 Type = breakValue,
             });
-            this.Element.AppendChild(runElement);
+            Element.AppendChild(runElement);
             RunList.Add(new Run(runElement));
 
             return this;

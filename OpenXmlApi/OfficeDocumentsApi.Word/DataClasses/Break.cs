@@ -2,7 +2,7 @@
 {
     public class Break
     {
-        internal readonly DocumentFormat.OpenXml.Wordprocessing.Break Element;
+        internal DocumentFormat.OpenXml.Wordprocessing.Break Element { get; }
         public Break(DocumentFormat.OpenXml.Wordprocessing.Break element)
         {
             Element = element;

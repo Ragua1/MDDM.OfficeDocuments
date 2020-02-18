@@ -64,7 +64,7 @@ namespace OfficeDocumentsApi.Word
 
         public IBody GetBody()
         {
-            var doc = this.document.MainDocumentPart.Document;
+            var doc = document.MainDocumentPart.Document;
 
             Body bodyElement;
             if (doc.Body == null)

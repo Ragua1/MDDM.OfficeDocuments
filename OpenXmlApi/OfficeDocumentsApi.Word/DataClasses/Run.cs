@@ -2,7 +2,7 @@
 {
     public class Run
     {
-        internal readonly DocumentFormat.OpenXml.Wordprocessing.Run Element;
+        internal DocumentFormat.OpenXml.Wordprocessing.Run Element { get; }
 
         public Run(DocumentFormat.OpenXml.Wordprocessing.Run element)
         {
