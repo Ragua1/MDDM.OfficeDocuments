@@ -5,7 +5,7 @@ namespace OfficeDocumentsApi.Word.Interfaces
 {
     public interface IBody
     {
-        List<Paragraph> Paragraphs { get; }
+        List<IParagraph> Paragraphs { get; }
         IParagraph AddParagraph();
         string GetAllTexts();
     }

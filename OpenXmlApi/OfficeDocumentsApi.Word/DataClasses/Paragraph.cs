@@ -67,6 +67,26 @@ namespace OfficeDocumentsApi.Word.DataClasses
             return this;
         }
 
+        public IEnumerable<IText> GetTextElements()
+        {
+            var elements = new List<IText>();
+
+            foreach (var run in RunList)
+            {
+                foreach (var child in run.Element.ChildElements)
+                {
+                    switch (child)
+                    {
+                        case DocumentFormat.OpenXml.Wordprocessing.Text textElement:
+                            elements.Add(new Text(textElement));
+                            break;
+                    }
+                }
+            }
+
+            return elements;
+        }
+
         public string GetTexts()
         {
             var builder = new StringBuilder();
