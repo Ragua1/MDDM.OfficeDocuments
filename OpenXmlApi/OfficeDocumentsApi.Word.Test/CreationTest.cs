@@ -26,7 +26,7 @@ namespace OfficeDocumentsApi.Word.Test
         }
 
         [TestMethod]
-        public void CreateFile()
+        public void CreateDocumentWithContent_EmitsNewFile()
         {
             var filename = "doc2.docx";
             CleanFilepath(filename);
