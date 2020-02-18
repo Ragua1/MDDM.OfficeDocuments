@@ -6,7 +6,7 @@
 
         public Run(DocumentFormat.OpenXml.Wordprocessing.Run element)
         {
-            this.Element = element;
+            Element = element;
         }
     }
 }
