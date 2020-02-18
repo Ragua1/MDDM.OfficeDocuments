@@ -2,7 +2,7 @@
 {
     public class Text
     {
-        internal readonly DocumentFormat.OpenXml.Wordprocessing.Text Element;
+        internal DocumentFormat.OpenXml.Wordprocessing.Text Element { get; }
         public Text(DocumentFormat.OpenXml.Wordprocessing.Text element)
         {
             Element = element;
