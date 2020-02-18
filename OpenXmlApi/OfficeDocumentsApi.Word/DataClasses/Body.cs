@@ -7,7 +7,7 @@ namespace OfficeDocumentsApi.Word.DataClasses
 {
     public class Body : IBody
     {
-        internal readonly DocumentFormat.OpenXml.Wordprocessing.Body Element;
+        internal DocumentFormat.OpenXml.Wordprocessing.Body Element { get; }
         public List<Paragraph> Paragraphs { get; } = new List<Paragraph>();
 
         public Body(DocumentFormat.OpenXml.Wordprocessing.Body element)
