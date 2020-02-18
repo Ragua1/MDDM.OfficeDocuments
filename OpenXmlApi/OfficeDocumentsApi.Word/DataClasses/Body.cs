@@ -12,7 +12,7 @@ namespace OfficeDocumentsApi.Word.DataClasses
 
         public Body(DocumentFormat.OpenXml.Wordprocessing.Body element)
         {
-            this.Element = element;
+            Element = element;
             foreach (var child in element.ChildElements)
             {
                 switch (child)
