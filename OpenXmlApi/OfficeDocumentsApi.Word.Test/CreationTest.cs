@@ -32,7 +32,7 @@ namespace OfficeDocumentsApi.Word.Test
             CleanFilepath(filename);
 
             var filePath = filename;// GetFilepath(filename);
-            using (var w = CreateTestee(filePath))
+            using (var w = CreateWordDocument(filePath))
             {
                 var body = w.GetBody();
                 body.AddParagraph()
