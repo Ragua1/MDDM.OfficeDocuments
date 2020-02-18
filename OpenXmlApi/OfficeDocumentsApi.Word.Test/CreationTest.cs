@@ -11,7 +11,7 @@ namespace OfficeDocumentsApi.Word.Test
         public static readonly Random Rnd = new Random();
 
         [TestMethod]
-        public void CreateEmptyFile()
+        public void CreateEmptyDocument_EmitsNewFile()
         {
             var filename = "doc1.docx";
             CleanFilepath(filename);
