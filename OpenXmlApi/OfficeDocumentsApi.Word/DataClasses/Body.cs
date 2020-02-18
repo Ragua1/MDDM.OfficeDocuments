@@ -27,7 +27,7 @@ namespace OfficeDocumentsApi.Word.DataClasses
         public IParagraph AddParagraph()
         { 
             var paragraph = new DocumentFormat.OpenXml.Wordprocessing.Paragraph();
-            this.Element.AppendChild(paragraph);
+            Element.AppendChild(paragraph);
 
             return new Paragraph(paragraph);
         }
