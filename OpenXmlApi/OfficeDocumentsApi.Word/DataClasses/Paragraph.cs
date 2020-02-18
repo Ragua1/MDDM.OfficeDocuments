@@ -10,10 +10,11 @@ namespace OfficeDocumentsApi.Word.DataClasses
     {
         internal DocumentFormat.OpenXml.Wordprocessing.Paragraph Element { get; }
 
-        public List<Run> RunList { get; } = new List<Run>();
+        public List<Run> RunList { get; }
 
         public Paragraph(DocumentFormat.OpenXml.Wordprocessing.Paragraph element)
         {
+            RunList = new List<Run>();
             Element = element;
             foreach (var child in element.ChildElements)
             {

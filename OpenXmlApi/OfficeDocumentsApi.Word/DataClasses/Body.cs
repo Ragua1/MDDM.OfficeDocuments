@@ -8,10 +8,11 @@ namespace OfficeDocumentsApi.Word.DataClasses
     public class Body : IBody
     {
         internal DocumentFormat.OpenXml.Wordprocessing.Body Element { get; }
-        public List<Paragraph> Paragraphs { get; } = new List<Paragraph>();
+        public List<Paragraph> Paragraphs { get; } 
 
         public Body(DocumentFormat.OpenXml.Wordprocessing.Body element)
         {
+            Paragraphs = new List<Paragraph>();
             Element = element;
             foreach (var child in element.ChildElements)
             {
