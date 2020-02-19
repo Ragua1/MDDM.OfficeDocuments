@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using OfficeDocumentsApi.Word.Enums;
 using OfficeDocumentsApi.Word.Interfaces;
@@ -69,22 +70,20 @@ namespace OfficeDocumentsApi.Word.DataClasses
 
         public IEnumerable<IText> GetTextElements()
         {
-            var elements = new List<IText>();
+            //var elements = new List<IText>();
 
-            foreach (var run in RunList)
+            foreach (var child in RunList.SelectMany(run => run.Element.ChildElements))
             {
-                foreach (var child in run.Element.ChildElements)
+                switch (child)
                 {
-                    switch (child)
-                    {
-                        case DocumentFormat.OpenXml.Wordprocessing.Text textElement:
-                            elements.Add(new Text(textElement));
-                            break;
-                    }
+                    case DocumentFormat.OpenXml.Wordprocessing.Text textElement:
+                        //elements.Add(new Text(textElement));
+                        yield return new Text(textElement);
+                        break;
                 }
             }
 
-            return elements;
+            //return elements;
         }
 
         public string GetTexts()
