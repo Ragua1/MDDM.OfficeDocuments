@@ -16,4 +16,4 @@ jobs:
         - name: Build with dotnet
           run: dotnet build --configuration Release OpenXmlApi/OfficeDocumentsApi.sln
         - name: Test with dotnet
-          run: dontnet test --configuration Release OpenXmlApi/OfficeDocumentsApi.sln
+          run: dotnet test --configuration Release OpenXmlApi/OfficeDocumentsApi.sln
