@@ -27,6 +27,6 @@ jobs:
           # VERSION_STATIC: Bypasses version resolution; useful for external providers like Nerdbank.GitVersioning
           # TAG_COMMIT: true # Flag to enable / disalge git tagging
           # TAG_FORMAT: v* # Format of the git tag, [*] gets replaced with version
-          NUGET_KEY: oy2lqoez6msfhmjcbdxqgtmatlbzmhnedp5twqzk2hhrza
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
           # NUGET_KEY: ${{secrets.NUGET_API_KEY}} # nuget.org API key
           # PACKAGE_NAME: NuGet package name, required when it's different from project name. Defaults to project name
