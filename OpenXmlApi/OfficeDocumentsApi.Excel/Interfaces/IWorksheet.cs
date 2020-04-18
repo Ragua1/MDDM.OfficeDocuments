@@ -16,6 +16,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// Instance of worksheet element
         /// </summary>
         SpreadsheetLib.SheetData Element { get; }
+        //string Name { get; }
         /// <summary>
         /// Instance of row with highest 'RowIndex'
         /// </summary>

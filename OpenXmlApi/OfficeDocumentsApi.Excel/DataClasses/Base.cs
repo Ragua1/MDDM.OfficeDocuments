@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using OfficeDocumentsApi.Excel.Interfaces;
 
 namespace OfficeDocumentsApi.Excel.DataClasses
