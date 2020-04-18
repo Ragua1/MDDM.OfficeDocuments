@@ -7,7 +7,7 @@ namespace OfficeDocumentsApi.Word.Test
     [TestClass]
     public class WordprocessingTest : TestBase
     {
-        //[TestMethod]
+        [TestMethod]
         public void ReadDocumentTest()
         {
             var path = "Resources/Rozsudek_priloha_6.docx";
