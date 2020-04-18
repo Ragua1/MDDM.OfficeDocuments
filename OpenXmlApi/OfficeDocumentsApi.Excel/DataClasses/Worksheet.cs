@@ -11,6 +11,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
     {
         public Spreadsheet Spreadsheet { get; }
         public SpreadsheetLib.SheetData Element { get; }
+        //public string Name => Element.LocalName;
         internal WorksheetPart WorksheetPart { get; }
         public IRow CurrentRow => GetRow();
         public ICell CurrentCell => CurrentRow?.CurrentCell;
@@ -63,7 +64,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             var rows = sheetData.Elements<SpreadsheetLib.Row>();
             foreach (var rowElement in rows)
             {
-                Rows.Insert(0, new Row(this, rowElement));
+                Rows.Add(new Row(this, rowElement));
 
                 if (rowElement.RowIndex > currentRow)
                 {

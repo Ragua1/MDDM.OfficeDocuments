@@ -37,6 +37,8 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <returns>Worksheet or null</returns>
         IWorksheet GetWorksheet(string name);
 
+        void AddTable(string worksheetName, ICell startCell, ICell endCell, List<string> columnsName);
+
         IEnumerable<string> GetWorksheetsName();
 
         /// <summary>

@@ -37,7 +37,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             foreach (var cellElement in element.Elements<DocumentFormat.OpenXml.Spreadsheet.Cell>())
             {
                 var cell = new Cell(Worksheet, cellElement);
-                Cells.Insert(0, cell);
+                Cells.Add(cell);
+                //Cells.Insert(0, cell);
 
                 if (cell.ColumnIndex > currentCellIndex)
                 {
