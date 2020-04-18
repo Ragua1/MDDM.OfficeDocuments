@@ -88,9 +88,9 @@ namespace OfficeDocumentsApi.Word
         /// <summary>
         /// Save and close document
         /// </summary>
-        public void Close()
+        public void Close(bool saveDocument = true)
         {
-            if (IsEditable)
+            if (IsEditable && saveDocument)
             {
                 document.Save();
             }

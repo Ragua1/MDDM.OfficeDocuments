@@ -1,4 +1,5 @@
-﻿using OfficeDocumentsApi.Word.Enums;
+﻿using System.Collections.Generic;
+using OfficeDocumentsApi.Word.Enums;
 
 namespace OfficeDocumentsApi.Word.Interfaces
 {
@@ -6,6 +7,7 @@ namespace OfficeDocumentsApi.Word.Interfaces
     {
         IParagraph AddText(string text);
         IParagraph AddBreak(BreakType type);
+        IEnumerable<IText> GetTextElements();
         string GetTexts();
     }
 }
