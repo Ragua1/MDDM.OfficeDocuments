@@ -1,4 +1,4 @@
-name: Build and Test
+name: Publish a new release
 
 on: [push]
   branches:
@@ -16,7 +16,10 @@ jobs:
           dotnet-version: 3.1.101
 
       - name: Test with dotnet
-        run: dotnet test --configuration Release  OpenXmlApi/OfficeDocumentsApi.sln
+        env:
+          PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
+          SLN: OpenXmlApi/OfficeDocumentsApi.sln
+        run: dotnet test --configuration Release $PROJ
 
       - name: Build and Pack
         env:
@@ -27,5 +30,5 @@ jobs:
       - name: Publish package
         env:
           PACKAGE_FEED: https://nuget.mddm.one/v3/index.json
-          API_KEY: ${{ secrets.nuget_mddm }}
-        run: dotnet push -s $PACKAGE_FEED -k $API_KEY *.nupkg
+          API_KEY: ${{ secrets.NUGET_MDDM }}
+        run: dotnet nuget push -s $PACKAGE_FEED -k $API_KEY *.nupkg
