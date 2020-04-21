@@ -24,15 +24,11 @@ jobs:
           dotnet build -c Release $SLN
           dotnet test --no-build -c Release $PROJ
           dotnet pack --no-build -c Release -o ./ $PROJ
-
-      # - name: Build and Pack
-      #   env:
-      #     PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
-      #     PACKAGE_PREFIX: OpenXmlApi/OfficeDocumentsApi.Excel/bin/Release/OfficeDocumentsApi.Excel
-      #   run: dotnet pack $PROJ -c Release -o ./
       
       - name: Publish package
         env:
           PACKAGE_FEED: https://nuget.mddm.one/v3/index.json
           API_KEY: ${{ secrets.NUGET_MDDM }}
-        run: dotnet nuget push -s $PACKAGE_FEED -k $API_KEY *.nupkg
+        run: |
+          dotnet nuget push -s $PACKAGE_FEED -k $API_KEY OfficeDocumentsApi.Excel.*.nupkg
+          dotnet nuget push -s $PACKAGE_FEED -k $API_KEY OfficeDocumentsApi.Excel.*.symbols.nupkg
