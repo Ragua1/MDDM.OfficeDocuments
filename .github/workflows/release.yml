@@ -16,12 +16,13 @@ jobs:
         with:
           dotnet-version: 3.1.101
 
-      - name: Test & pack
+      - name: Build -> Test -> Pack
         env:
           PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
           SLN: OpenXmlApi/OfficeDocumentsApi.sln
         run: |
-          dotnet test -c Release $PROJ
+          dotnet build -c Release $SLN
+          dotnet test --no-build -c Release $PROJ
           dotnet pack --no-build -c Release -o ./ $PROJ
 
       # - name: Build and Pack
