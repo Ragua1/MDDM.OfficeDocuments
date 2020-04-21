@@ -22,7 +22,7 @@ jobs:
           SLN: OpenXmlApi/OfficeDocumentsApi.sln
         run: |
           dotnet test -c Release $PROJ
-          dotnet pack $PROJ -c Release -o ./
+          dotnet pack --no-build -c Release -o ./ $PROJ
 
       # - name: Build and Pack
       #   env:
