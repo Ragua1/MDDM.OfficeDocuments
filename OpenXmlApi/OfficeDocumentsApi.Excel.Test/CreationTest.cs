@@ -268,6 +268,88 @@ namespace OfficeDocumentsApi.Excel.Test
         }
 
         [TestMethod]
+        public void CustomFile3()
+        {
+            var filepath = GetFilepath("doc3.xlsx");
+
+            var headers = new List<string> { "p.è.", "Id místa", "Hodnota 1", "Hodnota 2" };
+
+            using (var w = CreateTestee(filepath))
+            {
+                var sheetName = "MySheet - 1";
+                var ws = w.AddWorksheet(sheetName);
+                ICell startCell, endCell;
+
+
+                var s = w.CreateStyle(new Font { FontSize = 20, Color = Color.Blue, FontName = FontNameValues.Tahoma });
+
+                var c = ws.AddCellOnRange(3, 6, 2, s);
+                c.SetValue("Testing data for my code");
+
+                var r = ws.AddRow(5, w.CreateStyle(
+                                        new Font { FontSize = 13, Color = Color.AliceBlue, FontName = FontNameValues.Tahoma },
+                                        new Fill(Color.DarkBlue))
+                                    );
+
+                for (var i = 0; i < headers.Count; i++)
+                {
+                    var h = headers[i];
+                    c = r.AddCell();
+                    c.SetValue(h);
+                    ws.SetColumnWidth(Convert.ToUInt32(i + 1), 12);
+                }
+
+                startCell = r.Cells.First();
+
+                //ws.AddRow();
+                var s1 = w.CreateStyle(
+                    new Font { FontSize = 12, Color = Color.Red, FontName = FontNameValues.Calibri },
+                    new Fill(Utils.ArgbHexConverter(Color.Aqua)),
+                    new Border(BorderStyleValues.Thin)
+                );
+
+                var s2 = w.CreateStyle(
+                    font: new Font { ArgbHexColor = Utils.ArgbHexConverter(Color.Blue) },
+                    numberFormat: new NumberingFormat("#,##0.00#"),
+                    alignment: new Alignment { Horizontal = HorizontalAlignmentValues.Left }
+                );
+
+
+                for (var i = 1; i <= 10; i++)
+                {
+                    r = ws.AddRow(s1);
+
+
+                    var values = GetValue(i).ToList();
+                    for (var j = 0; j < values.Count; j++)
+                    {
+                        c = r.AddCell();
+                        switch (j)
+                        {
+                            case 0:
+                            case 1:
+                                c.SetValue(Convert.ToInt32(values[j]));
+                                break;
+                            default:
+                                c.SetValue(values[j]);
+
+                                if (i % 2 == 0)
+                                {
+                                    c.AddStyle(s2);
+                                }
+
+                                break;
+                        }
+                    }
+                }
+
+                endCell = r.Cells.Last();
+
+                w.AddTable(sheetName, startCell, endCell, headers);
+            }
+        }
+
+        [TestMethod]
         public void OpenAndAdjustCustomFile1()
         {
             var filepath = GetFilepath("doc4.xlsx");

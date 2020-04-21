@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Schema;
@@ -80,7 +81,7 @@ namespace OfficeDocumentsApi.Excel
             }
         }
 
-        public Spreadsheet(Stream stream, bool createNew) :
+        public Spreadsheet(Stream stream, bool createNew = false) :
             this(createNew
                 ? SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook)
                 : SpreadsheetDocument.Open(stream, true),
@@ -93,11 +94,10 @@ namespace OfficeDocumentsApi.Excel
 
            
         }
-
-        public Spreadsheet(string filePath, bool createNew) : 
+        public Spreadsheet(string filePath, bool createNew = false) :
             this(createNew
-                ? SpreadsheetDocument.Create(Path.GetFullPath(filePath), SpreadsheetDocumentType.Workbook)
-                : SpreadsheetDocument.Open(Path.GetFullPath(filePath), true),
+                ? SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook)
+                : SpreadsheetDocument.Open(filePath, true),
                 createNew) { }
 
         /// <summary>
@@ -161,6 +161,75 @@ namespace OfficeDocumentsApi.Excel
             return Worksheets.FirstOrDefault(
                 w => WorkbookPart.GetIdOfPart(((Worksheet)w).WorksheetPart) == sheet.Id
             );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="worksheetName"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public void AddTable(string worksheetName, ICell startCell, ICell endCell, List<string> columnsName)
+        {
+            var sheetId = Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == worksheetName)?.Id ?? "";
+            var wsp = WorkbookPart.WorksheetParts.FirstOrDefault(w => WorkbookPart.GetIdOfPart(w) == sheetId);
+            if (wsp == null)
+            {
+                throw new ArgumentException("Cannot find worksheet by name.", worksheetName);
+            }
+
+            if (startCell == null || endCell == null)
+            {
+                throw new NullReferenceException("Start or end cell cannot be null!");
+            }
+
+            if (startCell.RowIndex > endCell.RowIndex || startCell.ColumnIndex > endCell.ColumnIndex)
+            {
+                throw new ArgumentException("Wrong table definition!");
+            }
+
+            if (columnsName.Any(string.IsNullOrWhiteSpace))
+            {
+                throw new ArgumentException("Table column name cannot be null!");
+            }
+
+            //var tableParts = new SpreadsheetLib.TableParts();
+            //var tablePart = new SpreadsheetLib.TablePart { Id = "rId1" };
+            //tableParts.Append(tablePart);
+
+            var table = new SpreadsheetLib.Table()
+            {
+                Reference = $"{startCell.CellReference}:{endCell.CellReference}",
+                TableColumns = new SpreadsheetLib.TableColumns(),
+            };
+
+            var i = 1U;
+            foreach (var columnName in columnsName)
+            {
+                var tableColumn = new SpreadsheetLib.TableColumn
+                {
+                    Name = columnName,
+                    Id = i++,
+                };
+
+                table.TableColumns.AppendChild(tableColumn);
+            }
+
+            var tablesCount= wsp.TableDefinitionParts.Count();
+
+            table.Id = (uint) tablesCount + 1;
+            table.Name = $"table{i}";
+            table.DisplayName = $"table{i}";
+
+            var tableName = $"rId{tablesCount + 1}";
+            var tdp = wsp.AddNewPart<TableDefinitionPart>(tableName);
+            tdp.Table = table;
+
+
+            var tableParts = new SpreadsheetLib.TableParts();
+            var tablePart = new SpreadsheetLib.TablePart() {Id = tableName};
+            tableParts.Append(tablePart);
+
+            wsp.Worksheet.Append(tableParts);
         }
 
         public IEnumerable<string> GetWorksheetsName()

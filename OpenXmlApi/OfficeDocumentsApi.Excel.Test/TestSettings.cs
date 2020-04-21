@@ -6,7 +6,7 @@ namespace OfficeDocumentsApi.Excel.Test
     {
         internal static string GetFilepath<T>(T testClass, string filename)
         {
-            var path = Path.Combine(Path.GetTempPath(), testClass.GetType().Name);
+            var path = testClass.GetType().Name;
 
             if (!Directory.Exists(path))
             {
