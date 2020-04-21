@@ -1,0 +1,31 @@
+name: Build and Test
+
+on: [push]
+  branches:
+    - release
+    - test-release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.4.0
+        with:
+          dotnet-version: 3.1.101
+
+      - name: Test with dotnet
+        run: dotnet test --configuration Release  OpenXmlApi/OfficeDocumentsApi.sln
+
+      - name: Build and Pack
+        env:
+          PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
+          PACKAGE_PREFIX: OpenXmlApi\OfficeDocumentsApi.Excel\bin\Release\OfficeDocumentsApi.Excel
+        run: dotnet pack $PROJ -c Release -o ./
+      
+      - name: Publish package
+        env:
+          PACKAGE_FEED: https://nuget.mddm.one/v3/index.json
+          API_KEY: ${{ secrets.nuget_mddm }}
+        run: dotnet push -s $PACKAGE_FEED -k $API_KEY *.nupkg
