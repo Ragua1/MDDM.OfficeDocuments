@@ -1,9 +1,10 @@
 name: Publish a new release
 
-on: [push]
-  branches:
-    - release
-    - test-release
+on: 
+  push:
+    branches:
+      - release
+      - test-release
 
 jobs:
   build:
