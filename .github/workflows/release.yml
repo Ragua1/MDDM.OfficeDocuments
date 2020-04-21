@@ -16,17 +16,19 @@ jobs:
         with:
           dotnet-version: 3.1.101
 
-      - name: Test with dotnet
+      - name: Test & pack
         env:
           PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
           SLN: OpenXmlApi/OfficeDocumentsApi.sln
-        run: dotnet test --configuration Release $PROJ
+        run: |
+          dotnet test -c Release $PROJ
+          dotnet pack $PROJ -c Release -o ./
 
-      - name: Build and Pack
-        env:
-          PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
-          PACKAGE_PREFIX: OpenXmlApi\OfficeDocumentsApi.Excel\bin\Release\OfficeDocumentsApi.Excel
-        run: dotnet pack $PROJ -c Release -o ./
+      # - name: Build and Pack
+      #   env:
+      #     PROJ: OpenXmlApi/OfficeDocumentsApi.Excel/OfficeDocumentsApi.Excel.csproj
+      #     PACKAGE_PREFIX: OpenXmlApi/OfficeDocumentsApi.Excel/bin/Release/OfficeDocumentsApi.Excel
+      #   run: dotnet pack $PROJ -c Release -o ./
       
       - name: Publish package
         env:
