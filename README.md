@@ -1,5 +1,5 @@
-# OfficeDocumentsApi
-OfficeDocumentsApi is a library for working with office documents (word, excel, powerpoint). OfficeDocumentsApi is able to read or create office documents without direct using xml structures like Open-XML-SDK.
+# MDDM.OfficeDocuments
+MDDM.OfficeDocuments is a library for working with office documents (word, excel, powerpoint). MDDM.OfficeDocuments is able to read or create office documents without direct using xml structures like Open-XML-SDK.
 
 ## Principles
 * MVP
