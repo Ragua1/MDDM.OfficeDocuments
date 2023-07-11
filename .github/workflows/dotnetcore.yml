@@ -18,7 +18,8 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
         run: dotnet restore
+        working-directory: OpenXmlApi
       - name: Build
-        run: dotnet build OpenXmlApi/OfficeDocumentsApi.sln --configuration Release --no-restore 
+        run: dotnet build --configuration Release --no-restore 
       - name: Test
-        run: dotnet test OpenXmlApi/OfficeDocumentsApi.sln --no-restore --verbosity normal
+        run: dotnet test --no-restore --verbosity normal
