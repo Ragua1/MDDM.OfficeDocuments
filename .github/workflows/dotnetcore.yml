@@ -19,6 +19,6 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --configuration Release --no-restore OpenXmlApi/OfficeDocumentsApi.sln
+        run: dotnet build OpenXmlApi/OfficeDocumentsApi.sln --configuration Release --no-restore 
       - name: Test
-        run: dotnet test --no-restore --verbosity normal OpenXmlApi/OfficeDocumentsApi.sln
+        run: dotnet test OpenXmlApi/OfficeDocumentsApi.sln --no-restore --verbosity normal
