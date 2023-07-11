@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Excel.Enums;
@@ -468,6 +470,30 @@ namespace OfficeDocumentsApi.Excel.Test
                         c.AddStyle(sheet.GetCell(c.ColumnIndex, c.RowIndex - 1)?.Style);
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void CreateInMemoryStream()
+        {
+            var memory = new MemoryStream();
+            var cellIndex = -1;
+            var textValue = "12300";
+            using (var writer = CreateTestee(memory))
+            {
+                var sheet = writer.AddWorksheet();
+                var cell = sheet.AddCellWithValue(textValue);
+                cellIndex = (int) cell.ColumnIndex;
+            }
+
+            Assert.IsTrue(cellIndex >= 0);
+
+            using (var writer = CreateOpenTestee(memory))
+            {
+                var sheet = writer.Worksheets.FirstOrDefault();
+                var cell = sheet.GetCell((uint)cellIndex);
+                Console.WriteLine(cell.CellReference);
+                Assert.AreEqual(cell.Value, textValue);
             }
         }
 

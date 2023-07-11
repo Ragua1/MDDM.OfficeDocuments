@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Excel.Interfaces;
@@ -55,7 +56,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 cell2.Value = value;
                 Assert.AreEqual(value, cell1.Value, $"Cell value of 'cell.SetValue()' is '{cell1.Value}', expected {value}");
                 Assert.AreEqual(value, cell2.Value, $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}");
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 Assert.AreEqual(cell1.Style.NumberFormatId, 49, $"Number format is '{cell1.Style.NumberFormatId}', expected 49-'@'");
             }
@@ -82,7 +83,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 Assert.AreEqual(cell1.Style.NumberFormatId, 1, $"Number format is '{cell1.Style.NumberFormatId}', expected 1-'0'");
             }
@@ -110,7 +111,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 var excelUserFormatsIndex = 170;
                 Assert.IsTrue(cell1.Style.NumberFormatId >= excelUserFormatsIndex, $"Number format is '{cell1.Style.NumberFormatId}', expected {excelUserFormatsIndex}+");
@@ -138,7 +139,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
             }
         }
 
@@ -164,7 +165,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 var excelUserFormatsIndex = 170;
                 Assert.IsTrue(cell1.Style.NumberFormatId > excelUserFormatsIndex, $"Number format is '{cell1.Style.NumberFormatId}', expected {excelUserFormatsIndex}+");
@@ -192,7 +193,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
             }
         }
 
@@ -218,7 +219,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 var excelUserFormatsIndex = 170;
                 Assert.IsTrue(cell1.Style.NumberFormatId >= excelUserFormatsIndex, $"Number format is '{cell1.Style.NumberFormatId}', expected {excelUserFormatsIndex}+");
@@ -246,7 +247,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value.ToString(CultureInfo.InvariantCulture)}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, "Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, "Cell values are not same");
             }
         }
 
@@ -272,7 +273,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value.ToString(CultureInfo.InvariantCulture)}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 var excelUserFormatsIndex = 170;
                 Assert.IsTrue(
@@ -300,7 +301,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     value.ToOADate().ToString(CultureInfo.InvariantCulture),
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value.ToOADate()}");
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 Assert.AreEqual(cell1.Style.NumberFormatId, 14, $"Number format is '{cell1.Style.NumberFormatId}', expected 14-'d/m/yyyy'");
             }
@@ -328,7 +329,7 @@ namespace OfficeDocumentsApi.Excel.Test
                     cell2.Value,
                     $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value.ToOADate()}"
                 );
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
 
                 var excelUserFormatsIndex = 170;
                 Assert.IsTrue(
@@ -351,7 +352,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 cell2.SetValue(value);
                 Assert.AreEqual(cell1.Value, value.ToString(), $"Cell value of 'cell.SetValue()' is '{cell1.Value}', expected {value}");
                 Assert.AreEqual(cell2.Value, value.ToString(), $"Cell value of 'cell.SetValue()' is '{cell2.Value}', expected {value}");
-                Assert.AreEqual((object) cell1.Value, cell2.Value, $"Cell values are not same");
+                Assert.AreEqual((object)cell1.Value, cell2.Value, $"Cell values are not same");
             }
         }
 
@@ -381,7 +382,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 var cell = row.AddCell();
 
                 Assert.AreEqual(
-                    (object) row.Style.StyleIndex, cell.Style.StyleIndex,
+                    (object)row.Style.StyleIndex, cell.Style.StyleIndex,
                     $"Cell not inherit style. Row style '{row.Style.StyleIndex}', cell stylw {cell.Style.StyleIndex}"
                 );
             }
@@ -398,7 +399,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 var cell = sheet.AddCell();
 
                 Assert.AreEqual(
-                    (object) sheet.Style.StyleIndex, cell.Style.StyleIndex,
+                    (object)sheet.Style.StyleIndex, cell.Style.StyleIndex,
                     $"Cell not inherit style. Sheet style '{sheet.Style.StyleIndex}', cell style {cell.Style.StyleIndex}"
                 );
             }
@@ -795,5 +796,75 @@ namespace OfficeDocumentsApi.Excel.Test
                 //Assert.AreEqual(time, res);
             }
         }
+
+        [TestMethod]
+        public void CreateMultipleCellsWithValue()
+        {
+            var filePath = GetFilepath("doc27.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                for (int i = 0; i < 10; i++)
+                {
+                    var cell = sheet.AddCellWithValue(i);
+                    Assert.AreEqual(cell.GetIntValue(), i);
+                }
+            }
+            Assert.IsTrue(File.Exists(filePath));
+        }
+
+        [TestMethod]
+        public void CreateMultipleCellsWithStyle()
+        {
+            var filePath = GetFilepath("doc28.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                for (int i = 0; i < 10; i++)
+                {
+                    var s = w.CreateStyle(numberFormat: new NumberingFormat("#,##0x"));
+                    var value = i;
+                    var cell1 = sheet.AddCellWithValue(value, s);
+                    var cell2 = sheet.AddCell(s);
+                    cell2.SetValue(value);
+
+                    Assert.AreEqual(cell1.GetIntValue(), value);
+                    Assert.AreEqual(cell2.GetIntValue(), value);
+                    Assert.AreEqual(cell1.GetIntValue(), cell2.GetIntValue());
+                }
+            }
+            Assert.IsTrue(File.Exists(filePath));
+        }
+
+        [TestMethod]
+        public void CreateRandomCellsInRange()
+        {
+            var filePath = GetFilepath("doc29.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                for (int i = 0; i < 10; i++)
+                {
+                    sheet.AddRow();
+                    for (int j = 0; j < 10; j++)
+                    {
+                        Random rnd = new Random();
+                        int createCell = rnd.Next(0, 2);
+
+                        if (createCell == 0)
+                        {
+                            var cell = sheet.AddCellWithValue(j);
+                            Assert.AreEqual(cell.GetIntValue(), j);
+                        }
+                        else
+                        {
+                            var cell = sheet.AddCell();
+                            Assert.IsNotNull(cell);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
