@@ -1,4 +1,5 @@
 ﻿using OfficeDocumentsApi.Excel.Enums;
+using OfficeDocumentsApi.Excel.Extensions;
 
 namespace OfficeDocumentsApi.Excel.Styles
 {
@@ -62,7 +63,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// <param name="alignment">Spreadsheet alignment for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Alignment alignment)
         {
-            return Utils.CompareXml(alignment.OuterXml, Element.OuterXml);
+            return alignment.OuterXml.CompareXml(Element.OuterXml);
         }
     }
 }

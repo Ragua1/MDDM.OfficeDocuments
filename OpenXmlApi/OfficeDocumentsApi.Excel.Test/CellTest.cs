@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Excel.Interfaces;
@@ -40,6 +41,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 var cell = sheet.AddCellWithValue(value);
                 Assert.AreEqual(cell.Value, value);
             }
+            Assert.IsTrue(File.Exists(filePath));
         }
 
         [TestMethod]

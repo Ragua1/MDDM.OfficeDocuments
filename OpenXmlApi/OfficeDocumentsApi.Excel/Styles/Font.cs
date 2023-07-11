@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml;
 using OfficeDocumentsApi.Excel.Enums;
+using OfficeDocumentsApi.Excel.Extensions;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocumentsApi.Excel.Styles
@@ -78,7 +79,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// <param name="font">Spreadsheet font for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Font font)
         {
-            return Utils.CompareXml(font.OuterXml, Element.OuterXml);
+            return font.OuterXml.CompareXml(Element.OuterXml);
         }
     }
 }

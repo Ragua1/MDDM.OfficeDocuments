@@ -1,4 +1,5 @@
 ﻿using OfficeDocumentsApi.Excel.Enums;
+using OfficeDocumentsApi.Excel.Extensions;
 
 namespace OfficeDocumentsApi.Excel.Styles
 {
@@ -78,7 +79,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// <param name="border">Spreadsheet border for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Border border)
         {
-            return Utils.CompareXml(border.OuterXml, Element.OuterXml);
+            return border.OuterXml.CompareXml(Element.OuterXml);
         }
     }
 }

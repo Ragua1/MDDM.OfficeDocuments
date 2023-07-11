@@ -29,7 +29,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// </summary>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCell(IStyle style = null);
+        ICell AddCell(IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'columnIndex' and apply custom style.
@@ -37,7 +37,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="columnIndex">Index of column</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'columnIndex'</returns>
-        ICell AddCell(uint columnIndex, IStyle style = null);
+        ICell AddCell(uint columnIndex, IStyle? style = null);
 
         /// <summary>
         /// Create cell after current cell, set object value and apply custom style.
@@ -45,7 +45,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCellWithValue<T>(T value, IStyle style = null);
+        ICell AddCellWithValue<T>(T value, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'columnIndex', set 'value' and apply custom style.
@@ -54,7 +54,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'columnIndex'</returns>
-        ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null);
+        ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null);
 
         /// <summary>
         /// Create cell after current cell, set 'formula' and apply custom style.
@@ -62,7 +62,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="formula">Cell formula</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCellWithFormula(string formula, IStyle style = null);
+        ICell AddCellWithFormula(string formula, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'columnIndex', set 'formula' and apply custom style.
@@ -71,7 +71,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="formula">Cell formula</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'columnIndex'</returns>
-        ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null);
+        ICell AddCellWithFormula(uint columnIndex, string formula, IStyle? style = null);
 
         /// <summary>
         /// Create and merge cells from 'beginColumn' to 'endColumn'
@@ -80,15 +80,15 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="endColumn">End column index</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Merged cell</returns>
-        ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null);
+        ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
 
         /// <summary>
         /// Get cell on 'columnIndex'
         /// </summary>
         /// <param name="columnIndex">Index of column</param>
         /// <returns>Cell on 'columnIndex' or null</returns>
-        ICell GetCell(uint columnIndex);
+        ICell? GetCell(uint columnIndex);
 
-        ICell GetCell(string columnName);
+        ICell? GetCell(string columnName);
     }
 }

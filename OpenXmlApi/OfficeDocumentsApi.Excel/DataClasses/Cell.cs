@@ -13,13 +13,13 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         public OpenXml.Cell Element { get; }
 
         public string CellReference { get; }
-        public uint RowIndex => rowIndex > 0
-            ? rowIndex
-            : rowIndex = uint.Parse(new string(CellReference.Where(char.IsDigit).ToArray()));
+        public uint RowIndex => _rowIndex > 0
+            ? _rowIndex
+            : _rowIndex = uint.Parse(new string(CellReference.Where(char.IsDigit).ToArray()));
 
-        public uint ColumnIndex => columnIndex > 0
-            ? columnIndex
-            : columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
+        public uint ColumnIndex => _columnIndex > 0
+            ? _columnIndex
+            : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
 
         public string Value
         {
@@ -27,14 +27,14 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             set => SetValue(value);
         }
 
-        private uint rowIndex;
-        private uint columnIndex;
+        private uint _rowIndex;
+        private uint _columnIndex;
 
-        internal Cell(IWorksheet worksheet, uint column, uint row, IStyle cellStyle = null)
+        internal Cell(IWorksheet worksheet, uint column, uint row, IStyle? cellStyle = null)
             : this(worksheet, GetExcelColumnName(column) + row, cellStyle)
         {
-            rowIndex = row;
-            columnIndex = column;
+            _rowIndex = row;
+            _columnIndex = column;
         }
         internal Cell(IWorksheet worksheet, string cellReference, IStyle cellStyle)
             : base(worksheet, cellStyle)
@@ -154,12 +154,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         #endregion
 
         #region Get value/formula
-        public string GetFormula()
+        public string? GetFormula()
         {
             return Element.CellFormula?.Text;
         }
 
-        public string GetStringValue()
+        public string? GetStringValue()
         {
             if (HasFormula())
             {
@@ -210,7 +210,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return GetInvariantValue(decimal.Parse);
         }
 
-        public DateTime GetDateValue(string format = null)
+        public DateTime GetDateValue(string? format = null)
         {
             var cellValue = GetStringValue();
 
@@ -258,7 +258,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             }
         }
 
-        public bool TryGetValue(out DateTime value, string format = null)
+        public bool TryGetValue(out DateTime value, string? format = null)
         {
             value = DateTime.MinValue;
             try
@@ -283,7 +283,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         }
         #endregion
 
-        public override IStyle AddStyle(params IStyle[] styles)
+        public override IStyle? AddStyle(params IStyle[] styles)
         {
             foreach (var style in styles.Where(s => s != null))
             {
