@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using OfficeDocumentsApi.Excel.Extensions;
 
 namespace OfficeDocumentsApi.Excel.Styles
 {
@@ -72,7 +73,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// <param name="fill">Spreadsheet fill for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
         {
-            return Utils.CompareXml(fill.OuterXml, Element.OuterXml);
+            return fill.OuterXml.CompareXml(Element.OuterXml);
         }
     }
 }

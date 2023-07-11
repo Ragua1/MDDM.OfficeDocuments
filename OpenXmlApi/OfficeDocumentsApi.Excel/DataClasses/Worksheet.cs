@@ -25,33 +25,33 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         {
             get
             {
-                if (columns == null)
+                if (_columns == null)
                 {
-                    columns = new SpreadsheetLib.Columns();
-                    WorksheetPart.Worksheet.InsertBefore(columns, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
+                    _columns = new SpreadsheetLib.Columns();
+                    WorksheetPart.Worksheet.InsertBefore(_columns, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
                 }
-                return columns;
+                return _columns;
             }
         }
         public SpreadsheetLib.MergeCells MergeCells
         {
             get
             {
-                if (mergeCells == null)
+                if (_mergeCells == null)
                 {
-                    mergeCells = new SpreadsheetLib.MergeCells();
-                    WorksheetPart.Worksheet.InsertAfter(mergeCells, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
+                    _mergeCells = new SpreadsheetLib.MergeCells();
+                    WorksheetPart.Worksheet.InsertAfter(_mergeCells, WorksheetPart.Worksheet.Elements<SpreadsheetLib.SheetData>().First());
                 }
-                return mergeCells;
+                return _mergeCells;
             }
         }
 
         private uint NextRowIndex => (CurrentRow?.RowIndex ?? 0) + 1;
         private uint NextCellIndex => (CurrentCell?.ColumnIndex ?? 0) + 1;
 
-        private uint currentRow = 1;
-        private SpreadsheetLib.Columns columns;
-        private SpreadsheetLib.MergeCells mergeCells;
+        private uint _currentRow = 1;
+        private SpreadsheetLib.Columns? _columns;
+        private SpreadsheetLib.MergeCells? _mergeCells;
 
         internal Worksheet(Spreadsheet spreadsheet, WorksheetPart worksheetPart, SpreadsheetLib.SheetData sheetData, IStyle cellStyle = null) : base(null, cellStyle)
         {
@@ -66,9 +66,9 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             {
                 Rows.Add(new Row(this, rowElement));
 
-                if (rowElement.RowIndex > currentRow)
+                if (rowElement.RowIndex > _currentRow)
                 {
-                    currentRow = rowElement.RowIndex;
+                    _currentRow = rowElement.RowIndex;
                 }
             }
         }
@@ -85,12 +85,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public ICell AddCell(IStyle style)
         {
-            return AddCell(NextCellIndex, currentRow, style);
+            return AddCell(NextCellIndex, _currentRow, style);
         }
 
         public ICell AddCell(uint columnIndex, IStyle style = null)
         {
-            return AddCell(columnIndex, currentRow, style);
+            return AddCell(columnIndex, _currentRow, style);
         }
 
         public ICell AddCell(uint columnIndex, uint rowIndex, IStyle style = null)
@@ -102,12 +102,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public ICell AddCellWithValue<T>(T value, IStyle style = null)
         {
-            return AddCellWithValue(NextCellIndex, currentRow, value, style);
+            return AddCellWithValue(NextCellIndex, _currentRow, value, style);
         }
 
         public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
         {
-            return AddCellWithValue(columnIndex, currentRow, value, style);
+            return AddCellWithValue(columnIndex, _currentRow, value, style);
         }
 
         public ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
@@ -119,12 +119,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public ICell AddCellWithFormula(string formula, IStyle style = null)
         {
-            return AddCellWithFormula(NextCellIndex, currentRow, formula, style);
+            return AddCellWithFormula(NextCellIndex, _currentRow, formula, style);
         }
 
         public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null)
         {
-            return AddCellWithFormula(columnIndex, currentRow, formula, style);
+            return AddCellWithFormula(columnIndex, _currentRow, formula, style);
         }
 
         public ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle style = null)
@@ -136,7 +136,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null)
         {
-            return AddCellOnRange(beginColumn, endColumn, currentRow, style);
+            return AddCellOnRange(beginColumn, endColumn, _currentRow, style);
         }
 
         public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle style = null)
@@ -204,7 +204,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public IRow GetRow()
         {
-            return GetRow(currentRow);
+            return GetRow(_currentRow);
         }
 
         public IRow GetRow(uint rowIndex)
@@ -233,9 +233,9 @@ namespace OfficeDocumentsApi.Excel.DataClasses
                 Rows.Insert(0, row);
                 Element.Append(row.Element);
 
-                if (rowIndex > currentRow)
+                if (rowIndex > _currentRow)
                 {
-                    currentRow = rowIndex;
+                    _currentRow = rowIndex;
                 }
             }
 

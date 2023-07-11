@@ -12,12 +12,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public DocumentFormat.OpenXml.Spreadsheet.Row Element { get; }
         public IList<ICell> Cells { get; } = new List<ICell>();
-        public ICell CurrentCell => Cells.FirstOrDefault(x => x.ColumnIndex == currentCellIndex);
+        public ICell CurrentCell => Cells.FirstOrDefault(x => x.ColumnIndex == _currentCellIndex);
 
         public uint RowIndex { get; }
 
-        private uint NextCellIndex => currentCellIndex + 1;
-        private uint currentCellIndex = 0;
+        private uint NextCellIndex => _currentCellIndex + 1;
+        private uint _currentCellIndex = 0;
 
         internal Row(IWorksheet worksheet, uint rowIndex, IStyle cellStyle = null)
             : base(worksheet, cellStyle)
@@ -40,29 +40,29 @@ namespace OfficeDocumentsApi.Excel.DataClasses
                 Cells.Add(cell);
                 //Cells.Insert(0, cell);
 
-                if (cell.ColumnIndex > currentCellIndex)
+                if (cell.ColumnIndex > _currentCellIndex)
                 {
-                    currentCellIndex = cell.ColumnIndex;
+                    _currentCellIndex = cell.ColumnIndex;
                 }
             }
         }
 
-        public ICell AddCell(IStyle style = null)
+        public ICell AddCell(IStyle? style = null)
         {
             return AddCell(NextCellIndex, style);
         }
 
-        public ICell AddCell(uint columnIndex, IStyle style = null)
+        public ICell AddCell(uint columnIndex, IStyle? style = null)
         {
             return GetOrCreateCell(columnIndex, style);
         }
 
-        public ICell AddCellWithValue<T>(T value, IStyle style = null)
+        public ICell AddCellWithValue<T>(T value, IStyle? style = null)
         {
             return AddCellWithValue(NextCellIndex, value, style);
         }
 
-        public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
+        public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null)
         {
             var cell = GetOrCreateCell(columnIndex, style);
 
@@ -71,12 +71,12 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return cell;
         }
 
-        public ICell AddCellWithFormula(string formula, IStyle style = null)
+        public ICell AddCellWithFormula(string formula, IStyle? style = null)
         {
             return AddCellWithFormula(NextCellIndex, formula, style);
         }
 
-        public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null)
+        public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle? style = null)
         {
             var cell = GetOrCreateCell(columnIndex, style);
 
@@ -85,7 +85,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return cell;
         }
 
-        public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null)
+        public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null)
         {
             if (beginColumn < 1)
             {
@@ -113,7 +113,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return mergedCell;
         }
 
-        public ICell GetCell(uint columnIndex)
+        public ICell? GetCell(uint columnIndex)
         {
             if (columnIndex < 1)
             {
@@ -122,7 +122,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return Cells?.FirstOrDefault(c => c.ColumnIndex == columnIndex);
         }
 
-        public ICell GetCell(string columnName)
+        public ICell? GetCell(string columnName)
         {
             uint columnIndex = 0;
             columnName = columnName.ToUpper();
@@ -165,9 +165,9 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return cell;
         }
 
-        private ICell CreateCell(uint columnIndex)
+        private ICell? CreateCell(uint columnIndex)
         {
-            ICell cell = null;
+            ICell? cell = null;
 
             for (uint i = 1; i <= columnIndex; i++) // check if previous cells in same row exist
             {
@@ -185,9 +185,9 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             this.Cells.Insert(0, cell);
             this.Element.Append(cell.Element);
             */
-            if (columnIndex > currentCellIndex)
+            if (columnIndex > _currentCellIndex)
             {
-                currentCellIndex = columnIndex;
+                _currentCellIndex = columnIndex;
             }
 
             return cell;

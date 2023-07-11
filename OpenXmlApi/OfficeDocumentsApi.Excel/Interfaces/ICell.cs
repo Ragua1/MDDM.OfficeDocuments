@@ -59,12 +59,12 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <summary>
         /// Gets the formula.
         /// </summary>
-        string GetFormula();
+        string? GetFormula();
 
         /// <summary>
         /// Gets the value.
         /// </summary>
-        string GetStringValue();
+        string? GetStringValue();
         /// <summary>
         /// Gets the bool value.
         /// </summary>
@@ -89,7 +89,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// Gets the date value.
         /// </summary>
         /// <param name="format">Date format</param>
-        DateTime GetDateValue(string format = null);
+        DateTime GetDateValue(string? format = null);
         /// <summary>
         /// Tries the get bool value.
         /// </summary>
@@ -132,7 +132,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// <param name="format">Date format</param>
         /// <param name="value">The value.</param>
         /// <returns>Result of operation</returns>
-        bool TryGetValue(out DateTime value, string format = null);
+        bool TryGetValue(out DateTime value, string? format = null);
         /// <summary>
         /// Determines whether this instance has value.
         /// </summary>

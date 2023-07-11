@@ -41,6 +41,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 var cell = sheet.AddCellWithValue(value);
                 Assert.AreEqual(cell.Value, value);
             }
+            Assert.IsTrue(File.Exists(filePath));
         }
 
         [TestMethod]

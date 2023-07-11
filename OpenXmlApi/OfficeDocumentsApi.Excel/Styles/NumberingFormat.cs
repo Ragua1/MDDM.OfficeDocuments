@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DocumentFormat.OpenXml;
+using OfficeDocumentsApi.Excel.Extensions;
 
 namespace OfficeDocumentsApi.Excel.Styles
 {
@@ -12,7 +13,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// Instance of NumberingFormat element
         /// </summary>
         public DocumentFormat.OpenXml.Spreadsheet.NumberingFormat Element { get; }
-        private static readonly Dictionary<string, uint> DefaultNumberFormats = new Dictionary<string, uint>
+        private static readonly Dictionary<string, uint> DefaultNumberFormats = new()
         {
             { "General", 0 },
             { "0", 1 },
@@ -82,7 +83,7 @@ namespace OfficeDocumentsApi.Excel.Styles
         /// <param name="numberFormat">Spreadsheet number format for compare</param>
         public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.NumberingFormat numberFormat)
         {
-            return Utils.CompareXml(numberFormat.OuterXml, Element.OuterXml);
+            return numberFormat.OuterXml.CompareXml(Element.OuterXml);
         }
     }
 }

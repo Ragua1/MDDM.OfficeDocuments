@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeDocumentsApi.Excel.Extensions;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocumentsApi.Excel.Test
@@ -36,7 +37,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             var font_merged = Utils.MergeFonts(font1, font2);
 
-            Assert.IsTrue(Utils.CompareXml(font_merged.Element.OuterXml, font_res.OuterXml));
+            Assert.IsTrue(font_merged.Element.OuterXml.CompareXml(font_res.OuterXml));
         }
 
         [TestMethod]
@@ -68,7 +69,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             var fill_merged = Utils.MergeFills(fill1, fill2);
 
-            Assert.IsTrue(Utils.CompareXml(fill_merged.Element.OuterXml, fill_res.OuterXml));
+            Assert.IsTrue(fill_merged.Element.OuterXml.CompareXml(fill_res.OuterXml));
         }
 
         [TestMethod]
@@ -94,7 +95,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             var Border_merged = Utils.MergeBorders(border1, Border2);
 
-            Assert.IsTrue(Utils.CompareXml(Border_merged.Element.OuterXml, Border_res.OuterXml));
+            Assert.IsTrue(Border_merged.Element.OuterXml.CompareXml(Border_res.OuterXml));
         }
     }
 }

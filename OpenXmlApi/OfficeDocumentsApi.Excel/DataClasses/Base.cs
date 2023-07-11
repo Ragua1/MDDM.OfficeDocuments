@@ -10,9 +10,9 @@ namespace OfficeDocumentsApi.Excel.DataClasses
     internal abstract class Base : IBase
     {
         public IWorksheet Worksheet { get; protected set; }
-        public IStyle Style { get; protected set; }
+        public IStyle? Style { get; protected set; }
 
-        protected Base(IWorksheet worksheet, IStyle cellStyle = null)
+        protected Base(IWorksheet worksheet, IStyle? cellStyle = null)
         {
             Worksheet = worksheet;
             AddStyle(cellStyle);

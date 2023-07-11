@@ -6,14 +6,20 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '7.0.x', '6.0.x' ]
 
     steps:
-        - uses: actions/checkout@v2
-        - name: Setup .NET Core SDK
-          uses: actions/setup-dotnet@v1.4.0
-          with:
-            dotnet-version: 3.1.101
-        - name: Build with dotnet
-          run: dotnet build --configuration Release OpenXmlApi/OfficeDocumentsApi.sln
-        - name: Test with dotnet
-          run: dotnet test --configuration Release OpenXmlApi/OfficeDocumentsApi.sln
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: OpenXmlApi
+      - name: Build
+        run: dotnet build --configuration Release --no-restore 
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal

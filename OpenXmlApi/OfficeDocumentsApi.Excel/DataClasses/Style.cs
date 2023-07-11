@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using OfficeDocumentsApi.Excel.Extensions;
 using OfficeDocumentsApi.Excel.Interfaces;
 using OfficeDocumentsApi.Excel.Styles;
 
@@ -16,13 +17,13 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         public int BorderId => Convert.ToInt32(Element.BorderId.Value);
         public int NumberFormatId => Convert.ToInt32(Element.NumberFormatId?.Value ?? 0);
 
-        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null)
+        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font? font = null, Fill? fill = null, Border? border = null, NumberingFormat? numberFormat = null)
             : this(stylesheet, GetFontId(stylesheet, font), GetFillId(stylesheet, fill), GetBorderId(stylesheet, border), GetNumberFormatId(stylesheet, numberFormat))
         { }
-        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
+        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font? font = null, Fill? fill = null, Border? border = null, NumberingFormat? numberFormat = null, Alignment? alignment = null)
             : this(stylesheet, GetFontId(stylesheet, font), GetFillId(stylesheet, fill), GetBorderId(stylesheet, border), GetNumberFormatId(stylesheet, numberFormat), alignment)
         { }
-        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, int fontId = 0, int fillId = 0, int borderId = 0, int numberFormatId = 0, Alignment alignment = null)
+        internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, int? fontId = 0, int? fillId = 0, int? borderId = 0, int? numberFormatId = 0, Alignment? alignment = null)
         {
             Stylesheet = stylesheet;
             Element = new DocumentFormat.OpenXml.Spreadsheet.CellFormat
@@ -56,7 +57,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             StyleIndex = styleIndex;
         }
 
-        public IStyle CreateMergedStyle(IStyle style)
+        public IStyle CreateMergedStyle(IStyle? style)
         {
             int fontId = FontId, fillId = FillId, borderId = BorderId, numberFormatId = NumberFormatId;
             var alignment = Element.Alignment != null ? new Alignment(Element.Alignment) : null;
@@ -108,7 +109,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return new Style(Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
         }
 
-        private static int GetFontId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font font)
+        private static int GetFontId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font? font)
         {
             var fontId = 0;
             if (font?.Element != null)
@@ -127,7 +128,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return fontId;
         }
 
-        private static int GetFillId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Fill fill)
+        private static int GetFillId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Fill? fill)
         {
             var fillId = 0;
             if (fill?.Element != null)
@@ -146,7 +147,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return fillId;
         }
 
-        private static int GetBorderId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Border border)
+        private static int GetBorderId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Border? border)
         {
             var borderId = 0;
             if (border?.Element != null)
@@ -165,25 +166,27 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return borderId;
         }
 
-        private static int GetNumberFormatId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, NumberingFormat numberFormat)
+        private static int GetNumberFormatId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, NumberingFormat? numberFormat)
         {
             var numberFormatId = 0;
-            if (numberFormat?.Element != null)
+            if (numberFormat?.Element == null)
             {
-                var numberingFormats = stylesheet.NumberingFormats ?? (stylesheet.NumberingFormats = new DocumentFormat.OpenXml.Spreadsheet.NumberingFormats());
-                var elms = numberingFormats.Elements<DocumentFormat.OpenXml.Spreadsheet.NumberingFormat>().ToList();
+                return numberFormatId;
+            }
 
-                var numFormat = elms.FirstOrDefault(numberFormat.IsContentSame);
+            var numberingFormats = stylesheet.NumberingFormats ?? (stylesheet.NumberingFormats = new DocumentFormat.OpenXml.Spreadsheet.NumberingFormats());
+            var elms = numberingFormats.Elements<DocumentFormat.OpenXml.Spreadsheet.NumberingFormat>().ToList();
 
-                if (numFormat == null)
-                {
-                    numberingFormats.Append(numberFormat.Element);
-                    numberFormatId = Convert.ToInt32(numberFormat.Element.NumberFormatId.Value);
-                }
-                else
-                {
-                    numberFormatId = Convert.ToInt32(numFormat.NumberFormatId.Value);
-                }
+            var numFormat = elms.FirstOrDefault(numberFormat.IsContentSame);
+
+            if (numFormat == null)
+            {
+                numberingFormats.Append(numberFormat.Element);
+                numberFormatId = Convert.ToInt32(numberFormat.Element.NumberFormatId.Value);
+            }
+            else
+            {
+                numberFormatId = Convert.ToInt32(numFormat.NumberFormatId.Value);
             }
             return numberFormatId;
         }
@@ -229,7 +232,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
             if (style1.Alignment != null && style2.Alignment != null)
             {
-                res &= Utils.CompareXml(style1.Alignment.OuterXml, style2.Alignment.OuterXml);
+                res &= style1.Alignment.OuterXml.CompareXml(style2.Alignment.OuterXml);
             }
             else
             {
