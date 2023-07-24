@@ -181,6 +181,13 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         ICell GetCell(uint columnIndex, uint rowIndex);
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        ICell GetCellByReference(string reference);
+
+        /// <summary>
         /// Get current row
         /// </summary>
         /// <returns>Current row or null</returns>

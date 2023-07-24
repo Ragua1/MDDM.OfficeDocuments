@@ -141,6 +141,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             return GetCell(columnIndex);
         }
 
+        public ICell GetCellByReference(string reference) => Worksheet.GetCellByReference(reference);
+
         private ICell GetOrCreateCell(uint columnIndex, IStyle style)
         {
             if (columnIndex < 1)

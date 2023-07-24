@@ -201,6 +201,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
             }
             return GetRow(rowIndex)?.GetCell(columnIndex);
         }
+        public ICell GetCellByReference(string reference) 
+            => Worksheet.Cells.FirstOrDefault(x => x.CellReference == reference);
 
         public IRow GetRow()
         {

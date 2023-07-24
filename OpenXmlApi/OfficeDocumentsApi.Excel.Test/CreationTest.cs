@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocumentsApi.Excel.Enums;
@@ -477,23 +475,55 @@ namespace OfficeDocumentsApi.Excel.Test
         public void CreateInMemoryStream()
         {
             var memory = new MemoryStream();
-            var cellIndex = -1;
+            uint columnIndex = 0;
             var textValue = "12300";
             using (var writer = CreateTestee(memory))
             {
                 var sheet = writer.AddWorksheet();
                 var cell = sheet.AddCellWithValue(textValue);
-                cellIndex = (int) cell.ColumnIndex;
+                columnIndex = cell.ColumnIndex;
             }
 
-            Assert.IsTrue(cellIndex >= 0);
+            Assert.IsTrue(columnIndex > 0);
 
             using (var writer = CreateOpenTestee(memory))
             {
                 var sheet = writer.Worksheets.FirstOrDefault();
-                var cell = sheet.GetCell((uint)cellIndex);
+                var cell = sheet.GetCell(columnIndex);
                 Console.WriteLine(cell.CellReference);
                 Assert.AreEqual(cell.Value, textValue);
+            }
+        }
+
+        [TestMethod]
+        public void FormulaInMemoryStream()
+        {
+            int num1 = 1;
+            int num2 = 2;
+
+            uint columnIndex = 0;
+
+            var memory = new MemoryStream();
+            using (var writer = CreateTestee(memory))
+            {
+                var sheet = writer.AddWorksheet();
+                var cell1 = sheet.AddCellWithValue(num1);
+                var cell2 = sheet.AddCellWithValue(num2);
+                var sumCell = sheet.AddCellWithFormula("SUM:(A1:B1)");
+
+                columnIndex = sumCell.ColumnIndex;
+
+            }
+
+                Assert.IsTrue(columnIndex > 0);
+
+            using (var writer = CreateOpenTestee(memory))
+            {
+                var sheet = writer.Worksheets.FirstOrDefault();
+                var cell = sheet.GetCell(columnIndex);
+                var formulaValue = cell.GetFormulaValue();
+                Console.WriteLine(formulaValue);
+                Assert.AreEqual(formulaValue, num1 + num2);
             }
         }
 

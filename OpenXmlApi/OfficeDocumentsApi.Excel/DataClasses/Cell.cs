@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeDocumentsApi.Excel.Extensions;
 using OfficeDocumentsApi.Excel.Interfaces;
 using OpenXml = DocumentFormat.OpenXml.Spreadsheet;
 
@@ -19,7 +25,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public uint ColumnIndex => _columnIndex > 0
             ? _columnIndex
-            : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
+            : _columnIndex = new string(CellReference.Where(char.IsLetter).ToArray()).GetExcelColumnIndex();
+        // : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
 
         public string Value
         {
@@ -104,8 +111,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         {
             SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Boolean);
         }
-        
-        private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where  TNumber : class
+
+        private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where TNumber : class
         {
             if (Style == null || Style.NumberFormatId == 0)
             {
@@ -157,6 +164,69 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         public string? GetFormula()
         {
             return Element.CellFormula?.Text;
+        }
+
+        public int GetFormulaValue()
+        {
+            if (!HasFormula())
+                return -1;
+
+            return GetFormula() switch
+            {
+                var f when f.StartsWith("SUM") && false => FormulaSum(f), // if any cell is double
+                var f when f.StartsWith("SUM") => FormulaSum(f),
+                // TODO add new forumlas functions
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public int FormulaSum(string formula)
+        {
+            // Split formula to cell names in string array
+            string[] subs = formula.Split('(', ')', ':');
+            var sum = 0;
+
+            var range = new List<string>();
+
+            foreach (string sub in subs)
+            {
+                if (sub != "SUM")
+                {
+                    range.Add(sub);
+                }
+            }
+
+            var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
+            var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+
+            for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+            {
+                var cell = Worksheet.GetCell(i);
+                if (cell == null)
+                {
+                    // TODO fix
+                    throw new NotImplementedException();
+                }
+
+                if (cell.HasFormula())
+                {
+                    sum += cell.GetFormulaValue();
+                    continue;
+                }
+
+                // TODO get cell; if cell is formula => get formula value       DONE
+                // TODO get cell; if cell is text => throw exception            DONE
+                // TODO get cell; if any of cell is double => return double
+
+                sum += 1 switch
+                {
+                    _ when cell.TryGetValue(out int val) => val,
+                    // when cell.TryGetValue(out double val) => val,
+                    _ => throw new ArgumentException($"Invalid cell '{cell.CellReference}' content."),
+                };
+            }
+
+            return sum;
         }
 
         public string? GetStringValue()
@@ -312,13 +382,13 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
             return columnName;
         }
-
+        /*
         private static uint GetExcelColumnIndex(string columnName)
         {
             return (uint)columnName
                 .ToUpper()
                 .Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
-        }
+        }*/
 
         private void SetCellValue(string value, OpenXml.CellValues dataType = OpenXml.CellValues.Error)
         {
@@ -332,7 +402,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         {
             return Worksheet.Spreadsheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<OpenXml.SharedStringItem>().ElementAt(id);
         }
-        
+
         private T GetValue<T>(Func<string, T> parse) where T : IConvertible
         {
             return parse(GetStringValue());

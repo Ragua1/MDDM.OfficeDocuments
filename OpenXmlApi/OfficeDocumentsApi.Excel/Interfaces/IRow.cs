@@ -90,5 +90,12 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         ICell? GetCell(uint columnIndex);
 
         ICell? GetCell(string columnName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
+        ICell GetCellByReference(string reference);
     }
 }

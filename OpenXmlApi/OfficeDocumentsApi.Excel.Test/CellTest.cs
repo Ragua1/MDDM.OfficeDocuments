@@ -364,10 +364,159 @@ namespace OfficeDocumentsApi.Excel.Test
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
-                var formula = "Sum(A1:A5)";
+                var formula = "SUM(A1:A5)";
                 var cell = sheet.AddCell();
                 cell.SetFormula(formula);
-                Assert.AreEqual(cell.Element.CellFormula.Text, formula, $"Cell firmula is '{cell.Element.CellFormula.Text}', expected {formula}");
+                Assert.AreEqual(cell.Element.CellFormula.Text, formula, $"Cell formula is '{cell.Element.CellFormula.Text}', expected {formula}");
+            }
+        }
+
+        [TestMethod]
+        public void SumInRangeFormula()
+        {
+            int[] numbers = new int[] { 1, 2, 3 };
+            int sum = 0;
+            foreach (int num in numbers)
+            {
+                sum += num;
+            }
+
+            var filePath = GetFilepath("doc30.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                var formula = "SUM(B1:D1)";
+
+                var cell1 = sheet.AddCellWithFormula(formula);
+                var cell2 = sheet.AddCellWithValue(numbers[0]);
+                var cell3 = sheet.AddCellWithValue(numbers[1]);
+                var cell4 = sheet.AddCellWithValue(numbers[2]);
+
+                int value = cell1.GetFormulaValue();
+
+                Assert.AreEqual(value, sum);
+            }
+        }
+
+        [TestMethod]
+        public void SumInRangeFormula2()
+        {
+            int[] numbers = new int[] { 1, 2, 3 };
+            int sum = 0;
+            foreach (int num in numbers)
+            {
+                sum += num;
+            }
+
+            var filePath = GetFilepath("doc31.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                var formula = "SUM(B1:H1)";
+
+                var cell1 = sheet.AddCellWithFormula(formula);
+                var cell2 = sheet.AddCellWithValue(numbers[0]);
+                var cell3 = sheet.AddCellWithValue(numbers[1]);
+                var cell4 = sheet.AddCellWithValue(numbers[2]);
+
+                int value = cell1.GetFormulaValue();
+
+                Assert.AreEqual(value, sum);
+            }
+        }
+
+        [TestMethod]
+        public void SumInRangeFormula3()
+        {
+            int[] numbers = new int[] { 1, 2, 3 };
+            int sum = 0;
+            foreach (int num in numbers)
+            {
+                sum += num;
+            }
+
+            string text = "Lorem Ipsum";
+
+            var filePath = GetFilepath("doc32.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                var formula = "SUM(B1:D1)";
+
+                var cell1 = sheet.AddCellWithFormula(formula);
+                var cell2 = sheet.AddCellWithValue(numbers[0]);
+                var cell3 = sheet.AddCellWithValue(numbers[1]);
+                var cell4 = sheet.AddCellWithValue(text);
+
+                Assert.ThrowsException<ArgumentException>(() => cell1.GetFormulaValue());
+                //int value = cell1.GetFormulaValue();
+
+                //Assert.AreEqual(value, sum);
+            }
+        }
+
+        [TestMethod]
+        public void SumInRangeFormula4()
+        {
+            int[] numbers = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            foreach (int num in numbers)
+            {
+                sum += num;
+            }
+
+            string formula2 = "SUM(E1:F1)";
+
+            var filePath = GetFilepath("doc33.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                var formula = "SUM(B1:D1)";
+
+                var cell1 = sheet.AddCellWithFormula(formula);
+                var cell2 = sheet.AddCellWithValue(numbers[0]);
+                var cell3 = sheet.AddCellWithValue(numbers[1]);
+                var cell4 = sheet.AddCellWithValue(formula2);
+                var cell5 = sheet.AddCellWithValue(numbers[2]);
+                var cell6 = sheet.AddCellWithValue(numbers[3]);
+
+
+                Assert.ThrowsException<ArgumentException>(() => cell1.GetFormulaValue());
+                //int value = cell1.GetFormulaValue();
+
+                //Assert.AreEqual(value, sum);
+            }
+        }
+
+        [TestMethod]
+        public void SumInRangeFormula5()
+        {
+            int[] numbers = new int[] { 1, 2, 3, 4 };
+            int sum = 0;
+            foreach (int num in numbers)
+            {
+                sum += num;
+            }
+
+            string formula2 = "SUM(E1:F1)";
+
+            var filePath = GetFilepath("doc34.xlsx");
+            using (var w = CreateTestee(filePath))
+            {
+                var sheet = w.AddWorksheet("Sheet 1");
+                var formula = "SUM(B1:D1)";
+
+                var cell1 = sheet.AddCellWithFormula(formula);
+                var cell2 = sheet.AddCellWithValue(numbers[0]);
+                var cell3 = sheet.AddCellWithValue(numbers[1]);
+                var cell4 = sheet.AddCellWithFormula(formula2);
+                var cell5 = sheet.AddCellWithValue(numbers[2]);
+                var cell6 = sheet.AddCellWithValue(numbers[3]);
+
+
+                int value = cell1.GetFormulaValue();
+
+                Assert.AreEqual(value, sum);
             }
         }
 
