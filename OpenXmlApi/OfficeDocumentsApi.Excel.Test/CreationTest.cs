@@ -509,7 +509,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 var sheet = writer.AddWorksheet();
                 var cell1 = sheet.AddCellWithValue(num1);
                 var cell2 = sheet.AddCellWithValue(num2);
-                var sumCell = sheet.AddCellWithFormula("SUM:(A1:B1)");
+                var sumCell = sheet.AddCellWithFormula("SUM(A1:B1)");
 
                 columnIndex = sumCell.ColumnIndex;
 
