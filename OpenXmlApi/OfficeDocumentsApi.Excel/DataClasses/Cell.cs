@@ -1,6 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Xml;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using DocumentFormat.OpenXml.Office2016.Presentation.Command;
+using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeDocumentsApi.Excel.Extensions;
 using OfficeDocumentsApi.Excel.Interfaces;
 using OpenXml = DocumentFormat.OpenXml.Spreadsheet;
 
@@ -19,7 +27,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
         public uint ColumnIndex => _columnIndex > 0
             ? _columnIndex
-            : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
+            : _columnIndex = new string(CellReference.Where(char.IsLetter).ToArray()).GetExcelColumnIndex();
+        // : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
 
         public string Value
         {
@@ -104,8 +113,8 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         {
             SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Boolean);
         }
-        
-        private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where  TNumber : class
+
+        private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where TNumber : class
         {
             if (Style == null || Style.NumberFormatId == 0)
             {
@@ -157,6 +166,206 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         public string? GetFormula()
         {
             return Element.CellFormula?.Text;
+        }
+
+        public int GetFormulaValue()
+        {
+            if (!HasFormula())
+                return -1;
+
+            return GetFormula() switch
+            {
+                var f when f.StartsWith("SUM") && false => FormulaSum(f), // if any cell is double
+                var f when f.StartsWith("SUM") => FormulaSum(f),
+                var f when f.StartsWith("COUNTIF") => CountCellsIf(f),
+                var f when f.StartsWith("COUNT") => CountCellsWithValue(f),
+                var f when f.StartsWith("MEDIAN") => GetMedian(f),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public int FormulaSum(string formula)
+        {
+            // Split formula to cell names in string array
+            var subs = formula.Split('(', ')', ':');
+            var sum = 0;
+            const string methodName = "SUM";
+            var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
+
+            var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
+            var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+
+            for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+            {
+                var cell = Worksheet.GetCell(i);
+                if (cell == null)
+                {
+                    continue;
+                }
+
+                if (cell.HasFormula())
+                {
+                    sum += cell.GetFormulaValue();
+                    continue;
+                }
+
+                // TODO get cell; if cell is formula => get formula value       DONE
+                // TODO get cell; if cell is text => throw exception            DONE
+                // TODO get cell; if any of cell is double => return double
+
+                sum += 1 switch
+                {
+                    _ when cell.TryGetValue(out int val) => val,
+                    // when cell.TryGetValue(out double val) => val,
+                    _ => throw new ArgumentException($"Invalid cell '{cell.CellReference}' content."),
+                };
+            }
+
+            return sum;
+        }
+
+        public int CountCellsWithValue(string formula)
+        {
+            // Split formula to cell names in string array
+            string[] subs = formula.Split('(', ')', ':');
+            var sum = 0;
+
+            const string methodName = "COUNT";
+            var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
+
+            var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
+            var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+
+            for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+            {
+                var cell = Worksheet.GetCell(i);
+
+                if (cell.HasValue())
+                {
+                    sum++;
+                }
+            }
+
+            return sum;
+        }
+
+        public int CountCellsIf(string formula)
+        {
+            // Split formula to cell names in string array
+            string[] subs = formula.Split('(', ')', ':', ',');
+            var sum = 0;
+
+            const string methodName = "COUNTIF";
+            var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
+
+            var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
+            var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+            var argument = range[2];
+            var argumentValue = string.Empty;
+
+            if (argument.StartsWith("\"") && argument.EndsWith("\""))
+            {
+                argumentValue = argument.Trim('\"');
+            }
+            else
+            {
+                var cell = Worksheet.GetCellByReference(argument);
+                if (cell != null)
+                {
+                    argumentValue = cell.HasFormula()
+                        ? cell.GetFormulaValue().ToString()
+                        : cell.HasValue()
+                            ? cell.Value
+                            : string.Empty;
+                }
+                else
+                {
+                    argumentValue = argument;
+                }
+            }
+
+            for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+            {
+                var cell = Worksheet.GetCell(i);
+
+                if (cell.HasValue() && cell.Value == argumentValue)
+                {
+                    sum++;
+                }
+                else if (!cell.HasValue() && argumentValue == string.Empty)
+                {
+                    sum++;
+                }
+            }
+
+            return sum;
+        }
+
+        public int GetMedian(string formula)
+        {
+            string[] subs = formula.Split('(', ')', ':');
+
+            const string methodName = "MEDIAN";
+            var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
+
+
+            var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
+            var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+
+            // Check if value is a number
+            // If true, add coordinates to list
+            var columns = new List<int>();
+
+            for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+            {
+                var cell = Worksheet.GetCell(i);
+                if (cell != null)
+                {
+                    int value;
+                    switch (1)
+                    {
+                        case 1 when cell.HasFormula():
+                            value = cell.GetFormulaValue();
+                            break;
+                        case 1 when cell.TryGetValue(out int v):
+                            value = v;
+                            break;
+                        default:
+                            continue;
+                    }
+
+                    columns.Add(value);
+                }
+            }
+            /*
+
+            // Calculate median
+            var middleCell = columns.Count / 2;
+            var median = 0;
+
+            if (columns.Count % 2 == 0)
+            {
+                var cell1 = Worksheet.GetCell(columns[middleCell - 1]);
+                var cell2 = Worksheet.GetCell(columns[middleCell - 2]);
+
+                median = cell1.GetIntValue() + cell2.GetIntValue() / 2;
+            }
+            else
+            {
+                median = Worksheet.GetCell(columns[middleCell - 1]).GetIntValue();
+            }*/
+
+            return Median(columns.ToArray());
+        }
+
+        public static int Median(int[] data)
+        {
+            Array.Sort(data);
+
+            if (data.Length % 2 == 0)
+                return (data[data.Length / 2 - 1] + data[data.Length / 2]) / 2;
+            else
+                return data[data.Length / 2];
         }
 
         public string? GetStringValue()
@@ -312,13 +521,13 @@ namespace OfficeDocumentsApi.Excel.DataClasses
 
             return columnName;
         }
-
+        /*
         private static uint GetExcelColumnIndex(string columnName)
         {
             return (uint)columnName
                 .ToUpper()
                 .Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
-        }
+        }*/
 
         private void SetCellValue(string value, OpenXml.CellValues dataType = OpenXml.CellValues.Error)
         {
@@ -332,7 +541,7 @@ namespace OfficeDocumentsApi.Excel.DataClasses
         {
             return Worksheet.Spreadsheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<OpenXml.SharedStringItem>().ElementAt(id);
         }
-        
+
         private T GetValue<T>(Func<string, T> parse) where T : IConvertible
         {
             return parse(GetStringValue());

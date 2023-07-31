@@ -60,6 +60,7 @@ namespace OfficeDocumentsApi.Excel.Interfaces
         /// Gets the formula.
         /// </summary>
         string? GetFormula();
+        int GetFormulaValue();
 
         /// <summary>
         /// Gets the value.

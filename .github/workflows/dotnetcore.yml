@@ -6,6 +6,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: OpenXmlApi
     strategy:
       matrix:
         dotnet-version: [ '7.0.x', '6.0.x' ]
@@ -18,7 +21,6 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
       - name: Install dependencies
         run: dotnet restore
-        working-directory: OpenXmlApi
       - name: Build
         run: dotnet build --configuration Release --no-restore 
       - name: Test
