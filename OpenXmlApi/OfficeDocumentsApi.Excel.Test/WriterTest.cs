@@ -122,7 +122,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var writer = CreateOpenTestee(filePath))
             {
-                Assert.IsTrue(writer.Worksheets.Any());
+                Assert.IsTrue(writer.GetWorksheetsName().Any());
             }
         }
 
@@ -139,7 +139,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var writer = CreateOpenTestee(filePath))
             {
-                Assert.IsTrue(writer.Worksheets.Any());
+                Assert.IsTrue(writer.GetWorksheetsName().Any());
                 Assert.IsNull(writer.GetWorksheet("Test"));
             }
         }
@@ -167,7 +167,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var writer = CreateOpenTestee(stream))
             {
-                Assert.IsTrue(writer.Worksheets.Any());
+                Assert.IsTrue(writer.GetWorksheetsName().Any());
             }
         }
 

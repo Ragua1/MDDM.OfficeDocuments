@@ -29,7 +29,7 @@ namespace OfficeDocumentsApi.Excel
         /// </summary>
         public readonly List<IWorksheet> Worksheets = new List<IWorksheet>();
         private readonly SpreadsheetDocument document;
-        private IStyle defaultStyle;
+        private IStyle? defaultStyle = null;
         private bool IsEditable = true;
 
         public WorkbookPart WorkbookPart => document.WorkbookPart;
@@ -37,7 +37,7 @@ namespace OfficeDocumentsApi.Excel
         public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart;
         public SpreadsheetLib.Stylesheet Stylesheet => WorkbookStylesPart.Stylesheet ?? InitStylesheet();
 
-        protected internal Spreadsheet(SpreadsheetDocument document, bool createNew)
+        private Spreadsheet(SpreadsheetDocument document, bool createNew)
         {
             this.document = document;
 
@@ -99,6 +99,22 @@ namespace OfficeDocumentsApi.Excel
                 ? SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook)
                 : SpreadsheetDocument.Open(filePath, true),
                 createNew) { }
+        
+        public static ISpreadsheet CreateDocument(Stream stream)
+        {
+            return new Spreadsheet(
+                SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook), true
+                );
+        }
+        public static ISpreadsheet OpenDocument(Stream stream, bool isEditable = true)
+        {
+            return new Spreadsheet(
+                SpreadsheetDocument.Open(stream, isEditable), false
+                )
+            {
+                IsEditable = isEditable
+            };
+        }
 
         /// <summary>
         /// Create worksheet and apply 'style'

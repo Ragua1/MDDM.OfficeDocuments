@@ -81,7 +81,7 @@ namespace OfficeDocumentsApi.Excel.Test
                 ws_info.AddStyle(s_font_blue);
                 CreateRow(ws_info, "Verzia", s_bolt, 2, s_specBorder);
                 CreateRow(ws_info, "E-Mail", s_bolt, "matej.zabsky@tollnet.cz", s_font_blue.CreateMergedStyle(s_specBorder).CreateMergedStyle(s_undeline));
-                CreateRow(ws_info, "Meno", s_bolt, "Matìj Zábský", s_specBorder);
+                CreateRow(ws_info, "Meno", s_bolt, "Matï¿½j Zï¿½bskï¿½", s_specBorder);
                 CreateRow(ws_info, "Telefon", s_bolt, 608267556, s_specBorder);
                 CreateRow(ws_info, "Uzivatel", s_bolt, "matej.zabsky", s_specBorder);
                 CreateRow(ws_info, "Typ Nominacie", s_bolt, "TYZDENNA", s_specBorder);
@@ -145,7 +145,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
 
                 ws_tydenna.AddRow(s_fill_white.CreateMergedStyle(s_mediumBorder_all));
-                ws_tydenna.AddCellWithValue("Množstvo", s_bolt.CreateMergedStyle(s_border_spec));
+                ws_tydenna.AddCellWithValue("Mnoï¿½stvo", s_bolt.CreateMergedStyle(s_border_spec));
                 ws_tydenna.AddCellWithValue("kWh", s_bolt.CreateMergedStyle(s_border_spec));
                 ws_tydenna.AddCellWithFormula("Sum(C9:C15)", s_thousandSpace);
                 ws_tydenna.AddCellWithFormula("Sum(D9:D15)", s_thousandSpace);
@@ -184,7 +184,7 @@ namespace OfficeDocumentsApi.Excel.Test
         {
             var filepath = GetFilepath("doc3.xlsx");
 
-            var headers = new List<string> { "p.è.", "Id místa", "Hodnota 1", "Hodnota 2" };
+            var headers = new List<string> { "p.ï¿½.", "Id mï¿½sta", "Hodnota 1", "Hodnota 2" };
 
             using (var w = CreateTestee(filepath))
             {
@@ -274,7 +274,7 @@ namespace OfficeDocumentsApi.Excel.Test
         {
             var filepath = GetFilepath("doc3.xlsx");
 
-            var headers = new List<string> { "p.è.", "Id místa", "Hodnota 1", "Hodnota 2" };
+            var headers = new List<string> { "p.ï¿½.", "Id mï¿½sta", "Hodnota 1", "Hodnota 2" };
 
             using (var w = CreateTestee(filepath))
             {
@@ -394,7 +394,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var writer = CreateOpenTestee(filepath))
             {
-                var sheet = writer.Worksheets.FirstOrDefault();
+                var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var row = sheet.Rows.LastOrDefault();
@@ -423,7 +423,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
                 using (var writer = CreateOpenTestee(fileStream))
                 {
-                    var sheet = writer.Worksheets.FirstOrDefault();
+                    var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
                     Assert.IsNotNull(sheet);
 
                     for (var i = 0; i < 100; i++)
@@ -453,7 +453,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
                 using (var writer = CreateOpenTestee(fileStream))
                 {
-                    var sheet = writer.Worksheets.FirstOrDefault();
+                    var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
                     Assert.IsNotNull(sheet);
 
                     for (var i = 0; i < 10; i++)
@@ -490,7 +490,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var writer = CreateOpenTestee(memory))
             {
-                var sheet = writer.Worksheets.FirstOrDefault();
+                var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
                 var cell = sheet.GetCell((uint)cellIndex);
                 Console.WriteLine(cell.CellReference);
                 Assert.AreEqual(cell.Value, textValue);

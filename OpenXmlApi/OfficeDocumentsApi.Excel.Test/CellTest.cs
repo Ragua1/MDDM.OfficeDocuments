@@ -457,7 +457,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var row = sheet.GetRow(3);
@@ -490,7 +490,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -518,7 +518,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -546,7 +546,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -575,7 +575,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -603,7 +603,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -632,7 +632,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -658,7 +658,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -687,7 +687,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -717,7 +717,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -747,7 +747,7 @@ namespace OfficeDocumentsApi.Excel.Test
 
             using (var w = CreateOpenTestee(filePath))
             {
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);
@@ -783,7 +783,7 @@ namespace OfficeDocumentsApi.Excel.Test
             using (var w = CreateOpenTestee(filePath))
             {
                 var time = DateTime.Parse(value);
-                var sheet = w.Worksheets.FirstOrDefault();
+                var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
                 Assert.IsNotNull(sheet);
 
                 var cell = sheet.GetCell(5, 3);

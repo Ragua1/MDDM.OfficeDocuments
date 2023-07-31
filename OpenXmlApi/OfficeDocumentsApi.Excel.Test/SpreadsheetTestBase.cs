@@ -1,14 +1,15 @@
 ﻿using System.IO;
+using OfficeDocumentsApi.Excel.Interfaces;
 
 namespace OfficeDocumentsApi.Excel.Test
 {
     public class SpreadsheetTestBase
     {
-        protected Spreadsheet CreateTestee(Stream stream) => new Spreadsheet(stream, true);
-        protected Spreadsheet CreateTestee(string filepath) => new Spreadsheet(filepath, true);
+        protected ISpreadsheet CreateTestee(Stream stream) => Spreadsheet.CreateDocument(stream); // new Spreadsheet(stream, true);
+        protected ISpreadsheet CreateTestee(string filepath) => new Spreadsheet(filepath, true);
 
-        protected Spreadsheet CreateOpenTestee(string filepath) => new Spreadsheet(filepath, false);
-        protected Spreadsheet CreateOpenTestee(Stream stream) => new Spreadsheet(stream, false);
+        protected ISpreadsheet CreateOpenTestee(string filepath) => new Spreadsheet(filepath, false);
+        protected ISpreadsheet CreateOpenTestee(Stream stream) => Spreadsheet.OpenDocument(stream, false);
 
         protected string GetFilepath(string filename) => TestSettings.GetFilepath(this, filename);
     }
