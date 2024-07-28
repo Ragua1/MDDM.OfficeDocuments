@@ -52,16 +52,32 @@ namespace OfficeDocuments.Excel.DataClasses
             return AddCell(NextCellIndex, style);
         }
 
+        public ICell AddCell<T>(T value, IStyle style)
+        {
+            return AddCell(NextCellIndex, value, style);
+        }
+
         public ICell AddCell(uint columnIndex, IStyle? style = null)
         {
             return GetOrCreateCell(columnIndex, style);
         }
 
+        public ICell AddCell<T>(uint columnIndex, T value, IStyle style = null)
+        {
+            var cell = GetOrCreateCell(columnIndex, style);
+
+            cell.SetValue(value);
+
+            return cell;
+        }
+
+        [Obsolete("Use AddCell method instead")]
         public ICell AddCellWithValue<T>(T value, IStyle? style = null)
         {
             return AddCellWithValue(NextCellIndex, value, style);
         }
 
+        [Obsolete("Use AddCell method instead")]
         public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null)
         {
             var cell = GetOrCreateCell(columnIndex, style);

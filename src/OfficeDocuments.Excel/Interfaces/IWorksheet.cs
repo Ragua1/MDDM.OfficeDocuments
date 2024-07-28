@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.Interfaces
@@ -87,6 +88,9 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
+        ICell AddCell<T>(T value, IStyle style);
+        
+        [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(T value, IStyle style = null);
 
         /// <summary>
@@ -96,6 +100,9 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on current row on 'columnIndex'</returns>
+        ICell AddCell<T>(uint columnIndex, T value, IStyle style = null);
+        
+        [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null);
 
         /// <summary>
@@ -106,6 +113,9 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'rowIndex' on 'columnIndex'</returns>
+        ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null);
+        
+        [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null);
 
         /// <summary>

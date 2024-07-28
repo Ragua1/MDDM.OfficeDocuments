@@ -88,9 +88,19 @@ namespace OfficeDocuments.Excel.DataClasses
             return AddCell(NextCellIndex, _currentRow, style);
         }
 
+        public ICell AddCell<T>(T value, IStyle style)
+        {
+            return AddCell(NextCellIndex, _currentRow, value, style);
+        }
+
         public ICell AddCell(uint columnIndex, IStyle style = null)
         {
             return AddCell(columnIndex, _currentRow, style);
+        }
+
+        public ICell AddCell<T>(uint columnIndex, T value, IStyle style = null)
+        {
+            return AddCell(columnIndex, _currentRow, value, style);
         }
 
         public ICell AddCell(uint columnIndex, uint rowIndex, IStyle style = null)
@@ -100,16 +110,26 @@ namespace OfficeDocuments.Excel.DataClasses
             return row.AddCell(columnIndex, style);
         }
 
+        public ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
+        {
+            var row = AddRow(rowIndex);
+
+            return row.AddCellWithValue(columnIndex, value, style);
+        }
+
+        [Obsolete("Use AddCell method instead")]
         public ICell AddCellWithValue<T>(T value, IStyle style = null)
         {
             return AddCellWithValue(NextCellIndex, _currentRow, value, style);
         }
 
+        [Obsolete("Use AddCell method instead")]
         public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
         {
             return AddCellWithValue(columnIndex, _currentRow, value, style);
         }
 
+        [Obsolete("Use AddCell method instead")]
         public ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
         {
             var row = AddRow(rowIndex);

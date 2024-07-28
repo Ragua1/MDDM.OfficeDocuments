@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>default</LangVersion>
+    <Nullable>enable</Nullable>
+    <Version>2.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>OfficeDocuments.Excel</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+    <Title>OfficeDocuments.Excel</Title>
+    <Authors>Martin Domanský</Authors>
+    <Description>Library designed to streamline the manipulation and creation of Excel documents using the OpenXml library.</Description>
+    <Copyright>MDDM</Copyright>
+    <PackageProjectUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</RepositoryUrl>
+    <PackageTags>Office;Excel;C#</PackageTags>
+    <Company>MDDM</Company>
+    <PublicSign>true</PublicSign>
+    <PackageLicenseUrl>https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/LICENSE.md</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="">
+      <Link>LICENSE.md</Link>
+    </None>
+    <None Include="..\..\README.md" Pack="true" PackagePath="">
+      <Link>README.md</Link>
+    </None>
+  </ItemGroup>
+
+</Project>
