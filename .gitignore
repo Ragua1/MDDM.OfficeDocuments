@@ -1,50 +1,59 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-*.suo
-/.vs
-/OpenXmlApi/.vs/OpenXmlApi/v15
-/OpenXmlApi/OpenXmlApi/bin
-/OpenXmlApi/OpenXmlApi/obj
-/OpenXmlApi/.vs/OpenXmlApi/v16
-
-*.swp
-*.*~
-project.lock.json
-.DS_Store
-*.pyc
-nupkg/
-
-# Visual Studio Code
-.vscode
-
-# Rider
-.idea
+﻿
+# Ignore build outputs
+bin/
+obj/
 
 # User-specific files
+*.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
 
-# Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-build/
-bld/
-[Bb]in/
-[Oo]bj/
-[Oo]ut/
-msbuild.log
-msbuild.err
-msbuild.wrn
+# Mono auto generated files
+mono_crash.*
 
-*.dll
-/OpenXmlApi/.vs/OfficeDocumentsApi/v15/Server/sqlite3
-/OpenXmlApi/.vs/OfficeDocumentsApi
-/OpenXmlApi/.vs/ProjectEvaluation
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/
+.vscode/*
+
+# Rider directories
+.idea/
+.idea/*
+
+# Rider files
+*.sln.iml
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# DotNet user specific files
+*.dotnettools
+
+# Local History for JetBrains IDEs
+.localhistory/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+packages/
