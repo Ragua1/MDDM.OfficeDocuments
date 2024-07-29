@@ -36,7 +36,7 @@ namespace OfficeDocuments.Excel.Tests
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 const string value = "Aloha";
-                var cell = sheet.AddCellWithValue(value);
+                var cell = sheet.AddCell(value);
                 Assert.AreEqual(cell.Value, value);
             }
             Assert.IsTrue(File.Exists(filePath));
@@ -49,7 +49,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = "Aloha";
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.Value = value;
             Assert.AreEqual(value, cell1.Value, $"Cell value of 'cell.SetValue()' is '{cell1.Value}', expected {value}");
@@ -66,7 +66,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = 165752313;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -92,7 +92,7 @@ namespace OfficeDocuments.Excel.Tests
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0x"));
             var value = 98435123;
-            var cell1 = sheet.AddCellWithValue(value, s);
+            var cell1 = sheet.AddCell(value, s);
             var cell2 = sheet.AddCell(s);
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -118,7 +118,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = 165752313.216546;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -142,7 +142,7 @@ namespace OfficeDocuments.Excel.Tests
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0.##x"));
             var value = 645.541;
-            var cell1 = sheet.AddCellWithValue(value, s);
+            var cell1 = sheet.AddCell(value, s);
             var cell2 = sheet.AddCell(s);
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -168,7 +168,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = 165752313216546;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -192,7 +192,7 @@ namespace OfficeDocuments.Excel.Tests
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0x"));
             var value = 165752313216546;
-            var cell1 = sheet.AddCellWithValue(value, s);
+            var cell1 = sheet.AddCell(value, s);
             var cell2 = sheet.AddCell(s);
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -218,7 +218,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = 165752313216546.6516511m;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -242,7 +242,7 @@ namespace OfficeDocuments.Excel.Tests
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0.##0x"));
             var value = 16575231321654.6565465426m;
-            var cell1 = sheet.AddCellWithValue(value, s);
+            var cell1 = sheet.AddCell(value, s);
             var cell2 = sheet.AddCell(s);
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -270,7 +270,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = DateTime.Now;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -294,7 +294,7 @@ namespace OfficeDocuments.Excel.Tests
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("d/m/yyyy H:mm:ss"));
             var value = DateTime.Now;
-            var cell1 = sheet.AddCellWithValue(value, s);
+            var cell1 = sheet.AddCell(value, s);
             var cell2 = sheet.AddCell(s);
             cell2.SetValue(value);
             Assert.AreEqual(
@@ -323,7 +323,7 @@ namespace OfficeDocuments.Excel.Tests
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
             var value = true;
-            var cell1 = sheet.AddCellWithValue(value);
+            var cell1 = sheet.AddCell(value);
             var cell2 = sheet.AddCell();
             cell2.SetValue(value);
             Assert.AreEqual(cell1.Value, value.ToString(), $"Cell value of 'cell.SetValue()' is '{cell1.Value}', expected {value}");
@@ -359,9 +359,9 @@ namespace OfficeDocuments.Excel.Tests
             var formula = "SUM(B1:D1)";
 
             var cell1 = sheet.AddCellWithFormula(formula);
-            var cell2 = sheet.AddCellWithValue(numbers[0]);
-            var cell3 = sheet.AddCellWithValue(numbers[1]);
-            var cell4 = sheet.AddCellWithValue(numbers[2]);
+            var cell2 = sheet.AddCell(numbers[0]);
+            var cell3 = sheet.AddCell(numbers[1]);
+            var cell4 = sheet.AddCell(numbers[2]);
 
             int value = cell1.GetFormulaValue();
 
@@ -384,9 +384,9 @@ namespace OfficeDocuments.Excel.Tests
             var formula = "SUM(B1:H1)";
 
             var cell1 = sheet.AddCellWithFormula(formula);
-            var cell2 = sheet.AddCellWithValue(numbers[0]);
-            var cell3 = sheet.AddCellWithValue(numbers[1]);
-            var cell4 = sheet.AddCellWithValue(numbers[2]);
+            var cell2 = sheet.AddCell(numbers[0]);
+            var cell3 = sheet.AddCell(numbers[1]);
+            var cell4 = sheet.AddCell(numbers[2]);
 
             int value = cell1.GetFormulaValue();
 
@@ -411,9 +411,9 @@ namespace OfficeDocuments.Excel.Tests
             var formula = "SUM(B1:D1)";
 
             var cell1 = sheet.AddCellWithFormula(formula);
-            var cell2 = sheet.AddCellWithValue(numbers[0]);
-            var cell3 = sheet.AddCellWithValue(numbers[1]);
-            var cell4 = sheet.AddCellWithValue(text);
+            var cell2 = sheet.AddCell(numbers[0]);
+            var cell3 = sheet.AddCell(numbers[1]);
+            var cell4 = sheet.AddCell(text);
 
             Assert.ThrowsException<ArgumentException>(() => cell1.GetFormulaValue());
             //int value = cell1.GetFormulaValue();
@@ -439,11 +439,11 @@ namespace OfficeDocuments.Excel.Tests
             var formula = "SUM(B1:D1)";
 
             var cell1 = sheet.AddCellWithFormula(formula);
-            var cell2 = sheet.AddCellWithValue(numbers[0]);
-            var cell3 = sheet.AddCellWithValue(numbers[1]);
-            var cell4 = sheet.AddCellWithValue(formula2);
-            var cell5 = sheet.AddCellWithValue(numbers[2]);
-            var cell6 = sheet.AddCellWithValue(numbers[3]);
+            var cell2 = sheet.AddCell(numbers[0]);
+            var cell3 = sheet.AddCell(numbers[1]);
+            var cell4 = sheet.AddCell(formula2);
+            var cell5 = sheet.AddCell(numbers[2]);
+            var cell6 = sheet.AddCell(numbers[3]);
 
 
             Assert.ThrowsException<ArgumentException>(() => cell1.GetFormulaValue());
@@ -470,11 +470,11 @@ namespace OfficeDocuments.Excel.Tests
             var formula = "SUM(B1:D1)";
 
             var cell1 = sheet.AddCellWithFormula(formula);
-            var cell2 = sheet.AddCellWithValue(numbers[0]);
-            var cell3 = sheet.AddCellWithValue(numbers[1]);
+            var cell2 = sheet.AddCell(numbers[0]);
+            var cell3 = sheet.AddCell(numbers[1]);
             var cell4 = sheet.AddCellWithFormula(formula2);
-            var cell5 = sheet.AddCellWithValue(numbers[2]);
-            var cell6 = sheet.AddCellWithValue(numbers[3]);
+            var cell5 = sheet.AddCell(numbers[2]);
+            var cell6 = sheet.AddCell(numbers[3]);
 
 
             int value = cell1.GetFormulaValue();
@@ -493,7 +493,7 @@ namespace OfficeDocuments.Excel.Tests
             var cell = row.AddCell();
 
             Assert.AreEqual(
-                (object)row.Style.StyleIndex, cell.Style.StyleIndex,
+                row.Style.StyleIndex, cell.Style.StyleIndex,
                 $"Cell not inherit style. Row style '{row.Style.StyleIndex}', cell stylw {cell.Style.StyleIndex}"
             );
         }
@@ -519,7 +519,7 @@ namespace OfficeDocuments.Excel.Tests
             var filePath = GetFilepath("doc14.xlsx");
             using var w = CreateTestee(filePath);
             var sheet = w.AddWorksheet("Sheet 1");
-            var cell = sheet.AddCell(5, 3);
+            var cell = sheet.AddCellOnIndex(5, 3);
 
             Assert.AreEqual((uint)5, cell.ColumnIndex);
             Assert.AreEqual((uint)3, cell.RowIndex);
@@ -551,7 +551,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
 
                 Assert.AreEqual((uint)5, cell.ColumnIndex);
                 Assert.AreEqual((uint)3, cell.RowIndex);
@@ -585,7 +585,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(true);
 
                 Assert.AreEqual(true, cell.GetBoolValue());
@@ -613,7 +613,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(int.MaxValue);
 
                 Assert.AreEqual(int.MaxValue, cell.GetIntValue());
@@ -641,7 +641,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(long.MaxValue);
 
                 Assert.AreEqual(long.MaxValue, cell.GetLongValue());
@@ -670,7 +670,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(value);
 
                 Assert.AreEqual(value, cell.GetDoubleValue());
@@ -698,7 +698,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(decimal.MaxValue);
 
                 Assert.AreEqual(decimal.MaxValue, cell.GetDecimalValue());
@@ -727,7 +727,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(value);
 
                 Assert.AreEqual(value, cell.GetStringValue());
@@ -753,7 +753,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(value);
 
                 Assert.AreEqual(value.ToString(format), cell.GetDateValue().ToString(format));
@@ -782,7 +782,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCell(5, 3);
+                var cell = sheet.AddCellOnIndex(5, 3);
                 cell.SetValue(value);
 
                 Assert.AreEqual(value, cell.GetStringValue());
@@ -809,10 +809,10 @@ namespace OfficeDocuments.Excel.Tests
             {
                 var sheet = w.AddWorksheet();
                 var row = sheet.AddRow(3);
-                row.AddCellWithValue(15);
-                row.AddCellWithValue(4);
-                row.AddCellWithValue(-2);
-                row.AddCellWithValue(9);
+                row.AddCell(15);
+                row.AddCell(4);
+                row.AddCell(-2);
+                row.AddCell(9);
 
                 var cell = row.AddCellWithFormula(5, formula);
                 Assert.AreEqual(formula, cell.GetFormula());
@@ -839,10 +839,10 @@ namespace OfficeDocuments.Excel.Tests
             {
                 var sheet = w.AddWorksheet();
                 var row = sheet.AddRow(3);
-                row.AddCellWithValue(15);
-                row.AddCellWithValue(4);
-                row.AddCellWithValue(-2);
-                row.AddCellWithValue(9);
+                row.AddCell(15);
+                row.AddCell(4);
+                row.AddCell(-2);
+                row.AddCell(9);
 
                 var cell = row.AddCellWithFormula(5, formula);
                 Assert.AreEqual(formula, cell.GetFormula());
@@ -878,7 +878,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var w = CreateTestee(filePath))
             {
                 var sheet = w.AddWorksheet();
-                var cell = sheet.AddCellWithValue(5, 3, value);
+                var cell = sheet.AddCell(5, 3, value);
 
                 Assert.AreEqual(value, cell.GetStringValue());
             }
@@ -910,7 +910,7 @@ namespace OfficeDocuments.Excel.Tests
                 var sheet = w.AddWorksheet("Sheet 1");
                 for (int i = 0; i < 10; i++)
                 {
-                    var cell = sheet.AddCellWithValue(i);
+                    var cell = sheet.AddCell(i);
                     Assert.AreEqual(cell.GetIntValue(), i);
                 }
             }
@@ -928,7 +928,7 @@ namespace OfficeDocuments.Excel.Tests
                 {
                     var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0x"));
                     var value = i;
-                    var cell1 = sheet.AddCellWithValue(value, s);
+                    var cell1 = sheet.AddCell(value, s);
                     var cell2 = sheet.AddCell(s);
                     cell2.SetValue(value);
 
@@ -956,7 +956,7 @@ namespace OfficeDocuments.Excel.Tests
 
                     if (createCell == 0)
                     {
-                        var cell = sheet.AddCellWithValue(j);
+                        var cell = sheet.AddCell(j);
                         Assert.AreEqual(cell.GetIntValue(), j);
                     }
                     else
@@ -979,9 +979,9 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue(1);
-            var cell3 = sheet.AddCellWithValue(2);
-            var cell4 = sheet.AddCellWithValue(3);
+            var cell2 = sheet.AddCell(1);
+            var cell3 = sheet.AddCell(2);
+            var cell4 = sheet.AddCell(3);
 
             var cell5 = sheet.AddCell();
             var cell6 = sheet.AddCell();
@@ -1005,12 +1005,12 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue("car");
-            var cell3 = sheet.AddCellWithValue("bike");
-            var cell4 = sheet.AddCellWithValue("car");
-            var cell5 = sheet.AddCellWithValue("train");
-            var cell6 = sheet.AddCellWithValue("car");
-            var cell7 = sheet.AddCellWithValue("plane");
+            var cell2 = sheet.AddCell("car");
+            var cell3 = sheet.AddCell("bike");
+            var cell4 = sheet.AddCell("car");
+            var cell5 = sheet.AddCell("train");
+            var cell6 = sheet.AddCell("car");
+            var cell7 = sheet.AddCell("plane");
 
             var sum = cell1.GetFormulaValue();
 
@@ -1030,12 +1030,12 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue("car");
-            var cell3 = sheet.AddCellWithValue("bike");
-            var cell4 = sheet.AddCellWithValue("car");
-            var cell5 = sheet.AddCellWithValue("train");
-            var cell6 = sheet.AddCellWithValue("car");
-            var cell7 = sheet.AddCellWithValue("plane");
+            var cell2 = sheet.AddCell("car");
+            var cell3 = sheet.AddCell("bike");
+            var cell4 = sheet.AddCell("car");
+            var cell5 = sheet.AddCell("train");
+            var cell6 = sheet.AddCell("car");
+            var cell7 = sheet.AddCell("plane");
 
             var sum = cell1.GetFormulaValue();
 
@@ -1056,11 +1056,11 @@ namespace OfficeDocuments.Excel.Tests
             var cell1 = sheet.AddCellWithFormula(formula);
 
             var cell2 = sheet.AddCell();
-            var cell3 = sheet.AddCellWithValue("bike");
+            var cell3 = sheet.AddCell("bike");
             var cell4 = sheet.AddCell();
-            var cell5 = sheet.AddCellWithValue("train");
+            var cell5 = sheet.AddCell("train");
             var cell6 = sheet.AddCell();
-            var cell7 = sheet.AddCellWithValue("plane");
+            var cell7 = sheet.AddCell("plane");
 
             var sum = cell1.GetFormulaValue();
 
@@ -1080,11 +1080,11 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue(1);
-            var cell3 = sheet.AddCellWithValue(5);
-            var cell4 = sheet.AddCellWithValue(7);
-            var cell5 = sheet.AddCellWithValue(9);
-            var cell6 = sheet.AddCellWithValue(2);
+            var cell2 = sheet.AddCell(1);
+            var cell3 = sheet.AddCell(5);
+            var cell4 = sheet.AddCell(7);
+            var cell5 = sheet.AddCell(9);
+            var cell6 = sheet.AddCell(2);
 
             var median = cell1.GetFormulaValue();
             var expcted = 5;
@@ -1105,12 +1105,12 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue(1);
-            var cell3 = sheet.AddCellWithValue(5);
-            var cell4 = sheet.AddCellWithValue(7);
-            var cell5 = sheet.AddCellWithValue(9);
-            var cell6 = sheet.AddCellWithValue(2);
-            var cell7 = sheet.AddCellWithValue(10);
+            var cell2 = sheet.AddCell(1);
+            var cell3 = sheet.AddCell(5);
+            var cell4 = sheet.AddCell(7);
+            var cell5 = sheet.AddCell(9);
+            var cell6 = sheet.AddCell(2);
+            var cell7 = sheet.AddCell(10);
 
             var median = cell1.GetFormulaValue();
             var expcted = 6;
@@ -1131,12 +1131,12 @@ namespace OfficeDocuments.Excel.Tests
 
             var cell1 = sheet.AddCellWithFormula(formula);
 
-            var cell2 = sheet.AddCellWithValue(1);
-            var cell3 = sheet.AddCellWithValue(5);
-            var cell4 = sheet.AddCellWithValue("Lorem ipsum");
-            var cell5 = sheet.AddCellWithValue(9);
-            var cell6 = sheet.AddCellWithValue(2);
-            var cell7 = sheet.AddCellWithValue("Dolor sit amet");
+            var cell2 = sheet.AddCell(1);
+            var cell3 = sheet.AddCell(5);
+            var cell4 = sheet.AddCell("Lorem ipsum");
+            var cell5 = sheet.AddCell(9);
+            var cell6 = sheet.AddCell(2);
+            var cell7 = sheet.AddCell("Dolor sit amet");
 
             var median = cell1.GetFormulaValue();
             var expcted = 3;

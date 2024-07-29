@@ -81,7 +81,7 @@ namespace OfficeDocuments.Excel.Tests
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
                 var cell1 = row.AddCell();
-                var cell2 = row.AddCell(3);
+                var cell2 = row.AddCellOnIndex(3);
 
                 Assert.AreEqual((uint)1, cell1.ColumnIndex);
                 Assert.AreEqual((uint)3, cell2.ColumnIndex);
@@ -97,8 +97,8 @@ namespace OfficeDocuments.Excel.Tests
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Alea iacta est";
                 var row = sheet.AddRow();
-                var cell1 = row.AddCellWithValue(value);
-                var cell2 = row.AddCellWithValue(3, value);
+                var cell1 = row.AddCell(value);
+                var cell2 = row.AddCell(3, value);
 
                 Assert.AreEqual((uint)1, cell1.ColumnIndex);
                 Assert.AreEqual(value, cell1.Value);
@@ -107,7 +107,7 @@ namespace OfficeDocuments.Excel.Tests
                 Assert.AreEqual(value, cell2.Value);
 
                 value = "Sumilian Eri Lopte";
-                cell1 = row.AddCellWithValue(1, value);
+                cell1 = row.AddCell(1, value);
                 Assert.AreEqual((uint)1, cell1.ColumnIndex);
                 Assert.AreEqual(value, cell1.Value);
             }
@@ -144,7 +144,7 @@ namespace OfficeDocuments.Excel.Tests
                 using (var w = CreateTestee(filePath))
                 {
                     var sheet = w.AddWorksheet("Sheet 1");
-                    sheet.AddCellWithValue(0, 0);
+                    sheet.AddCell(0, 0);
                 }
             }
             catch (Exception e)
@@ -243,8 +243,8 @@ namespace OfficeDocuments.Excel.Tests
                 var sheet = w.AddWorksheet("Sheet 1");
                 var value = "Alea iacta est";
                 var row = sheet.AddRow();
-                row.AddCellWithValue(value);
-                row.AddCellWithValue(3, value);
+                row.AddCell(value);
+                row.AddCell(3, value);
 
                 var cell1 = row.GetCell("A");
                 Assert.IsNotNull(cell1);
@@ -257,7 +257,7 @@ namespace OfficeDocuments.Excel.Tests
                 Assert.AreEqual(value, cell2.Value);
 
                 value = "Sumilian Eri Lopte";
-                row.AddCellWithValue(1, value);
+                row.AddCell(1, value);
 
                 cell1 = row.GetCell("A");
                 Assert.AreEqual((uint)1, cell1.ColumnIndex);

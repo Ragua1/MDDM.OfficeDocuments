@@ -53,7 +53,7 @@ namespace OfficeDocuments.Excel.DataClasses
         private SpreadsheetLib.Columns? _columns;
         private SpreadsheetLib.MergeCells? _mergeCells;
 
-        internal Worksheet(Spreadsheet spreadsheet, WorksheetPart worksheetPart, SpreadsheetLib.SheetData sheetData, IStyle cellStyle = null) : base(null, cellStyle)
+        internal Worksheet(Spreadsheet spreadsheet, WorksheetPart worksheetPart, SpreadsheetLib.SheetData sheetData, IStyle? cellStyle = null) : base(null, cellStyle)
         {
             Spreadsheet = spreadsheet;
             WorksheetPart = worksheetPart;
@@ -73,98 +73,82 @@ namespace OfficeDocuments.Excel.DataClasses
             }
         }
 
-        public IRow AddRow(IStyle style = null)
+        public IRow AddRow(IStyle? style = null)
         {
             return AddRow(NextRowIndex, style);
         }
 
-        public IRow AddRow(uint rowIndex, IStyle style = null)
-        {
-            return GetOrCreateRow(rowIndex, style);
-        }
+        public IRow AddRow(uint rowIndex, IStyle? style = null) => GetOrCreateRow(rowIndex, style);
 
-        public ICell AddCell(IStyle style)
-        {
-            return AddCell(NextCellIndex, _currentRow, style);
-        }
+        public ICell AddCell(IStyle? style = null) => AddCellOnIndex(NextCellIndex, _currentRow, style);
 
-        public ICell AddCell<T>(T value, IStyle style)
-        {
-            return AddCell(NextCellIndex, _currentRow, value, style);
-        }
+        public ICell AddCell<T>(T value, IStyle? style = null) => AddCell(NextCellIndex, _currentRow, value, style);
 
-        public ICell AddCell(uint columnIndex, IStyle style = null)
-        {
-            return AddCell(columnIndex, _currentRow, style);
-        }
-
-        public ICell AddCell<T>(uint columnIndex, T value, IStyle style = null)
-        {
-            return AddCell(columnIndex, _currentRow, value, style);
-        }
-
-        public ICell AddCell(uint columnIndex, uint rowIndex, IStyle style = null)
+        public ICell AddCell<T>(uint columnIndex, T value, IStyle? style = null) => AddCell(columnIndex, _currentRow, value, style);
+        
+        public ICell AddCellOnIndex(uint columnIndex, IStyle? style = null) => AddCell(columnIndex, _currentRow, style);
+        public ICell AddCellOnIndex(uint columnIndex, uint rowIndex, IStyle? style = null)
         {
             var row = AddRow(rowIndex);
 
-            return row.AddCell(columnIndex, style);
+            return row.AddCellOnIndex(columnIndex, style);
         }
 
-        public ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
+        public ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle? style = null)
         {
             var row = AddRow(rowIndex);
 
-            return row.AddCellWithValue(columnIndex, value, style);
+            return row.AddCell(columnIndex, value, style);
         }
 
         [Obsolete("Use AddCell method instead")]
-        public ICell AddCellWithValue<T>(T value, IStyle style = null)
+        public ICell AddCellWithValue<T>(T value, IStyle? style = null)
         {
             return AddCellWithValue(NextCellIndex, _currentRow, value, style);
         }
 
         [Obsolete("Use AddCell method instead")]
-        public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null)
+        public ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null)
         {
             return AddCellWithValue(columnIndex, _currentRow, value, style);
         }
 
         [Obsolete("Use AddCell method instead")]
-        public ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null)
+        public ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle? style = null)
         {
             var row = AddRow(rowIndex);
 
             return row.AddCellWithValue(columnIndex, value, style);
         }
 
-        public ICell AddCellWithFormula(string formula, IStyle style = null)
+        public ICell AddCellWithFormula(string formula, IStyle? style = null)
         {
             return AddCellWithFormula(NextCellIndex, _currentRow, formula, style);
         }
 
-        public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null)
+        public ICell AddCellWithFormula(uint columnIndex, string formula, IStyle? style = null)
         {
             return AddCellWithFormula(columnIndex, _currentRow, formula, style);
         }
 
-        public ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle style = null)
+        public ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle? style = null)
         {
             var row = AddRow(rowIndex);
 
             return row.AddCellWithFormula(columnIndex, formula, style);
         }
 
-        public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null)
+        public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null)
         {
             return AddCellOnRange(beginColumn, endColumn, _currentRow, style);
         }
 
-        public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle style = null)
+        public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null)
         {
             return AddRow(rowIndex).AddCellOnRange(beginColumn, endColumn, style);
         }
 
-        public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle style = null)
+        public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null)
         {
             if (beginColumn < 1)
             {
@@ -185,7 +169,7 @@ namespace OfficeDocuments.Excel.DataClasses
                 var row = AddRow(i, style);
                 for (var j = beginColumn; j <= endColumn; j++)
                 {
-                    row.AddCell(j, style);
+                    row.AddCellOnIndex(j, style);
                 }
             }
 
@@ -238,7 +222,7 @@ namespace OfficeDocuments.Excel.DataClasses
             return Rows?.FirstOrDefault(r => r.RowIndex == rowIndex);
         }
 
-        private IRow GetOrCreateRow(uint rowIndex, IStyle style)
+        private IRow GetOrCreateRow(uint rowIndex, IStyle? style = null)
         {
             if (rowIndex < 1)
             {

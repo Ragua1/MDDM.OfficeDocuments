@@ -30,7 +30,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// Set cell value
         /// </summary>
         /// <param name="value">Cell value</param>
-        void SetValue(object value);
+        void SetValue(object? value);
 
         /// <summary>
         /// Set cell boolean value

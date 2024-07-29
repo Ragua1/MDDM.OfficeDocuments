@@ -42,6 +42,6 @@ namespace OfficeDocuments.Excel.Interfaces
         /// </summary>
         /// <param name="style"></param>
         /// <returns>Merged style</returns>
-        IStyle CreateMergedStyle(IStyle style);
+        IStyle CreateMergedStyle(IStyle? style);
     }
 }

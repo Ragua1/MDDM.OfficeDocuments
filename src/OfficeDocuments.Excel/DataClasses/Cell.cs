@@ -64,7 +64,7 @@ namespace OfficeDocuments.Excel.DataClasses
 
         #region Set value/formula
 
-        public void SetValue(object value)
+        public void SetValue(object? value)
         {
             if (value == null)
             {
@@ -486,7 +486,7 @@ namespace OfficeDocuments.Excel.DataClasses
         }
         #endregion
 
-        public override IStyle? AddStyle(params IStyle[] styles)
+        public override IStyle? AddStyle(params IStyle?[] styles)
         {
             foreach (var style in styles.Where(s => s != null))
             {

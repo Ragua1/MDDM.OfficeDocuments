@@ -38,7 +38,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="columnIndex">Index of column</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'columnIndex'</returns>
-        ICell AddCell(uint columnIndex, IStyle? style = null);
+        ICell AddCellOnIndex(uint columnIndex, IStyle? style = null);
 
         /// <summary>
         /// Create cell after current cell, set object value and apply custom style.
@@ -46,7 +46,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCell<T>(T value, IStyle style);
+        ICell AddCell<T>(T value, IStyle? style = null);
         
         [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(T value, IStyle? style = null);
@@ -58,7 +58,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'columnIndex'</returns>
-        ICell AddCell<T>(uint columnIndex, T value, IStyle style = null);
+        ICell AddCell<T>(uint columnIndex, T value, IStyle? style = null);
         
         [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null);
