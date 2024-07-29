@@ -49,20 +49,20 @@ namespace OfficeDocuments.Excel.DataClasses
 
         public ICell AddCell(IStyle? style = null)
         {
-            return AddCell(NextCellIndex, style);
+            return AddCellOnIndex(NextCellIndex, style);
         }
 
-        public ICell AddCell<T>(T value, IStyle style)
+        public ICell AddCell<T>(T value, IStyle? style = null)
         {
             return AddCell(NextCellIndex, value, style);
         }
 
-        public ICell AddCell(uint columnIndex, IStyle? style = null)
+        public ICell AddCellOnIndex(uint columnIndex, IStyle? style = null)
         {
             return GetOrCreateCell(columnIndex, style);
         }
 
-        public ICell AddCell<T>(uint columnIndex, T value, IStyle style = null)
+        public ICell AddCell<T>(uint columnIndex, T value, IStyle? style = null)
         {
             var cell = GetOrCreateCell(columnIndex, style);
 
@@ -115,7 +115,7 @@ namespace OfficeDocuments.Excel.DataClasses
 
             for (var i = beginColumn; i <= endColumn; i++)
             {
-                AddCell(i, style);
+                AddCellOnIndex(i, style);
             }
 
             var mergedCell = GetCell(beginColumn);
@@ -159,7 +159,7 @@ namespace OfficeDocuments.Excel.DataClasses
 
         public ICell GetCellByReference(string reference) => Worksheet.GetCellByReference(reference);
 
-        private ICell GetOrCreateCell(uint columnIndex, IStyle style)
+        private ICell GetOrCreateCell(uint columnIndex, IStyle? style = null)
         {
             if (columnIndex < 1)
             {

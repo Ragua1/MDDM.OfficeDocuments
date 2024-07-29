@@ -72,8 +72,8 @@ namespace OfficeDocuments.Excel.Tests
             var s_undeline = w.CreateStyle(new Font { Underline = UnderlineValues.Single });
             var timeFormat = "d.M.yyyy";
 
-            ws_info.AddCellWithValue("Datum", s_bolt.CreateMergedStyle(s_mediumBorder_all));
-            ws_info.AddCellWithValue(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture), s_mediumBorder_all);
+            ws_info.AddCell("Datum", s_bolt.CreateMergedStyle(s_mediumBorder_all));
+            ws_info.AddCell(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture), s_mediumBorder_all);
 
             ws_info.AddStyle(s_font_blue);
             CreateRow(ws_info, "Verzia", s_bolt, 2, s_specBorder);
@@ -108,12 +108,12 @@ namespace OfficeDocuments.Excel.Tests
 
             var ws_tydenna = w.AddWorksheet("TYDENNA", s);
             ws_tydenna.AddRow(s_mediumBorder_all);
-            ws_tydenna.AddCellWithValue("TYZDENNA", s_font_red.CreateMergedStyle(s_border_spec));
-            ws_tydenna.AddCellWithValue("Datum", s_border_spec);
-            ws_tydenna.AddCellWithValue(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
-            ws_tydenna.AddCellWithValue(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
-            ws_tydenna.AddCellWithValue(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
-            ws_tydenna.AddCellWithValue(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
+            ws_tydenna.AddCell("TYZDENNA", s_font_red.CreateMergedStyle(s_border_spec));
+            ws_tydenna.AddCell("Datum", s_border_spec);
+            ws_tydenna.AddCell(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
+            ws_tydenna.AddCell(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
+            ws_tydenna.AddCell(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
+            ws_tydenna.AddCell(DateTime.ParseExact("23.4.2014", timeFormat, CultureInfo.InvariantCulture));
 
             var vals = new List<List<object>>
             {
@@ -129,10 +129,10 @@ namespace OfficeDocuments.Excel.Tests
             {
                 ws_tydenna.AddRow(s_font_blue);
                 ws_tydenna.AddCell();
-                ws_tydenna.AddCellWithValue(val[1], s_bolt);
+                ws_tydenna.AddCell(val[1], s_bolt);
                 for (var i = 2; i < val.Count; i++)
                 {
-                    ws_tydenna.AddCellWithValue(val[i], s_mediumBorder_rl);
+                    ws_tydenna.AddCell(val[i], s_mediumBorder_rl);
                 }
             }
 
@@ -142,8 +142,8 @@ namespace OfficeDocuments.Excel.Tests
 
 
             ws_tydenna.AddRow(s_fill_white.CreateMergedStyle(s_mediumBorder_all));
-            ws_tydenna.AddCellWithValue("Mno�stvo", s_bolt.CreateMergedStyle(s_border_spec));
-            ws_tydenna.AddCellWithValue("kWh", s_bolt.CreateMergedStyle(s_border_spec));
+            ws_tydenna.AddCell("Mno�stvo", s_bolt.CreateMergedStyle(s_border_spec));
+            ws_tydenna.AddCell("kWh", s_bolt.CreateMergedStyle(s_border_spec));
             ws_tydenna.AddCellWithFormula("Sum(C9:C15)", s_thousandSpace);
             ws_tydenna.AddCellWithFormula("Sum(D9:D15)", s_thousandSpace);
             ws_tydenna.AddCellWithFormula("Sum(E9:E15)", s_thousandSpace);
@@ -196,7 +196,7 @@ namespace OfficeDocuments.Excel.Tests
                 numberFormat: new NumberingFormat("dd/mm/yyyy")
             );
 
-            c = ws.AddCell(3, 3, s3);
+            c = ws.AddCellOnIndex(3, 3, s3);
             c.SetValue(DateTime.UtcNow);
 
             ws.AddCell();
@@ -204,7 +204,7 @@ namespace OfficeDocuments.Excel.Tests
                 new Font { Color = Color.Chartreuse },
                 new Fill(Color.Black)
             );
-            c = ws.AddCellWithValue("Alabama", s4);
+            c = ws.AddCell("Alabama", s4);
             ws.AddCellOnRange(c.ColumnIndex, c.ColumnIndex, c.RowIndex, c.RowIndex + 1);
 
             var r = ws.AddRow(5, w.CreateStyle(
@@ -373,7 +373,7 @@ namespace OfficeDocuments.Excel.Tests
                 var headers = new[] { "ID", "Group ID", "Name", "Type", "Color", "Rate", "Place" };
                 foreach (var h in headers)
                 {
-                    r.AddCellWithValue(h);
+                    r.AddCell(h);
                     sheet.SetColumnWidth(12);
                 }
 
@@ -398,7 +398,7 @@ namespace OfficeDocuments.Excel.Tests
                     var data = CreateRow3();
                     foreach (var cellData in data)
                     {
-                        var c = r.AddCellWithValue(cellData);
+                        var c = r.AddCell(cellData);
                         c.AddStyle(sheet.GetCell(c.ColumnIndex, c.RowIndex - 1)?.Style);
                     }
                 }
@@ -423,7 +423,7 @@ namespace OfficeDocuments.Excel.Tests
                 var data = CreateRow4();
                 foreach (var cellData in data)
                 {
-                    c = r.AddCellWithValue(cellData);
+                    c = r.AddCell(cellData);
                     c.AddStyle(sheet.GetCell(c.ColumnIndex, c.RowIndex - 1)?.Style);
                 }
                 c = r.AddCellWithFormula($"Sum(B{i + 4}:F{i + 4})");
@@ -449,7 +449,7 @@ namespace OfficeDocuments.Excel.Tests
                 ICell c;
                 foreach (var cellData in data)
                 {
-                    c = r.AddCellWithValue(cellData);
+                    c = r.AddCell(cellData);
                     c.AddStyle(sheet.GetCell(c.ColumnIndex, c.RowIndex - 1)?.Style);
                 }
                 c = r.AddCellWithFormula($"Sum(B{i + 4}:F{i + 4})");
@@ -466,7 +466,7 @@ namespace OfficeDocuments.Excel.Tests
             using (var writer = CreateTestee(memory))
             {
                 var sheet = writer.AddWorksheet();
-                var cell = sheet.AddCellWithValue(textValue);
+                var cell = sheet.AddCell(textValue);
                 cellIndex = (int) cell.ColumnIndex;
             }
 
@@ -484,8 +484,8 @@ namespace OfficeDocuments.Excel.Tests
         private static void CreateRow(IWorksheet sheet, string header, IStyle headerStyle, object value, IStyle valueStyle)
         {
             sheet.AddRow();
-            sheet.AddCellWithValue(header, headerStyle);
-            sheet.AddCellWithValue(value, valueStyle);
+            sheet.AddCell(header, headerStyle);
+            sheet.AddCell(value, valueStyle);
         }
 
         private static void CreateRow2(IRow row, DateTime from, DateTime to, List<int> valList)
@@ -501,12 +501,12 @@ namespace OfficeDocuments.Excel.Tests
                 border: new Border { Right = BorderStyleValues.Thin, Left = BorderStyleValues.Thin }
             );
 
-            row.AddCellWithValue(from, s_fill_grey);
-            row.AddCellWithValue(to, s_fill_grey);
+            row.AddCell(from, s_fill_grey);
+            row.AddCell(to, s_fill_grey);
 
             foreach (var val in valList)
             {
-                row.AddCellWithValue(val, s_fill_green);
+                row.AddCell(val, s_fill_green);
             }
         }
 

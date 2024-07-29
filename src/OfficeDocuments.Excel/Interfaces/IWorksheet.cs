@@ -48,7 +48,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// </summary>
         /// <param name="style">Custom style for row</param>
         /// <returns>Created row</returns>
-        IRow AddRow(IStyle style = null);
+        IRow AddRow(IStyle? style = null);
 
         /// <summary>
         /// Create or get row on 'rowIndex' and apply custom style.
@@ -56,14 +56,14 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="rowIndex">Index of row</param>
         /// <param name="style">Custom style for row</param>
         /// <returns>Row on 'rowIndex'</returns>
-        IRow AddRow(uint rowIndex, IStyle style = null);
+        IRow AddRow(uint rowIndex, IStyle? style = null);
 
         /// <summary>
         /// Create cell on current row after current cell and apply custom style.
         /// </summary>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCell(IStyle style = null);
+        ICell AddCell(IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on current row on 'columnIndex' and apply custom style.
@@ -71,7 +71,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="columnIndex">Index of column</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on current row on 'columnIndex'</returns>
-        ICell AddCell(uint columnIndex, IStyle style = null);
+        ICell AddCellOnIndex(uint columnIndex, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'rowIndex' on 'columnIndex' and apply custom style.
@@ -80,7 +80,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="rowIndex">Index of row</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'rowIndex' on 'columnIndex'</returns>
-        ICell AddCell(uint columnIndex, uint rowIndex, IStyle style = null);
+        ICell AddCellOnIndex(uint columnIndex, uint rowIndex, IStyle? style = null);
 
         /// <summary>
         /// Create cell on current row after current cell, set 'value' and apply custom style.
@@ -88,7 +88,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCell<T>(T value, IStyle style);
+        ICell AddCell<T>(T value, IStyle? style = null);
         
         [Obsolete("Use AddCell method instead")]
         ICell AddCellWithValue<T>(T value, IStyle style = null);
@@ -100,10 +100,10 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on current row on 'columnIndex'</returns>
-        ICell AddCell<T>(uint columnIndex, T value, IStyle style = null);
+        ICell AddCell<T>(uint columnIndex, T value, IStyle? style = null);
         
         [Obsolete("Use AddCell method instead")]
-        ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle style = null);
+        ICell AddCellWithValue<T>(uint columnIndex, T value, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'rowIndex' on 'columnIndex', set 'value' and apply custom style.
@@ -113,10 +113,10 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="value">Cell value</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'rowIndex' on 'columnIndex'</returns>
-        ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null);
+        ICell AddCell<T>(uint columnIndex, uint rowIndex, T value, IStyle? style = null);
         
         [Obsolete("Use AddCell method instead")]
-        ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle style = null);
+        ICell AddCellWithValue<T>(uint columnIndex, uint rowIndex, T value, IStyle? style = null);
 
         /// <summary>
         /// Create cell on current row after current cell, set 'formula' and apply custom style.
@@ -124,7 +124,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="formula">Cell formula</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Created cell</returns>
-        ICell AddCellWithFormula(string formula, IStyle style = null);
+        ICell AddCellWithFormula(string formula, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on current row on 'columnIndex', set 'formula' and apply custom style.
@@ -133,7 +133,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="formula">Cell formula</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on current row on 'columnIndex'</returns>
-        ICell AddCellWithFormula(uint columnIndex, string formula, IStyle style = null);
+        ICell AddCellWithFormula(uint columnIndex, string formula, IStyle? style = null);
 
         /// <summary>
         /// Create or get cell on 'rowIndex' on 'columnIndex', set 'formula' and apply custom style.
@@ -143,7 +143,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="formula">Cell formula</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Cell on 'rowIndex' on 'columnIndex'</returns>
-        ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle style = null);
+        ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle? style = null);
 
         /// <summary>
         /// Create and merge cells on current row from 'beginColumn' to 'endColumn'
@@ -152,7 +152,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="endColumn">End column index</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Merged cell</returns>
-        ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle style = null);
+        ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
 
         /// <summary>
         /// Create and merge cells on 'rowIndex' row from 'beginColumn' to 'endColumn'
@@ -162,7 +162,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="endColumn">End column index</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Merged cell</returns>
-        ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle style = null);
+        ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null);
 
         /// <summary>
         /// Create and merge cells from 'beginReference' to 'endReference'
@@ -173,7 +173,7 @@ namespace OfficeDocuments.Excel.Interfaces
         /// <param name="endRow">End row index</param>
         /// <param name="style">Custom style for cell</param>
         /// <returns>Merged cell</returns>
-        ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle style = null);
+        ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null);
 
         /// <summary>
         /// Get cell on current row on 'columnIndex'

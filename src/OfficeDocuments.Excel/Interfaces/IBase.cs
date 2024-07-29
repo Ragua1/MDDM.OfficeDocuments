@@ -12,13 +12,13 @@
         /// <summary>
         /// Instance of custom style
         /// </summary>
-        IStyle Style { get; }
+        IStyle? Style { get; }
 
         /// <summary>
         /// Add custom styles 
         /// </summary>
         /// <param name="styles">Custom styles</param>
         /// <returns>Style of object</returns>
-        IStyle AddStyle(params IStyle[] styles);
+        IStyle? AddStyle(params IStyle?[] styles);
     }
 }

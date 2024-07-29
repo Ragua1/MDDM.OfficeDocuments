@@ -24,12 +24,12 @@ namespace OfficeDocuments.Excel.DataClasses
             }
         }
 
-        private IStyle AddStyle(IStyle style)
+        private IStyle? AddStyle(IStyle? style = null)
         {
             return AddStyle(style, null);
         }
 
-        public virtual IStyle AddStyle(params IStyle[] styles)
+        public virtual IStyle? AddStyle(params IStyle?[] styles)
         {
             foreach (var style in styles.Where(s => s != null))
             {
