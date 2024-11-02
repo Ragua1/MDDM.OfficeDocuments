@@ -27,7 +27,7 @@ jobs:
         run: dotnet restore OfficeDocuments.sln
 
       - name: Build project
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build OfficeDocuments.sln --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test OfficeDocuments.sln --no-build --verbosity normal
