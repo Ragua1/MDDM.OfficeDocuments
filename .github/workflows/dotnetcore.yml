@@ -10,9 +10,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: OpenXmlApi
+#    defaults:
+#      run:
+#        working-directory: OpenXmlApi
 
     steps:
       - name: Check out code
@@ -24,7 +24,7 @@ jobs:
           global-json-file: global.json
           
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore OfficeDocuments.sln
 
       - name: Build project
         run: dotnet build --no-restore --configuration Release
