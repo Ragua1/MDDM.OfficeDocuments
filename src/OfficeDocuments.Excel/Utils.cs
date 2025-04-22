@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
+using DocumentFormat.OpenXml;
 using OfficeDocuments.Excel.Styles;
 
 namespace OfficeDocuments.Excel
@@ -24,12 +27,11 @@ namespace OfficeDocuments.Excel
         /// </summary>
         public static Font MergeFonts(DocumentFormat.OpenXml.Spreadsheet.Font font1, DocumentFormat.OpenXml.Spreadsheet.Font font2)
         {
-            var a = XDocument.Parse(font1.OuterXml);
-            var b = XDocument.Parse(font2.OuterXml);
+            if (font1 == null) throw new ArgumentNullException(nameof(font1));
+            if (font2 == null) throw new ArgumentNullException(nameof(font2));
 
-            var element = new DocumentFormat.OpenXml.Spreadsheet.Font(a.MergeXml(b).ToString());
-
-            return new Font(element);
+            var mergedXml = MergeXmlElements(font1, font2);
+            return new Font(new DocumentFormat.OpenXml.Spreadsheet.Font(mergedXml));
         }
 
         /// <summary>
@@ -37,12 +39,11 @@ namespace OfficeDocuments.Excel
         /// </summary>
         public static Fill MergeFills(DocumentFormat.OpenXml.Spreadsheet.Fill fill1, DocumentFormat.OpenXml.Spreadsheet.Fill fill2)
         {
-            var a = XDocument.Parse(fill1.OuterXml);
-            var b = XDocument.Parse(fill2.OuterXml);
+            if (fill1 == null) throw new ArgumentNullException(nameof(fill1));
+            if (fill2 == null) throw new ArgumentNullException(nameof(fill2));
 
-            var element = new DocumentFormat.OpenXml.Spreadsheet.Fill(a.MergeXml(b).ToString());
-
-            return new Fill(element);
+            var mergedXml = MergeXmlElements(fill1, fill2);
+            return new Fill(new DocumentFormat.OpenXml.Spreadsheet.Fill(mergedXml));
         }
 
         /// <summary>
@@ -50,29 +51,95 @@ namespace OfficeDocuments.Excel
         /// </summary>
         public static Border MergeBorders(DocumentFormat.OpenXml.Spreadsheet.Border border1, DocumentFormat.OpenXml.Spreadsheet.Border border2)
         {
-            var a = XDocument.Parse(border1.OuterXml);
-            var b = XDocument.Parse(border2.OuterXml);
+            if (border1 == null) throw new ArgumentNullException(nameof(border1));
+            if (border2 == null) throw new ArgumentNullException(nameof(border2));
 
-            var element = new DocumentFormat.OpenXml.Spreadsheet.Border(a.MergeXml(b).ToString());
-
-            return new Border(element);
+            var mergedXml = MergeXmlElements(border1, border2);
+            return new Border(new DocumentFormat.OpenXml.Spreadsheet.Border(mergedXml));
         }
 
-        private static XDocument MergeXml(this XDocument xd1, XDocument xd2)
+        /// <summary>
+        /// Merges two OpenXml elements, with the second element's properties taking precedence
+        /// </summary>
+        private static string MergeXmlElements<T>(T element1, T element2) where T : OpenXmlElement
         {
-            var docs = new XDocument(
-                new XElement(xd2.Root.Name,
-                    xd2.Root.Attributes()
-                        .Concat(xd1.Root.Attributes())
-                        .GroupBy(g => g.Name)
-                        .Select(s => s.First()),
-                    xd2.Root.Elements()
-                        .Concat(xd1.Root.Elements())
-                        .GroupBy(g => g.Name)
-                        .Select(s => s.First())
-                ));
+            try
+            {
+                var xml1 = XDocument.Parse(element1.OuterXml);
+                var xml2 = XDocument.Parse(element2.OuterXml);
+                return MergeXml(xml1, xml2).ToString();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to merge XML elements of type {typeof(T).Name}", ex);
+            }
+        }
 
-            return docs;
+        /// <summary>
+        /// Merges two XML documents with the second document's elements taking precedence when there are conflicts
+        /// </summary>
+        private static XDocument MergeXml(XDocument xd1, XDocument xd2)
+        {
+            if (xd1 == null || xd1.Root == null) return xd2;
+            if (xd2 == null || xd2.Root == null) return xd1;
+
+            // Create a new document with the root from the second document
+            var result = new XDocument(
+                new XElement(xd2.Root.Name,
+                    // Merge attributes, with the second document taking precedence
+                    xd1.Root.Attributes()
+                        .Concat(xd2.Root.Attributes())
+                        .GroupBy(g => g.Name)
+                        .Select(g => g.Last()),
+                    
+                    // Merge elements, with the second document taking precedence for elements with the same name
+                    MergeElements(xd1.Root.Elements(), xd2.Root.Elements())
+                )
+            );
+
+            return result;
+        }
+
+        /// <summary>
+        /// Merges two collections of XML elements with the second collection taking precedence in case of conflicts
+        /// </summary>
+        private static IEnumerable<XElement> MergeElements(IEnumerable<XElement> elements1, IEnumerable<XElement> elements2)
+        {
+            // Group elements by name
+            var elementsByName = elements1
+                .Concat(elements2)
+                .GroupBy(e => e.Name)
+                .ToList();
+
+            foreach (var group in elementsByName)
+            {
+                var elementsInGroup = group.ToList();
+                if (elementsInGroup.Count == 1)
+                {
+                    // If there's only one element with this name, just return it
+                    yield return elementsInGroup[0];
+                }
+                else
+                {
+                    // If there are multiple elements with the same name,
+                    // take the one from elements2 (which is later in the concatenation)
+                    var element1 = elementsInGroup.First();
+                    var element2 = elementsInGroup.Last();
+
+                    var mergedElement = new XElement(element2.Name,
+                        // Merge attributes, with element2 taking precedence
+                        element1.Attributes()
+                            .Concat(element2.Attributes())
+                            .GroupBy(a => a.Name)
+                            .Select(g => g.Last()),
+                        
+                        // Merge child elements recursively
+                        MergeElements(element1.Elements(), element2.Elements())
+                    );
+
+                    yield return mergedElement;
+                }
+            }
         }
     }
 }

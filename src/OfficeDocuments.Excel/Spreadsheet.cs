@@ -24,24 +24,32 @@ namespace OfficeDocuments.Excel
     /// <summary>
     /// Class of Spreadsheet
     /// </summary>
-    public class Spreadsheet : ISpreadsheet
+    public class Spreadsheet : ISpreadsheet, IDisposable
     {
         /// <summary>
         /// Collection of worksheet in document
         /// </summary>
-        public readonly List<IWorksheet> Worksheets = new List<IWorksheet>();
-        private readonly SpreadsheetDocument document;
-        private IStyle? defaultStyle = null;
-        private bool IsEditable = true;
+        private readonly List<IWorksheet> _worksheets = new();
 
-        public WorkbookPart WorkbookPart => document.WorkbookPart;
-        public SpreadsheetLib.Sheets Sheets => document.WorkbookPart.Workbook.Sheets;
-        public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart;
+        /// <summary>
+        /// Gets the collection of worksheets in the document
+        /// </summary>
+        public IReadOnlyList<IWorksheet> Worksheets => _worksheets.AsReadOnly();
+
+        private readonly SpreadsheetDocument _document;
+        private IStyle? _defaultStyle = null;
+        private readonly bool _isEditable;
+        private bool _disposed = false;
+
+        public WorkbookPart WorkbookPart => _document.WorkbookPart ?? throw new InvalidOperationException();
+        public SpreadsheetLib.Sheets Sheets => _document.WorkbookPart?.Workbook.Sheets ?? throw new InvalidOperationException();
+        public WorkbookStylesPart WorkbookStylesPart => WorkbookPart.WorkbookStylesPart ?? throw new InvalidOperationException();
         public SpreadsheetLib.Stylesheet Stylesheet => WorkbookStylesPart.Stylesheet ?? InitStylesheet();
 
-        private Spreadsheet(SpreadsheetDocument document, bool createNew)
+        private Spreadsheet(SpreadsheetDocument document, bool createNew, bool isEditable = true)
         {
-            this.document = document;
+            this._document = document;
+            this._isEditable = isEditable;
 
             if (createNew)
             {
@@ -78,7 +86,7 @@ namespace OfficeDocuments.Excel
                     var sheetData = worksheetPart.Worksheet.GetFirstChild<SpreadsheetLib.SheetData>();
 
                     var worksheet = new Worksheet(this, worksheetPart, sheetData);
-                    Worksheets.Add(worksheet);
+                    _worksheets.Add(worksheet);
                 }
             }
         }
@@ -91,10 +99,6 @@ namespace OfficeDocuments.Excel
         {
             // Create a spreadsheet document
             // By default, AutoSave = true, Editable = true, and Type = xlsx.
-
-            //document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook);
-
-           
         }
         public Spreadsheet(string filePath, bool createNew = false) :
             this(createNew
@@ -105,17 +109,17 @@ namespace OfficeDocuments.Excel
         public static ISpreadsheet CreateDocument(Stream stream)
         {
             return new Spreadsheet(
-                SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook), true
-                );
+                SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook), 
+                true
+            );
         }
         public static ISpreadsheet OpenDocument(Stream stream, bool isEditable = true)
         {
             return new Spreadsheet(
-                SpreadsheetDocument.Open(stream, isEditable), false
-                )
-            {
-                IsEditable = isEditable
-            };
+                SpreadsheetDocument.Open(stream, isEditable), 
+                false, 
+                isEditable
+            );
         }
 
         /// <summary>
@@ -124,7 +128,7 @@ namespace OfficeDocuments.Excel
         /// <param name="sheetName">Worksheet name</param>
         /// <param name="sheetStyle">Custom style for worksheet</param>
         /// <returns>Created worksheet</returns>
-        public IWorksheet AddWorksheet(string sheetName = null, IStyle sheetStyle = null)
+        public IWorksheet AddWorksheet(string? sheetName = null, IStyle? sheetStyle = null)
         {
             var sheetData = new SpreadsheetLib.SheetData();
 
@@ -139,12 +143,15 @@ namespace OfficeDocuments.Excel
                 ? Sheets.Elements<SpreadsheetLib.Sheet>().Select(s => s.SheetId.Value).Max() + 1
                 : 1;
 
+            // Generate a default sheet name if none provided
+            var finalSheetName = sheetName ?? $"Sheet {sheetId}";
+
             // Append the new worksheet and associate it with the workbook.
-            var sheet = new SpreadsheetLib.Sheet { Id = relationshipId, SheetId = sheetId, Name = sheetName ?? $"Sheet {sheetId}" };
+            var sheet = new SpreadsheetLib.Sheet { Id = relationshipId, SheetId = sheetId, Name = finalSheetName };
             Sheets.Append(sheet);
 
-            var worksheet = new Worksheet(this, worksheetPart, sheetData, defaultStyle?.CreateMergedStyle(sheetStyle));
-            Worksheets.Add(worksheet);
+            var worksheet = new Worksheet(this, worksheetPart, sheetData, _defaultStyle?.CreateMergedStyle(sheetStyle));
+            _worksheets.Add(worksheet);
 
             return worksheet;
         }
@@ -158,96 +165,158 @@ namespace OfficeDocuments.Excel
         /// <param name="numberFormat">Custom number format styling</param>
         /// <param name="alignment">Custom alignment styling</param>
         /// <returns>Created style</returns>
-        public IStyle CreateStyle(Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
+        public IStyle CreateStyle(Font? font = null, Fill? fill = null, Border? border = null, NumberingFormat? numberFormat = null, Alignment? alignment = null)
         {
             return CreateStyle(Stylesheet, font, fill, border, numberFormat, alignment);
         }
 
         /// <summary>
+        /// Creates a style with the specified properties
+        /// </summary>
+        /// <param name="stylesheet">The stylesheet to use</param>
+        /// <param name="font">Custom font styling</param>
+        /// <param name="fill">Custom fill styling</param>
+        /// <param name="border">Custom border styling</param>
+        /// <param name="numberFormat">Custom number format styling</param>
+        /// <param name="alignment">Custom alignment styling</param>
+        /// <returns>The created style</returns>
+        /// <exception cref="ArgumentNullException">Thrown when stylesheet is null</exception>
+        public IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font? font = null, Fill? fill = null, Border? border = null, NumberingFormat? numberFormat = null, Alignment? alignment = null)
+        {
+            if (stylesheet == null)
+            {
+                throw new ArgumentNullException(nameof(stylesheet), "Stylesheet cannot be null");
+            }
+            
+            return new Style(stylesheet, font, fill, border, numberFormat, alignment);
+        }
+
+        /// <summary>
         /// Get worksheet by name
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns>Worksheet or null</returns>
-        public IWorksheet GetWorksheet(string name)
+        /// <param name="name">The name of the worksheet to retrieve</param>
+        /// <returns>Worksheet if found, null otherwise</returns>
+        public IWorksheet? GetWorksheet(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
             var sheet = Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == name);
             if (sheet == null)
             {
                 return null;
             }
 
-            return Worksheets.FirstOrDefault(
+            return _worksheets.FirstOrDefault(
                 w => WorkbookPart.GetIdOfPart(((Worksheet)w).WorksheetPart) == sheet.Id
             );
         }
 
         /// <summary>
-        /// 
+        /// Adds a table to the specified worksheet
         /// </summary>
-        /// <param name="worksheetName"></param>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="worksheetName">The name of the worksheet</param>
+        /// <param name="startCell">The starting cell of the table</param>
+        /// <param name="endCell">The ending cell of the table</param>
+        /// <param name="columnsName">The names of the table columns</param>
+        /// <exception cref="ArgumentException">Thrown when worksheet cannot be found or table definition is invalid</exception>
+        /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
         public void AddTable(string worksheetName, ICell startCell, ICell endCell, List<string> columnsName)
         {
-            var sheetId = Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == worksheetName)?.Id ?? "";
-            var wsp = WorkbookPart.WorksheetParts.FirstOrDefault(w => WorkbookPart.GetIdOfPart(w) == sheetId);
-            if (wsp == null)
+            // Validate parameters
+            if (string.IsNullOrEmpty(worksheetName))
             {
-                throw new ArgumentException("Cannot find worksheet by name.", worksheetName);
+                throw new ArgumentNullException(nameof(worksheetName), "Worksheet name cannot be null or empty");
             }
 
-            if (startCell == null || endCell == null)
+            if (startCell == null)
             {
-                throw new NullReferenceException("Start or end cell cannot be null!");
+                throw new ArgumentNullException(nameof(startCell), "Start cell cannot be null");
             }
 
-            if (startCell.RowIndex > endCell.RowIndex || startCell.ColumnIndex > endCell.ColumnIndex)
+            if (endCell == null)
             {
-                throw new ArgumentException("Wrong table definition!");
+                throw new ArgumentNullException(nameof(endCell), "End cell cannot be null");
+            }
+
+            if (columnsName == null)
+            {
+                throw new ArgumentNullException(nameof(columnsName), "Column names list cannot be null");
+            }
+
+            if (!columnsName.Any())
+            {
+                throw new ArgumentException("Column names list cannot be empty", nameof(columnsName));
             }
 
             if (columnsName.Any(string.IsNullOrWhiteSpace))
             {
-                throw new ArgumentException("Table column name cannot be null!");
+                throw new ArgumentException("Table column names cannot be null or empty", nameof(columnsName));
             }
 
-            //var tableParts = new SpreadsheetLib.TableParts();
-            //var tablePart = new SpreadsheetLib.TablePart { Id = "rId1" };
-            //tableParts.Append(tablePart);
+            if (startCell.RowIndex > endCell.RowIndex || startCell.ColumnIndex > endCell.ColumnIndex)
+            {
+                throw new ArgumentException("Invalid table definition: start cell must be before end cell");
+            }
 
-            var table = new SpreadsheetLib.Table()
+            // Find worksheet
+            var sheetId = Sheets.Elements<SpreadsheetLib.Sheet>().FirstOrDefault(s => s.Name == worksheetName)?.Id;
+            if (string.IsNullOrEmpty(sheetId))
+            {
+                throw new ArgumentException($"Cannot find worksheet with name '{worksheetName}'", nameof(worksheetName));
+            }
+
+            var wsp = WorkbookPart.WorksheetParts.FirstOrDefault(w => WorkbookPart.GetIdOfPart(w) == sheetId);
+            if (wsp == null)
+            {
+                throw new ArgumentException($"Cannot find worksheet part for '{worksheetName}'", nameof(worksheetName));
+            }
+
+            // Create table
+            var tablesCount = wsp.TableDefinitionParts.Count();
+            var tableIndex = tablesCount + 1;
+            var tableName = $"Table{tableIndex}";
+            var tableDisplayName = $"Table{tableIndex}";
+            var tableRid = $"rId{tableIndex}";
+
+            var table = new SpreadsheetLib.Table
             {
                 Reference = $"{startCell.CellReference}:{endCell.CellReference}",
                 TableColumns = new SpreadsheetLib.TableColumns(),
+                Id = (uint)tableIndex,
+                Name = tableName,
+                DisplayName = tableDisplayName
             };
 
-            var i = 1U;
+            // Add columns
+            uint columnId = 1;
             foreach (var columnName in columnsName)
             {
                 var tableColumn = new SpreadsheetLib.TableColumn
                 {
                     Name = columnName,
-                    Id = i++,
+                    Id = columnId++
                 };
 
                 table.TableColumns.AppendChild(tableColumn);
             }
 
-            var tablesCount= wsp.TableDefinitionParts.Count();
-
-            table.Id = (uint) tablesCount + 1;
-            table.Name = $"table{i}";
-            table.DisplayName = $"table{i}";
-
-            var tableName = $"rId{tablesCount + 1}";
-            var tdp = wsp.AddNewPart<TableDefinitionPart>(tableName);
+            // Add table to worksheet
+            var tdp = wsp.AddNewPart<TableDefinitionPart>(tableRid);
             tdp.Table = table;
 
+            // Add table parts if needed
+            var existingTableParts = wsp.Worksheet.GetFirstChild<SpreadsheetLib.TableParts>();
+            if (existingTableParts == null)
+            {
+                existingTableParts = new SpreadsheetLib.TableParts();
+                wsp.Worksheet.Append(existingTableParts);
+            }
 
-            var tableParts = new SpreadsheetLib.TableParts();
-            var tablePart = new SpreadsheetLib.TablePart() {Id = tableName};
-            tableParts.Append(tablePart);
-
-            wsp.Worksheet.Append(tableParts);
+            var tablePart = new SpreadsheetLib.TablePart { Id = tableRid };
+            existingTableParts.Append(tablePart);
         }
 
         public IEnumerable<string> GetWorksheetsName()
@@ -260,26 +329,50 @@ namespace OfficeDocuments.Excel
         /// </summary>
         public void Close()
         {
-            if (IsEditable)
+            if (_isEditable)
             {
                 WorkbookPart.Workbook.Save();
             }
-            document?.Dispose();
+            
+            if (_document != null && !_disposed)
+            {
+                _document.Dispose();
+            }
+            
+            _disposed = true;
         }
+        
         /// <summary>
         /// Close document resources
         /// </summary>
         public void Dispose()
         {
-            using (document)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        
+        /// <summary>
+        /// Dispose pattern implementation
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+                
+            if (disposing)
             {
                 Close();
             }
+            
+            _disposed = true;
         }
-
-        public IStyle CreateStyle(SpreadsheetLib.Stylesheet stylesheet, Font font = null, Fill fill = null, Border border = null, NumberingFormat numberFormat = null, Alignment alignment = null)
+        
+        /// <summary>
+        /// Finalizer
+        /// </summary>
+        ~Spreadsheet()
         {
-            return new Style(stylesheet ?? Stylesheet, font, fill, border, numberFormat, alignment);
+            Dispose(false);
         }
 
         public SpreadsheetLib.Stylesheet InitStylesheet()
@@ -292,14 +385,14 @@ namespace OfficeDocuments.Excel
                 new SpreadsheetLib.Fill { PatternFill = new SpreadsheetLib.PatternFill { PatternType = SpreadsheetLib.PatternValues.Gray125 } }
             );
 
-            defaultStyle = CreateStyle(
+            _defaultStyle = CreateStyle(
                 stylesheet,
                 new Font { FontSize = 11, Color = Color.Black, FontName = FontNameValues.Calibri },
                 null,
                 new Border()
             );
 
-            stylesheet.CellStyleFormats = new SpreadsheetLib.CellStyleFormats(defaultStyle.Element.CloneNode(true));
+            stylesheet.CellStyleFormats = new SpreadsheetLib.CellStyleFormats(_defaultStyle.Element.CloneNode(true));
 
             return stylesheet;
         }
