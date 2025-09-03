@@ -23,12 +23,6 @@ jobs:
             **/*.csproj
             **/packages.lock.json
 
-      - name: Dotnet info
-        run: |
-          dotnet --info
-          dotnet --list-sdks
-          dotnet --list-runtimes
-
       - name: Restore
         run: dotnet restore OfficeDocuments.sln
 

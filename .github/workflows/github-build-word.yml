@@ -14,20 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-    - name: Setup .NET SDK 9.0.x
+      - name: Setup .NET SDK (global.json)
         uses: actions/setup-dotnet@v4
         with:
-      dotnet-version: '9.0.x'
-      cache: true
+          global-json-file: global.json
+          cache: true
           cache-dependency-path: |
             **/*.csproj
             **/packages.lock.json
-
-      - name: Dotnet info
-        run: |
-          dotnet --info
-          dotnet --list-sdks
-          dotnet --list-runtimes
 
       - name: Restore
         run: dotnet restore OfficeDocuments.sln
@@ -39,7 +33,6 @@ jobs:
         run: |
           dotnet test test/OfficeDocuments.Word.Tests/OfficeDocuments.Word.Tests.csproj \
             --configuration Release \
-            --no-build \
             --logger "trx;LogFileName=test-results.trx" \
             --collect "XPlat Code Coverage"
 
