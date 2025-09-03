@@ -1,7 +1,6 @@
-﻿namespace OfficeDocuments.Excel.Interfaces
+﻿namespace OfficeDocuments.Excel.Interfaces;
+
+public interface IOpenXmlWrapper<out T>
 {
-    public interface IOpenXmlWrapper<out T>
-    {
-        T Element { get; }
-    }
+    T Element { get; }
 }

@@ -1,19 +1,18 @@
 ﻿using System.IO;
 
-namespace OfficeDocuments.Word.Tests
+namespace OfficeDocuments.Word.Tests;
+
+public static class TestSettings
 {
-    public static class TestSettings
+    internal static string GetFilepath<T>(T testClass, string filename)
     {
-        internal static string GetFilepath<T>(T testClass, string filename)
+        var path = Path.Combine(Path.GetTempPath(), testClass.GetType().Name);
+
+        if (!Directory.Exists(path))
         {
-            var path = Path.Combine(Path.GetTempPath(), testClass.GetType().Name);
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            return Path.Combine(path, filename);
+            Directory.CreateDirectory(path);
         }
+
+        return Path.Combine(path, filename);
     }
 }

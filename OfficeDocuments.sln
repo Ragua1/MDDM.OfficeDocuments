@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficeDocuments.Word.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OfficeDocuments.Excel.Tests", "test\OfficeDocuments.Excel.Tests\OfficeDocuments.Excel.Tests.csproj", "{30A17BBD-8010-4040-8695-BF1E494E8E00}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1BCA3A2D-EEDB-4AAB-ACD4-C764E2BEE2A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8A5C3F1F-9C07-410E-B0C9-8CBF16C982EF}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{30A17BBD-8010-4040-8695-BF1E494E8E00} = {1BCA3A2D-EEDB-4AAB-ACD4-C764E2BEE2A7}
+		{55C0761C-1A09-4156-B773-88EA5A6D1D2C} = {1BCA3A2D-EEDB-4AAB-ACD4-C764E2BEE2A7}
 	EndGlobalSection
 EndGlobal

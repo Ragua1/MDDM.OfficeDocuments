@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace OfficeDocuments.Word.Interfaces
+namespace OfficeDocuments.Word.Interfaces;
+
+public interface IWordprocessing : IDisposable
 {
-    public interface IWordprocessing : IDisposable
-    {
-        IBody GetBody();
-        void Close(bool saveDocument = true);
-    }
+    IBody GetBody();
+    void Close(bool saveDocument = true);
 }

@@ -1,11 +1,10 @@
-﻿namespace OfficeDocuments.Word.DataClasses
+﻿namespace OfficeDocuments.Word.DataClasses;
+
+public class Break
 {
-    public class Break
+    internal DocumentFormat.OpenXml.Wordprocessing.Break Element { get; }
+    public Break(DocumentFormat.OpenXml.Wordprocessing.Break element)
     {
-        internal DocumentFormat.OpenXml.Wordprocessing.Break Element { get; }
-        public Break(DocumentFormat.OpenXml.Wordprocessing.Break element)
-        {
-            Element = element;
-        }
+        Element = element;
     }
 }

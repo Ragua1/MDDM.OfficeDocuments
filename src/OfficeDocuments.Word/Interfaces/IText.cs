@@ -1,7 +1,6 @@
-﻿namespace OfficeDocuments.Word.Interfaces
+﻿namespace OfficeDocuments.Word.Interfaces;
+
+public interface IText
 {
-    public interface IText
-    {
-        string TextValue { get; set; }
-    }
+    string TextValue { get; set; }
 }

@@ -3,26 +3,25 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeDocuments.Word.Interfaces;
 
-namespace OfficeDocuments.Word.Tests
+namespace OfficeDocuments.Word.Tests;
+
+[TestClass]
+public class WordprocessingTest : TestBase
 {
-    [TestClass]
-    public class WordprocessingTest : TestBase
+    //[TestMethod]
+    public void ReadDocumentTest()
     {
-        //[TestMethod]
-        public void ReadDocumentTest()
-        {
-            var path = "Resources/Rozsudek_priloha_6.docx";
-            Assert.IsTrue(File.Exists(path));
+        var path = "Resources/Rozsudek_priloha_6.docx";
+        Assert.IsTrue(File.Exists(path));
 
-            using IWordprocessing wp = new Wordprocessing(path, false);
+        using IWordprocessing wp = new Wordprocessing(path, false);
 
-            var body = wp.GetBody();
+        var body = wp.GetBody();
 
-            var texts = body.Paragraphs.Select(x => x.GetTextElements()).Where(x => x.Any()).ToArray();
+        var texts = body.Paragraphs.Select(x => x.GetTextElements()).Where(x => x.Any()).ToArray();
             
-            Assert.IsTrue(texts.Any());
+        Assert.IsTrue(texts.Any());
 
-            wp.Close(false);
-        }
+        wp.Close(false);
     }
 }

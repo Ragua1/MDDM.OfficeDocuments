@@ -1,20 +1,17 @@
-﻿using DocumentFormat.OpenXml;
+﻿namespace OfficeDocuments.Word.Enums;
 
-namespace OfficeDocuments.Word.Enums
+public enum BreakType
 {
-    public enum BreakType
-    {
-        /// <summary>
-        /// Page Break.
-        /// </summary>
-        Page,
-        /// <summary>
-        /// Column Break.
-        /// </summary>
-        Column,
-        /// <summary>
-        /// Line Break.
-        /// </summary>
-        TextWrapping,
-    }
+    /// <summary>
+    /// Page Break.
+    /// </summary>
+    Page,
+    /// <summary>
+    /// Column Break.
+    /// </summary>
+    Column,
+    /// <summary>
+    /// Line Break.
+    /// </summary>
+    TextWrapping,
 }

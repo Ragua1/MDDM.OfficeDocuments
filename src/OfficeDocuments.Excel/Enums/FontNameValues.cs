@@ -1,21 +1,20 @@
-﻿namespace OfficeDocuments.Excel.Enums
+﻿namespace OfficeDocuments.Excel.Enums;
+
+/// <summary>
+/// Values of FontName
+/// </summary>
+public enum FontNameValues
 {
     /// <summary>
-    /// Values of FontName
+    /// The arial
     /// </summary>
-    public enum FontNameValues
-    {
-        /// <summary>
-        /// The arial
-        /// </summary>
-        Arial,
-        /// <summary>
-        /// The calibri
-        /// </summary>
-        Calibri,
-        /// <summary>
-        /// The tahoma
-        /// </summary>
-        Tahoma,
-    }
+    Arial,
+    /// <summary>
+    /// The calibri
+    /// </summary>
+    Calibri,
+    /// <summary>
+    /// The tahoma
+    /// </summary>
+    Tahoma,
 }

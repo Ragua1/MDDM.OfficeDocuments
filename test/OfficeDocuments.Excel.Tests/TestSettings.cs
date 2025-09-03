@@ -1,19 +1,16 @@
-﻿using System.IO;
+﻿namespace OfficeDocuments.Excel.Tests;
 
-namespace OfficeDocuments.Excel.Tests
+public static class TestSettings
 {
-    public static class TestSettings
+    internal static string GetFilepath<T>(T testClass, string filename)
     {
-        internal static string GetFilepath<T>(T testClass, string filename)
+        var path = testClass.GetType().Name;
+
+        if (!Directory.Exists(path))
         {
-            var path = testClass.GetType().Name;
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            return Path.Combine(path, filename);
+            Directory.CreateDirectory(path);
         }
+
+        return Path.Combine(path, filename);
     }
 }
