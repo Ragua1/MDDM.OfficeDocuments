@@ -39,7 +39,6 @@ jobs:
         run: |
           dotnet test test/OfficeDocuments.Excel.Tests/OfficeDocuments.Excel.Tests.csproj \
             --configuration Release \
-            --no-build \
             --logger "trx;LogFileName=test-results.trx" \
             --collect "XPlat Code Coverage"
 
