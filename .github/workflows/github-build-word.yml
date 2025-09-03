@@ -14,14 +14,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK from global.json
+    - name: Setup .NET SDK 9.0.x
         uses: actions/setup-dotnet@v4
         with:
-          global-json-file: global.json
-          cache: true
+      dotnet-version: '9.0.x'
+      cache: true
           cache-dependency-path: |
             **/*.csproj
             **/packages.lock.json
+
+      - name: Dotnet info
+        run: |
+          dotnet --info
+          dotnet --list-sdks
+          dotnet --list-runtimes
 
       - name: Restore
         run: dotnet restore OfficeDocuments.sln
