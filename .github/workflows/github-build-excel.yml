@@ -14,14 +14,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-    - name: Setup .NET SDK 9.0.x
+      - name: Setup .NET SDK 9.0.x
         uses: actions/setup-dotnet@v4
         with:
-      dotnet-version: '9.0.x'
-      cache: true
-          cache-dependency-path: |
-            **/*.csproj
-            **/packages.lock.json
+        dotnet-version: '9.0.x'
+        cache: true
+            cache-dependency-path: |
+              **/*.csproj
+              **/packages.lock.json
 
       - name: Dotnet info
         run: |
