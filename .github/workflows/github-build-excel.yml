@@ -19,9 +19,9 @@ jobs:
         with:
         dotnet-version: '9.0.x'
         cache: true
-            cache-dependency-path: |
-              **/*.csproj
-              **/packages.lock.json
+        cache-dependency-path: |
+          **/*.csproj
+          **/packages.lock.json
 
       - name: Dotnet info
         run: |
