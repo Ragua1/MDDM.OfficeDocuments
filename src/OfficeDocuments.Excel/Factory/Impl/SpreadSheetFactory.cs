@@ -1,5 +1,4 @@
-﻿using System.IO;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using OfficeDocuments.Excel.Interfaces;
 using Worksheet = OfficeDocuments.Excel.DataClasses.Worksheet;

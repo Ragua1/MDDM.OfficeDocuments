@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using OfficeDocuments.Excel.Interfaces;
+﻿using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
 using OfficeDocuments.Excel.Extensions;
 

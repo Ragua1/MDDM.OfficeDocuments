@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace OfficeDocuments.Excel.Extensions;
+﻿namespace OfficeDocuments.Excel.Extensions;
 
 public static class CellExtension
 {

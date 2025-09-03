@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Extensions;
 using OpenXml = DocumentFormat.OpenXml.Spreadsheet;

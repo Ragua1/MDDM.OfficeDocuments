@@ -1,37 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <LangVersion>default</LangVersion>
-    <Nullable>enable</Nullable>
-    <Version>3.0.1</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>OfficeDocuments.Excel</RootNamespace>
-    <Title>OfficeDocuments.Excel</Title>
-    <Authors>Martin Domanský</Authors>
-    <Description>Library designed to streamline the manipulation and creation of Excel documents using the OpenXml library.</Description>
-    <Copyright>MDDM</Copyright>
-    <PackageProjectUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</RepositoryUrl>
-    <PackageTags>Office;Excel;C#</PackageTags>
-    <Company>MDDM</Company>
-    <PublicSign>false</PublicSign>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <LangVersion>default</LangVersion>
+        <Nullable>enable</Nullable>
+        <Version>3.0.1</Version>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <RootNamespace>OfficeDocuments.Excel</RootNamespace>
+        <Title>OfficeDocuments.Excel</Title>
+        <Authors>Martin Domanský</Authors>
+        <Description>Library designed to streamline the manipulation and creation of Excel documents using the OpenXml library.</Description>
+        <Copyright>MDDM</Copyright>
+        <PackageProjectUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Ragua1/MDDM.OfficeDocuments</RepositoryUrl>
+        <PackageTags>Office;Excel;C#</PackageTags>
+        <Company>MDDM</Company>
+        <PublicSign>false</PublicSign>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\">
-      <Link>LICENSE.md</Link>
-    </None>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\">
-      <Link>README.md</Link>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <Using Include="System"/>
+        <Using Include="System.Drawing"/>
+        <Using Include="System.IO"/>
+        <Using Include="System.Linq"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\">
+            <Link>LICENSE.md</Link>
+        </None>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\">
+            <Link>README.md</Link>
+        </None>
+    </ItemGroup>
 
 </Project>

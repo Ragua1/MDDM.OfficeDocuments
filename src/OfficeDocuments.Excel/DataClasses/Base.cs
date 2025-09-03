@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using OfficeDocuments.Excel.Interfaces;
+﻿using OfficeDocuments.Excel.Interfaces;
 
 namespace OfficeDocuments.Excel.DataClasses;
 
