@@ -17,11 +17,11 @@ jobs:
       - name: Setup .NET SDK (global.json)
         uses: actions/setup-dotnet@v4
         with:
-        global-json-file: global.json
-        cache: true
-        cache-dependency-path: |
-          **/*.csproj
-          **/packages.lock.json
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/packages.lock.json
 
       - name: Dotnet info
         run: |
