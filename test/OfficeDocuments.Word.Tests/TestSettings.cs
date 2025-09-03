@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace OfficeDocuments.Word.Tests;
+﻿namespace OfficeDocuments.Word.Tests;
 
 public static class TestSettings
 {

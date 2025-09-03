@@ -1,18 +1,15 @@
-﻿using System.IO;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
 using OfficeDocuments.Word.Interfaces;
 
 namespace OfficeDocuments.Word.Tests;
 
-[TestClass]
 public class WordprocessingTest : TestBase
 {
-    //[TestMethod]
+    [Fact(Skip = "Depends on external resource file")] 
     public void ReadDocumentTest()
     {
         var path = "Resources/Rozsudek_priloha_6.docx";
-        Assert.IsTrue(File.Exists(path));
+        Assert.True(File.Exists(path));
 
         using IWordprocessing wp = new Wordprocessing(path, false);
 
@@ -20,7 +17,7 @@ public class WordprocessingTest : TestBase
 
         var texts = body.Paragraphs.Select(x => x.GetTextElements()).Where(x => x.Any()).ToArray();
             
-        Assert.IsTrue(texts.Any());
+    Assert.True(texts.Any());
 
         wp.Close(false);
     }

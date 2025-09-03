@@ -1,16 +1,12 @@
-﻿using System;
-using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OfficeDocuments.Word.Enums;
+﻿using OfficeDocuments.Word.Enums;
 
 namespace OfficeDocuments.Word.Tests;
 
-[TestClass]
 public class CreationTest : TestBase
 {
     public static readonly Random Rnd = new Random();
 
-    [TestMethod]
+    [Fact]
     public void CreateEmptyDocument_EmitsNewFile()
     {
         var filename = "doc1.docx";
@@ -22,10 +18,10 @@ public class CreationTest : TestBase
             ;
         }
 
-        Assert.IsTrue(File.Exists(filename));
+        Assert.True(File.Exists(filename));
     }
 
-    [TestMethod]
+    [Fact]
     public void CreateDocumentWithContent_EmitsNewFile()
     {
         var filename = "doc2.docx";
@@ -46,6 +42,6 @@ public class CreationTest : TestBase
                 .AddText($"Create text on second page - {DateTime.Now:s}");
         }
 
-        Assert.IsTrue(File.Exists(filename));
+    Assert.True(File.Exists(filename));
     }
 }

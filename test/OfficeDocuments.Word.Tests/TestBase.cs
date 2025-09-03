@@ -1,5 +1,4 @@
-﻿using System.IO;
-using OfficeDocuments.Word.Interfaces;
+﻿using OfficeDocuments.Word.Interfaces;
 
 namespace OfficeDocuments.Word.Tests;
 
