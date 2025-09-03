@@ -1,0 +1,63 @@
+name: Build Word (Linux)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test-word:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK from global.json
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/packages.lock.json
+
+      - name: Restore
+        run: dotnet restore OfficeDocuments.sln
+
+      - name: Build Word project
+        run: dotnet build src/OfficeDocuments.Word/OfficeDocuments.Word.csproj --configuration Release --no-restore
+
+      - name: Test Word project
+        run: |
+          dotnet test test/OfficeDocuments.Word.Tests/OfficeDocuments.Word.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect "XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-test-results
+          path: test/OfficeDocuments.Word.Tests/TestResults/**/*.trx
+          if-no-files-found: warn
+
+      - name: Upload coverage (Cobertura)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-coverage-cobertura
+          path: test/OfficeDocuments.Word.Tests/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+      - name: Coverage Summary
+        if: always()
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: test/OfficeDocuments.Word.Tests/TestResults/**/coverage.cobertura.xml
+          badge: true
+          format: markdown
+          output: both
