@@ -1,19 +1,24 @@
 ﻿using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
-using OfficeDocuments.Excel.Extensions;
 
 namespace OfficeDocuments.Excel.DataClasses;
 
 internal class Style : IStyle
 {
-    public DocumentFormat.OpenXml.Spreadsheet.Stylesheet Stylesheet { get; }
-    public DocumentFormat.OpenXml.Spreadsheet.CellFormat Element { get; }
     public uint StyleIndex { get; }
 
-    public int FontId => Convert.ToInt32(Element.FontId.Value);
-    public int FillId => Convert.ToInt32(Element.FillId.Value);
-    public int BorderId => Convert.ToInt32(Element.BorderId.Value);
-    public int NumberFormatId => Convert.ToInt32(Element.NumberFormatId?.Value ?? 0);
+    internal DocumentFormat.OpenXml.Spreadsheet.Stylesheet StylesheetInternal { get; }
+    internal DocumentFormat.OpenXml.Spreadsheet.CellFormat ElementInternal { get; }
+
+#pragma warning disable CS0618
+    DocumentFormat.OpenXml.Spreadsheet.Stylesheet IStyle.Stylesheet => StylesheetInternal;
+    DocumentFormat.OpenXml.Spreadsheet.CellFormat IStyle.Element => ElementInternal;
+#pragma warning restore CS0618
+
+    public int FontId => Convert.ToInt32(ElementInternal.FontId?.Value ?? 0U);
+    public int FillId => Convert.ToInt32(ElementInternal.FillId?.Value ?? 0U);
+    public int BorderId => Convert.ToInt32(ElementInternal.BorderId?.Value ?? 0U);
+    public int NumberFormatId => Convert.ToInt32(ElementInternal.NumberFormatId?.Value ?? 0);
 
     internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font? font = null, Fill? fill = null, Border? border = null, NumberingFormat? numberFormat = null)
         : this(stylesheet, GetFontId(stylesheet, font), GetFillId(stylesheet, fill), GetBorderId(stylesheet, border), GetNumberFormatId(stylesheet, numberFormat))
@@ -23,8 +28,8 @@ internal class Style : IStyle
     { }
     internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, int? fontId = 0, int? fillId = 0, int? borderId = 0, int? numberFormatId = 0, Alignment? alignment = null)
     {
-        Stylesheet = stylesheet;
-        Element = new DocumentFormat.OpenXml.Spreadsheet.CellFormat
+        StylesheetInternal = stylesheet;
+        ElementInternal = new DocumentFormat.OpenXml.Spreadsheet.CellFormat
         {
             FormatId = Convert.ToUInt32(0),
             FontId = Convert.ToUInt32(fontId),
@@ -34,23 +39,25 @@ internal class Style : IStyle
 
         if (numberFormatId >= 0)
         {
-            Element.NumberFormatId = Convert.ToUInt32(numberFormatId);
+            ElementInternal.NumberFormatId = Convert.ToUInt32(numberFormatId);
         }
 
         if (alignment != null)
         {
-            Element.Alignment = (DocumentFormat.OpenXml.Spreadsheet.Alignment)alignment.Element.CloneNode(true);
+            ElementInternal.Alignment = (DocumentFormat.OpenXml.Spreadsheet.Alignment)alignment.Element.CloneNode(true);
         }
 
-        StyleIndex = GetStyleIndex(stylesheet, Element);
+        StyleIndex = GetStyleIndex(stylesheet, ElementInternal);
     }
     internal Style(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, uint styleIndex)
     {
-        Stylesheet = stylesheet;
+        StylesheetInternal = stylesheet;
 
-        var cfs = stylesheet.CellFormats ?? new DocumentFormat.OpenXml.Spreadsheet.CellFormats();
-        var cellFormats = cfs.Elements<DocumentFormat.OpenXml.Spreadsheet.CellFormat>().ToList();
-        Element = cellFormats.ElementAt(Convert.ToInt32(styleIndex));
+        var cfs = stylesheet.CellFormats ?? throw new InvalidOperationException("The stylesheet does not contain cell formats.");
+        ElementInternal = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.CellFormat>(
+            cfs,
+            Convert.ToInt32(styleIndex),
+            "cell format");
 
         StyleIndex = styleIndex;
     }
@@ -58,53 +65,92 @@ internal class Style : IStyle
     public IStyle CreateMergedStyle(IStyle? style)
     {
         int fontId = FontId, fillId = FillId, borderId = BorderId, numberFormatId = NumberFormatId;
-        var alignment = Element.Alignment != null ? new Alignment(Element.Alignment) : null;
+        var alignment = ElementInternal.Alignment != null ? new Alignment(ElementInternal.Alignment) : null;
         if (style == null)
         {
             return this;// new Style(this.Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
         }
 
+        var sourceStylesheet = GetStylesheet(style);
+        var sourceElement = GetElement(style);
+        var targetFonts = StylesheetInternal.Fonts;
+        var sourceFonts = sourceStylesheet.Fonts;
+        var targetFills = StylesheetInternal.Fills;
+        var sourceFills = sourceStylesheet.Fills;
+        var targetBorders = StylesheetInternal.Borders;
+        var sourceBorders = sourceStylesheet.Borders;
+
         if (fontId != style.FontId && style.FontId > 0) // Id == 0 is default style
         {
-            var fonts = Stylesheet.Fonts.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ToList();
-            var font1 = fonts.ElementAt(FontId);
-            var font2 = fonts.ElementAt(style.FontId);
+            var font1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Font>(
+                targetFonts ?? throw new InvalidOperationException("The stylesheet does not contain fonts."),
+                FontId,
+                "font");
+            var font2 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Font>(
+                sourceFonts ?? throw new InvalidOperationException("The source stylesheet does not contain fonts."),
+                style.FontId,
+                "font");
             var font = Utils.MergeFonts(font1, font2);
-            fontId = GetFontId(style.Stylesheet, font);
+            fontId = GetFontId(StylesheetInternal, font);
         }
 
         if (fillId != style.FillId && style.FillId > 0) // Id == 0 is default style
         {
-            var fills = Stylesheet.Fills.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ToList();
-            var fill1 = fills.ElementAt(FillId);
-            var fill2 = fills.ElementAt(style.FillId);
+            var fill1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Fill>(
+                targetFills ?? throw new InvalidOperationException("The stylesheet does not contain fills."),
+                FillId,
+                "fill");
+            var fill2 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Fill>(
+                sourceFills ?? throw new InvalidOperationException("The source stylesheet does not contain fills."),
+                style.FillId,
+                "fill");
             var fill = Utils.MergeFills(fill1, fill2);
-            fillId = GetFillId(style.Stylesheet, fill);
+            fillId = GetFillId(StylesheetInternal, fill);
         }
 
         if (borderId != style.BorderId && style.BorderId > 0) // Id == 0 is default style
         {
-            var borders = Stylesheet.Borders.Elements<DocumentFormat.OpenXml.Spreadsheet.Border>().ToList();
-            var border1 = borders.ElementAt(BorderId);
-            var border2 = borders.ElementAt(style.BorderId);
+            var border1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Border>(
+                targetBorders ?? throw new InvalidOperationException("The stylesheet does not contain borders."),
+                BorderId,
+                "border");
+            var border2 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Border>(
+                sourceBorders ?? throw new InvalidOperationException("The source stylesheet does not contain borders."),
+                style.BorderId,
+                "border");
             var border = Utils.MergeBorders(border1, border2);
-            borderId = GetBorderId(style.Stylesheet, border);
+            borderId = GetBorderId(StylesheetInternal, border);
         }
 
         if (numberFormatId != style.NumberFormatId && style.NumberFormatId > 0) // Id == 0 is default style
         {
-            numberFormatId = style.NumberFormatId; // Alignment cannot be merged
-        }
-
-        if (!string.IsNullOrEmpty(style.Element.Alignment?.InnerXml))
-        {
-            if (string.IsNullOrEmpty(Element.Alignment?.InnerXml))
+            if (style.NumberFormatId < NumberingFormat.FirstCustomNumberFormatId)
             {
-                alignment = new Alignment(style.Element.Alignment); // Alignment cannot be merged
+                numberFormatId = style.NumberFormatId;
+            }
+            else
+            {
+                var sourceNumberingFormats = sourceStylesheet.NumberingFormats
+                    ?? throw new InvalidOperationException("The source stylesheet does not contain numbering formats.");
+                var sourceNumberFormat = FindNumberingFormatById(sourceNumberingFormats, style.NumberFormatId)
+                    ?? throw new InvalidOperationException("The source stylesheet does not contain the expected number format.");
+
+                numberFormatId = GetNumberFormatId(
+                    StylesheetInternal,
+                    new NumberingFormat((DocumentFormat.OpenXml.Spreadsheet.NumberingFormat)sourceNumberFormat.CloneNode(true))
+                );
             }
         }
 
-        return new Style(Stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
+        if (HasAlignmentContent(sourceElement.Alignment))
+        {
+            if (!HasAlignmentContent(ElementInternal.Alignment))
+            {
+                alignment = new Alignment(sourceElement.Alignment); // Alignment cannot be merged
+            }
+        }
+
+        return new Style(StylesheetInternal, fontId, fillId, borderId, numberFormatId, alignment);
     }
 
     private static int GetFontId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, Font? font)
@@ -113,14 +159,12 @@ internal class Style : IStyle
         if (font?.Element != null)
         {
             var fonts = stylesheet.Fonts ?? (stylesheet.Fonts = new DocumentFormat.OpenXml.Spreadsheet.Fonts());
-            var elms = fonts.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ToList();
-
-            fontId = elms.FindIndex(font.IsContentSame);
+            fontId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Font>(fonts, font.IsContentSame);
 
             if (fontId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
             {
                 fonts.Append(font.Element);
-                fontId = elms.Count;
+                fontId = fonts.ChildElements.Count - 1;
             }
         }
         return fontId;
@@ -132,14 +176,12 @@ internal class Style : IStyle
         if (fill?.Element != null)
         {
             var fills = stylesheet.Fills ?? (stylesheet.Fills = new DocumentFormat.OpenXml.Spreadsheet.Fills());
-            var elms = fills.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ToList();
-
-            fillId = elms.FindIndex(fill.IsContentSame);
+            fillId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Fill>(fills, fill.IsContentSame);
 
             if (fillId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
             {
                 fills.Append(fill.Element);
-                fillId = elms.Count;
+                fillId = fills.ChildElements.Count - 1;
             }
         }
         return fillId;
@@ -151,14 +193,12 @@ internal class Style : IStyle
         if (border?.Element != null)
         {
             var borders = stylesheet.Borders ?? (stylesheet.Borders = new DocumentFormat.OpenXml.Spreadsheet.Borders());
-            var elms = borders.Elements<DocumentFormat.OpenXml.Spreadsheet.Border>().ToList();
-
-            borderId = elms.FindIndex(border.IsContentSame);
+            borderId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Border>(borders, border.IsContentSame);
 
             if (borderId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
             {
                 borders.Append(border.Element);
-                borderId = elms.Count;
+                borderId = borders.ChildElements.Count - 1;
             }
         }
         return borderId;
@@ -166,42 +206,42 @@ internal class Style : IStyle
 
     private static int GetNumberFormatId(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, NumberingFormat? numberFormat)
     {
-        var numberFormatId = 0;
         if (numberFormat?.Element == null)
         {
-            return numberFormatId;
+            return 0;
+        }
+
+        var formatCode = numberFormat.Element.FormatCode?.Value;
+        if (NumberingFormat.TryGetBuiltInId(formatCode, out var builtInNumberFormatId))
+        {
+            return Convert.ToInt32(builtInNumberFormatId);
         }
 
         var numberingFormats = stylesheet.NumberingFormats ?? (stylesheet.NumberingFormats = new DocumentFormat.OpenXml.Spreadsheet.NumberingFormats());
-        var elms = numberingFormats.Elements<DocumentFormat.OpenXml.Spreadsheet.NumberingFormat>().ToList();
-
-        var numFormat = elms.FirstOrDefault(numberFormat.IsContentSame);
+        var numFormat = FindElement(numberingFormats, numberFormat.IsContentSame);
 
         if (numFormat == null)
         {
-            numberingFormats.Append(numberFormat.Element);
-            numberFormatId = Convert.ToInt32(numberFormat.Element.NumberFormatId.Value);
+            var nextNumberFormatId = NumberingFormat.GetNextCustomId(numberingFormats);
+            var newNumberFormat = (DocumentFormat.OpenXml.Spreadsheet.NumberingFormat)numberFormat.Element.CloneNode(true);
+            newNumberFormat.NumberFormatId = nextNumberFormatId;
+            numberingFormats.Append(newNumberFormat);
+            numberingFormats.Count = Convert.ToUInt32(numberingFormats.Count());
+
+            return Convert.ToInt32(nextNumberFormatId);
         }
-        else
-        {
-            numberFormatId = Convert.ToInt32(numFormat.NumberFormatId.Value);
-        }
-        return numberFormatId;
+
+        return Convert.ToInt32(numFormat.NumberFormatId?.Value ?? 0U);
     }
 
     private static uint GetStyleIndex(DocumentFormat.OpenXml.Spreadsheet.Stylesheet stylesheet, DocumentFormat.OpenXml.Spreadsheet.CellFormat element)
     {
-        var cfs = stylesheet.CellFormats ?? new DocumentFormat.OpenXml.Spreadsheet.CellFormats();
-        var cellFormats = cfs.Elements<DocumentFormat.OpenXml.Spreadsheet.CellFormat>().ToList();
-        if (cellFormats.Any())
+        var cfs = stylesheet.CellFormats ?? (stylesheet.CellFormats = new DocumentFormat.OpenXml.Spreadsheet.CellFormats());
+        for (var i = 0; i < cfs.ChildElements.Count; i++)
         {
-            for (uint i = 0; i < cellFormats.Count; i++)
+            if (cfs.ChildElements[i] is DocumentFormat.OpenXml.Spreadsheet.CellFormat existingElement && Equals(element, existingElement))
             {
-                var elm = cellFormats[Convert.ToInt32(i)];
-                if (Equals(element, elm))
-                {
-                    return i;
-                }
+                return Convert.ToUInt32(i);
             }
         }
 
@@ -212,15 +252,25 @@ internal class Style : IStyle
 
     private static bool Equals(DocumentFormat.OpenXml.Spreadsheet.CellFormat style1, DocumentFormat.OpenXml.Spreadsheet.CellFormat style2)
     {
-        var res = style1.FontId.Value == style2.FontId.Value
-                  && style1.FillId.Value == style2.FillId.Value
-                  && style1.BorderId.Value == style2.BorderId.Value;
+        var style1FontId = style1.FontId?.Value ?? 0U;
+        var style2FontId = style2.FontId?.Value ?? 0U;
+        var style1FillId = style1.FillId?.Value ?? 0U;
+        var style2FillId = style2.FillId?.Value ?? 0U;
+        var style1BorderId = style1.BorderId?.Value ?? 0U;
+        var style2BorderId = style2.BorderId?.Value ?? 0U;
 
-        if (style1.NumberFormatId.HasValue == style2.NumberFormatId.HasValue)
+        var res = style1FontId == style2FontId
+                  && style1FillId == style2FillId
+                  && style1BorderId == style2BorderId;
+
+        var style1NumberFormatId = style1.NumberFormatId?.Value;
+        var style2NumberFormatId = style2.NumberFormatId?.Value;
+
+        if (style1NumberFormatId.HasValue == style2NumberFormatId.HasValue)
         {
-            if (style1.NumberFormatId.HasValue)
+            if (style1NumberFormatId.HasValue)
             {
-                res &= style1.NumberFormatId.Value == style2.NumberFormatId.Value;
+                res &= style1NumberFormatId.Value == style2NumberFormatId;
             }
         }
         else
@@ -230,7 +280,7 @@ internal class Style : IStyle
 
         if (style1.Alignment != null && style2.Alignment != null)
         {
-            res &= style1.Alignment.OuterXml.CompareXml(style2.Alignment.OuterXml);
+            res &= Utils.OpenXmlElementsEqual(style1.Alignment, style2.Alignment);
         }
         else
         {
@@ -243,5 +293,90 @@ internal class Style : IStyle
 
 
         return res;
+    }
+
+    private static DocumentFormat.OpenXml.Spreadsheet.Stylesheet GetStylesheet(IStyle style)
+    {
+        if (style is Style concreteStyle)
+        {
+            return concreteStyle.StylesheetInternal;
+        }
+
+#pragma warning disable CS0618
+        return style.Stylesheet;
+#pragma warning restore CS0618
+    }
+
+    private static DocumentFormat.OpenXml.Spreadsheet.CellFormat GetElement(IStyle style)
+    {
+        if (style is Style concreteStyle)
+        {
+            return concreteStyle.ElementInternal;
+        }
+
+#pragma warning disable CS0618
+        return style.Element;
+#pragma warning restore CS0618
+    }
+
+    private static TElement GetElementAt<TElement>(DocumentFormat.OpenXml.OpenXmlCompositeElement collection, int index, string elementName)
+        where TElement : DocumentFormat.OpenXml.OpenXmlElement
+    {
+        if (index < 0 || index >= collection.ChildElements.Count || collection.ChildElements[index] is not TElement element)
+        {
+            throw new InvalidOperationException($"The stylesheet does not contain the expected {elementName}.");
+        }
+
+        return element;
+    }
+
+    private static int FindElementIndex<TElement>(DocumentFormat.OpenXml.OpenXmlCompositeElement collection, Func<TElement, bool> predicate)
+        where TElement : DocumentFormat.OpenXml.OpenXmlElement
+    {
+        for (var i = 0; i < collection.ChildElements.Count; i++)
+        {
+            if (collection.ChildElements[i] is TElement element && predicate(element))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static DocumentFormat.OpenXml.Spreadsheet.NumberingFormat? FindElement(
+        DocumentFormat.OpenXml.OpenXmlCompositeElement collection,
+        Func<DocumentFormat.OpenXml.Spreadsheet.NumberingFormat, bool> predicate)
+    {
+        for (var i = 0; i < collection.ChildElements.Count; i++)
+        {
+            if (collection.ChildElements[i] is DocumentFormat.OpenXml.Spreadsheet.NumberingFormat element && predicate(element))
+            {
+                return element;
+            }
+        }
+
+        return null;
+    }
+
+    private static DocumentFormat.OpenXml.Spreadsheet.NumberingFormat? FindNumberingFormatById(
+        DocumentFormat.OpenXml.Spreadsheet.NumberingFormats numberingFormats,
+        int numberFormatId)
+    {
+        for (var i = 0; i < numberingFormats.ChildElements.Count; i++)
+        {
+            if (numberingFormats.ChildElements[i] is DocumentFormat.OpenXml.Spreadsheet.NumberingFormat format
+                && Convert.ToInt32(format.NumberFormatId?.Value ?? 0U) == numberFormatId)
+            {
+                return format;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool HasAlignmentContent(DocumentFormat.OpenXml.Spreadsheet.Alignment? alignment)
+    {
+        return alignment != null && (alignment.HasAttributes || alignment.ChildElements.Count > 0);
     }
 }

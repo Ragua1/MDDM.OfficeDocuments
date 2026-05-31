@@ -1,4 +1,4 @@
-﻿using OfficeDocuments.Excel.Extensions;
+using OfficeDocuments.Excel.Extensions;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocuments.Excel.Tests;

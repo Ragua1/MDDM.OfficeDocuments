@@ -1,4 +1,4 @@
-﻿using OfficeDocuments.Excel.Interfaces;
+using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
 using Color = System.Drawing.Color;
 
@@ -10,7 +10,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRow()
     {
         var filePath = GetFilepath("doc1.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
@@ -28,7 +28,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowWithStyle()
     {
         var filePath = GetFilepath("doc2.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var s = w.CreateStyle(new Font { Color = Color.Coral }, new Fill(Color.Black));
@@ -42,7 +42,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowOnSpecificRowIndex()
     {
         var filePath = GetFilepath("doc3.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow(5);
@@ -58,7 +58,7 @@ public class RowTest : SpreadsheetTestBase
             
         var exception = Assert.Throws<ArgumentException>(() =>
         {
-            using (var w = CreateTestee(filePath))
+            using (var w = CreateNewSpreadsheet(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 sheet.AddRow(0);
@@ -70,7 +70,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndAddCell()
     {
         var filePath = GetFilepath("doc5.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
@@ -86,7 +86,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndAddCellWithValue()
     {
         var filePath = GetFilepath("doc6.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var value = "Alea iacta est";
@@ -111,7 +111,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndAddCellWithFormula()
     {
         var filePath = GetFilepath("doc7.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var value = "Sum(A1:A2)";
@@ -136,7 +136,7 @@ public class RowTest : SpreadsheetTestBase
             
         var exception = Assert.Throws<ArgumentException>(() =>
         {
-            using (var w = CreateTestee(filePath))
+            using (var w = CreateNewSpreadsheet(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 sheet.AddCell(0, 0);
@@ -151,7 +151,7 @@ public class RowTest : SpreadsheetTestBase
             
         var exception = Assert.Throws<ArgumentException>(() =>
         {
-            using (var w = CreateTestee(filePath))
+            using (var w = CreateNewSpreadsheet(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 sheet.AddCellWithFormula(0, "0");
@@ -163,7 +163,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndCellOnRange()
     {
         var filePath = GetFilepath("doc10.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
@@ -182,7 +182,7 @@ public class RowTest : SpreadsheetTestBase
             
         var exception = Assert.Throws<ArgumentException>(() =>
         {
-            using (var w = CreateTestee(filePath))
+            using (var w = CreateNewSpreadsheet(filePath))
             {
                 var sheet = w.AddWorksheet("Sheet 1");
                 var row = sheet.AddRow();
@@ -195,7 +195,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndCellOnWrongRange()
     {
         var filePath = GetFilepath("doc12.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
@@ -209,7 +209,7 @@ public class RowTest : SpreadsheetTestBase
     public void CreateRowAndCellOnBigRange()
     {
         var filePath = GetFilepath("doc13.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
@@ -223,7 +223,7 @@ public class RowTest : SpreadsheetTestBase
     public void GetCellByName()
     {
         var filePath = GetFilepath("doc14.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var value = "Alea iacta est";
@@ -248,5 +248,23 @@ public class RowTest : SpreadsheetTestBase
             Assert.Equal((uint)1, cell1.ColumnIndex);
             Assert.Equal(value, cell1.Value);
         }
+    }
+
+    [Fact]
+    public void GetCellByMultiLetterColumnName_ReturnsExpectedCell()
+    {
+        var filePath = GetFilepath("doc15.xlsx");
+        using var w = CreateNewSpreadsheet(filePath);
+        var sheet = w.AddWorksheet("Sheet 1");
+        var row = sheet.AddRow();
+        var value = "AA value";
+
+        row.AddCell(27, value);
+
+        var cell = row.GetCell("AA");
+
+        Assert.NotNull(cell);
+        Assert.Equal((uint)27, cell.ColumnIndex);
+        Assert.Equal(value, cell.Value);
     }
 }

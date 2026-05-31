@@ -10,16 +10,16 @@ using Styles_NumberingFormat = OfficeDocuments.Excel.Styles.NumberingFormat;
 
 namespace OfficeDocuments.Excel.Factory.Impl;
 
-public class StyleFactory : IStyleFactory
+internal class StyleFactory : IStyleFactory
 {
-    public IStyle CreateStyle(Stylesheet stylesheet, Styles_Font font = null, Styles_Fill fill = null, Styles_Border border = null,
-                              Styles_NumberingFormat numberFormat = null, Styles_Alignment alignment = null)
+    public IStyle CreateStyle(Stylesheet stylesheet, Styles_Font? font = null, Styles_Fill? fill = null, Styles_Border? border = null,
+                              Styles_NumberingFormat? numberFormat = null, Styles_Alignment? alignment = null)
     {
         return new Style(stylesheet, font, fill, border, numberFormat, alignment);
     }
 
     public IStyle CreateStyle(Stylesheet stylesheet, int fontId = 0, int fillId = 0, int borderId = 0, int numberFormatId = 0,
-                              Excel_Styles_Alignment alignment = null)
+                              Excel_Styles_Alignment? alignment = null)
     {
         return new Style(stylesheet, fontId, fillId, borderId, numberFormatId, alignment);
     }

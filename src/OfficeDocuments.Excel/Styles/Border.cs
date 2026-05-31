@@ -1,5 +1,4 @@
 ﻿using OfficeDocuments.Excel.Enums;
-using OfficeDocuments.Excel.Extensions;
 
 namespace OfficeDocuments.Excel.Styles;
 
@@ -59,7 +58,7 @@ public class Border
     /// Initializes a new instance of the <see cref="Border"/> class.
     /// </summary>
     /// <param name="border">Spreadsheet border</param>
-    public Border(DocumentFormat.OpenXml.Spreadsheet.Border border = null)
+    public Border(DocumentFormat.OpenXml.Spreadsheet.Border? border = null)
     {
         Element = border ?? new DocumentFormat.OpenXml.Spreadsheet.Border();
     }
@@ -79,7 +78,7 @@ public class Border
     /// <param name="border">Spreadsheet border for compare</param>
     public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Border border)
     {
-        return border.OuterXml.CompareXml(Element.OuterXml);
+        return Utils.OpenXmlElementsEqual(border, Element);
     }
         
     private static DocumentFormat.OpenXml.Spreadsheet.BorderStyleValues GetBorderStyleValue(BorderStyleValues borderStyle)

@@ -1,6 +1,5 @@
 ﻿using DocumentFormat.OpenXml;
 using OfficeDocuments.Excel.Enums;
-using OfficeDocuments.Excel.Extensions;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocuments.Excel.Styles;
@@ -82,7 +81,7 @@ public class Font
     /// Initializes a new instance of the <see cref="Font"/> class.
     /// </summary>
     /// <param name="font">Spreadsheet font.</param>
-    public Font(DocumentFormat.OpenXml.Spreadsheet.Font font = null)
+    public Font(DocumentFormat.OpenXml.Spreadsheet.Font? font = null)
     {
         Element = font ?? new DocumentFormat.OpenXml.Spreadsheet.Font();
     }
@@ -93,6 +92,6 @@ public class Font
     /// <param name="font">Spreadsheet font for compare</param>
     public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Font font)
     {
-        return font.OuterXml.CompareXml(Element.OuterXml);
+        return Utils.OpenXmlElementsEqual(font, Element);
     }
 }

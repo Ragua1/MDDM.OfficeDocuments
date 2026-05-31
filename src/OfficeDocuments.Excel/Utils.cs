@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Linq;
+using System.Linq;
 using DocumentFormat.OpenXml;
 using OfficeDocuments.Excel.Styles;
 
@@ -23,120 +23,173 @@ public static class Utils
     /// <summary>
     /// Create new font by merging two fonts
     /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static Font MergeFonts(DocumentFormat.OpenXml.Spreadsheet.Font font1, DocumentFormat.OpenXml.Spreadsheet.Font font2)
     {
         if (font1 == null) throw new ArgumentNullException(nameof(font1));
         if (font2 == null) throw new ArgumentNullException(nameof(font2));
 
-        var mergedXml = MergeXmlElements(font1, font2);
-        return new Font(new DocumentFormat.OpenXml.Spreadsheet.Font(mergedXml));
+        return new Font(MergeElements(font1, font2));
     }
 
     /// <summary>
     /// Create new fill by merging two fills
     /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static Fill MergeFills(DocumentFormat.OpenXml.Spreadsheet.Fill fill1, DocumentFormat.OpenXml.Spreadsheet.Fill fill2)
     {
         if (fill1 == null) throw new ArgumentNullException(nameof(fill1));
         if (fill2 == null) throw new ArgumentNullException(nameof(fill2));
 
-        var mergedXml = MergeXmlElements(fill1, fill2);
-        return new Fill(new DocumentFormat.OpenXml.Spreadsheet.Fill(mergedXml));
+        return new Fill(MergeElements(fill1, fill2));
     }
 
     /// <summary>
     /// Create new border by merging two borders
     /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static Border MergeBorders(DocumentFormat.OpenXml.Spreadsheet.Border border1, DocumentFormat.OpenXml.Spreadsheet.Border border2)
     {
         if (border1 == null) throw new ArgumentNullException(nameof(border1));
         if (border2 == null) throw new ArgumentNullException(nameof(border2));
 
-        var mergedXml = MergeXmlElements(border1, border2);
-        return new Border(new DocumentFormat.OpenXml.Spreadsheet.Border(mergedXml));
+        return new Border(MergeElements(border1, border2));
     }
 
-    /// <summary>
-    /// Merges two OpenXml elements, with the second element's properties taking precedence
-    /// </summary>
-    private static string MergeXmlElements<T>(T element1, T element2) where T : OpenXmlElement
+    internal static bool OpenXmlElementsEqual(OpenXmlElement? element1, OpenXmlElement? element2)
     {
-        try
+        if (ReferenceEquals(element1, element2))
         {
-            var xml1 = XDocument.Parse(element1.OuterXml);
-            var xml2 = XDocument.Parse(element2.OuterXml);
-            return MergeXml(xml1, xml2).ToString();
+            return true;
         }
-        catch (Exception ex)
+
+        if (element1 == null || element2 == null)
         {
-            throw new InvalidOperationException($"Failed to merge XML elements of type {typeof(T).Name}", ex);
+            return false;
         }
-    }
 
-    /// <summary>
-    /// Merges two XML documents with the second document's elements taking precedence when there are conflicts
-    /// </summary>
-    private static XDocument MergeXml(XDocument xd1, XDocument xd2)
-    {
-        if (xd1 == null || xd1.Root == null) return xd2;
-        if (xd2 == null || xd2.Root == null) return xd1;
-
-        // Create a new document with the root from the second document
-        var result = new XDocument(
-            new XElement(xd2.Root.Name,
-                // Merge attributes, with the second document taking precedence
-                xd1.Root.Attributes()
-                    .Concat(xd2.Root.Attributes())
-                    .GroupBy(g => g.Name)
-                    .Select(g => g.Last()),
-                    
-                // Merge elements, with the second document taking precedence for elements with the same name
-                MergeElements(xd1.Root.Elements(), xd2.Root.Elements())
-            )
-        );
-
-        return result;
-    }
-
-    /// <summary>
-    /// Merges two collections of XML elements with the second collection taking precedence in case of conflicts
-    /// </summary>
-    private static IEnumerable<XElement> MergeElements(IEnumerable<XElement> elements1, IEnumerable<XElement> elements2)
-    {
-        // Group elements by name
-        var elementsByName = elements1
-            .Concat(elements2)
-            .GroupBy(e => e.Name)
-            .ToList();
-
-        foreach (var group in elementsByName)
+        if (element1.GetType() != element2.GetType())
         {
-            var elementsInGroup = group.ToList();
-            if (elementsInGroup.Count == 1)
+            return false;
+        }
+
+        if (!HaveSameAttributes(element1, element2))
+        {
+            return false;
+        }
+
+        if (!string.Equals(element1.InnerText, element2.InnerText, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (element1.ChildElements.Count != element2.ChildElements.Count)
+        {
+            return false;
+        }
+
+        var unmatchedChildren = element2.ChildElements.Select(child => child).ToList();
+        foreach (var child1 in element1.ChildElements)
+        {
+            var matchIndex = unmatchedChildren.FindIndex(child2 => HaveSameIdentity(child1, child2) && OpenXmlElementsEqual(child1, child2));
+            if (matchIndex < 0)
             {
-                // If there's only one element with this name, just return it
-                yield return elementsInGroup[0];
+                return false;
+            }
+
+            unmatchedChildren.RemoveAt(matchIndex);
+        }
+
+        return unmatchedChildren.Count == 0;
+    }
+
+    private static T MergeElements<T>(T element1, T element2)
+        where T : OpenXmlElement
+    {
+        if (element1.GetType() != element2.GetType())
+        {
+            throw new InvalidOperationException($"Cannot merge different OpenXml element types: {element1.GetType().Name} and {element2.GetType().Name}.");
+        }
+
+        if (element1 is not OpenXmlCompositeElement composite1 || element2 is not OpenXmlCompositeElement composite2)
+        {
+            return (T)element2.CloneNode(true);
+        }
+
+        var merged = (T)element1.CloneNode(true);
+        ApplyAttributes(merged, element2);
+
+        if (merged is not OpenXmlCompositeElement mergedComposite)
+        {
+            return merged;
+        }
+
+        foreach (var overrideChild in composite2.ChildElements)
+        {
+            var existingChild = mergedComposite.ChildElements.FirstOrDefault(candidate => HaveSameIdentity(candidate, overrideChild));
+            var mergedChild = existingChild != null
+                ? MergeElements(existingChild, overrideChild)
+                : overrideChild.CloneNode(true);
+
+            if (existingChild == null)
+            {
+                mergedComposite.Append(mergedChild);
             }
             else
             {
-                // If there are multiple elements with the same name,
-                // take the one from elements2 (which is later in the concatenation)
-                var element1 = elementsInGroup.First();
-                var element2 = elementsInGroup.Last();
-
-                var mergedElement = new XElement(element2.Name,
-                    // Merge attributes, with element2 taking precedence
-                    element1.Attributes()
-                        .Concat(element2.Attributes())
-                        .GroupBy(a => a.Name)
-                        .Select(g => g.Last()),
-                        
-                    // Merge child elements recursively
-                    MergeElements(element1.Elements(), element2.Elements())
-                );
-
-                yield return mergedElement;
+                mergedComposite.ReplaceChild(mergedChild, existingChild);
             }
         }
+
+        return merged;
+    }
+
+    private static void ApplyAttributes(OpenXmlElement target, OpenXmlElement source)
+    {
+        foreach (var attribute in source.GetAttributes())
+        {
+            target.SetAttribute(attribute);
+        }
+    }
+
+    private static bool HaveSameAttributes(OpenXmlElement element1, OpenXmlElement element2)
+    {
+        var attributes1 = element1.GetAttributes()
+            .OrderBy(attribute => attribute.NamespaceUri, StringComparer.Ordinal)
+            .ThenBy(attribute => attribute.LocalName, StringComparer.Ordinal)
+            .ThenBy(attribute => attribute.Prefix, StringComparer.Ordinal)
+            .ToList();
+        var attributes2 = element2.GetAttributes()
+            .OrderBy(attribute => attribute.NamespaceUri, StringComparer.Ordinal)
+            .ThenBy(attribute => attribute.LocalName, StringComparer.Ordinal)
+            .ThenBy(attribute => attribute.Prefix, StringComparer.Ordinal)
+            .ToList();
+
+        if (attributes1.Count != attributes2.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < attributes1.Count; index++)
+        {
+            var left = attributes1[index];
+            var right = attributes2[index];
+            if (!string.Equals(left.NamespaceUri, right.NamespaceUri, StringComparison.Ordinal)
+                || !string.Equals(left.LocalName, right.LocalName, StringComparison.Ordinal)
+                || !string.Equals(left.Prefix, right.Prefix, StringComparison.Ordinal)
+                || !string.Equals(left.Value, right.Value, StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool HaveSameIdentity(OpenXmlElement element1, OpenXmlElement element2)
+    {
+        return element1.GetType() == element2.GetType()
+               && string.Equals(element1.LocalName, element2.LocalName, StringComparison.Ordinal)
+               && string.Equals(element1.NamespaceUri, element2.NamespaceUri, StringComparison.Ordinal);
     }
 }

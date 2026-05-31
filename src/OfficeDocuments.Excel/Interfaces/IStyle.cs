@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using System.ComponentModel;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.Interfaces;
 
@@ -10,10 +11,14 @@ public interface IStyle
     /// <summary>
     /// Instance of OpenXml Stylesheet
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("This property exposes raw OpenXml stylesheet plumbing. Use style metadata properties (FontId, FillId, BorderId, NumberFormatId) or CreateMergedStyle instead.")]
     Stylesheet Stylesheet { get; }
     /// <summary>
     /// Instance of style element
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("This property exposes the raw OpenXml CellFormat. Use style metadata properties (FontId, FillId, BorderId, NumberFormatId) or CreateMergedStyle instead.")]
     CellFormat Element { get; }
     /// <summary>
     /// Style index

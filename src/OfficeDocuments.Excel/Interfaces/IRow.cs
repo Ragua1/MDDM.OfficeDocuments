@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OfficeDocuments.Excel.Interfaces;
 
@@ -10,6 +11,8 @@ public interface IRow : IBase
     /// <summary>
     /// Instance of Row element
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("This property exposes the raw OpenXml row. Prefer row and cell APIs.")]
     DocumentFormat.OpenXml.Spreadsheet.Row Element { get; }
     /// <summary>
     /// Collection of cells on row
@@ -20,9 +23,9 @@ public interface IRow : IBase
     /// </summary>
     uint RowIndex { get; }
     /// <summary>
-    /// Instance of cell with highest 'ColumnIndex' on current row
+    /// Instance of cell with highest 'ColumnIndex' on current row, or null when no cells exist
     /// </summary>
-    ICell CurrentCell { get; }
+    ICell? CurrentCell { get; }
 
     /// <summary>
     /// Create cell after current cell and apply custom style.
@@ -86,7 +89,7 @@ public interface IRow : IBase
     /// <param name="endColumn">End column index</param>
     /// <param name="style">Custom style for cell</param>
     /// <returns>Merged cell</returns>
-    ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
+    ICell? AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
 
     /// <summary>
     /// Get cell on 'columnIndex'

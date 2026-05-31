@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="test/OfficeDocuments.Excel.Tests/OfficeDocuments.Excel.Tests.csproj" />
+    <Project Path="test/OfficeDocuments.Word.Tests/OfficeDocuments.Word.Tests.csproj" />
+  </Folder>
+  <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
+  <Project Path="src/OfficeDocuments.Word/OfficeDocuments.Word.csproj" />
+</Solution>

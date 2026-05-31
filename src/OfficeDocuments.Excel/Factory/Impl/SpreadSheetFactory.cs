@@ -5,7 +5,7 @@ using Worksheet = OfficeDocuments.Excel.DataClasses.Worksheet;
 
 namespace OfficeDocuments.Excel.Factory.Impl;
 
-public class SpreadSheetFactory : ISpreadSheetFactory
+internal class SpreadSheetFactory : ISpreadSheetFactory
 {
     public ISpreadsheet CreateSpreadsheet(Stream stream, bool createNew)
     {
@@ -18,7 +18,7 @@ public class SpreadSheetFactory : ISpreadSheetFactory
     }
 
     public IWorksheet CreateWorksheet(Spreadsheet spreadsheet, WorksheetPart worksheetPart, SheetData sheetData,
-                                      IStyle cellStyle = null)
+                                      IStyle? cellStyle = null)
     {
         return new Worksheet(spreadsheet, worksheetPart, sheetData, cellStyle);
     }

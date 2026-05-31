@@ -1,5 +1,4 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
-using OfficeDocuments.Excel.Extensions;
 using Color = System.Drawing.Color;
 
 namespace OfficeDocuments.Excel.Styles;
@@ -18,7 +17,7 @@ public class Fill
     /// Initializes a new instance of the <see cref="Fill"/> class.
     /// </summary>
     /// <param name="fill">Spreadsheet fill.</param>
-    public Fill(DocumentFormat.OpenXml.Spreadsheet.Fill fill = null)
+    public Fill(DocumentFormat.OpenXml.Spreadsheet.Fill? fill = null)
     {
         Element = fill ?? new DocumentFormat.OpenXml.Spreadsheet.Fill
         {
@@ -74,6 +73,6 @@ public class Fill
     /// <param name="fill">Spreadsheet fill for compare</param>
     public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
     {
-        return fill.OuterXml.CompareXml(Element.OuterXml);
+        return Utils.OpenXmlElementsEqual(fill, Element);
     }
 }

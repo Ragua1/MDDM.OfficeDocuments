@@ -16,7 +16,7 @@ public class CreationTest : SpreadsheetTestBase
     public void BasicFile()
     {
         var filePath = GetFilepath("doc1.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             ;
         }
@@ -26,7 +26,7 @@ public class CreationTest : SpreadsheetTestBase
     public void CustomFile1()
     {
         var filePath = GetFilepath("doc2.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var s = w.CreateStyle(
             new Font { FontSize = 10, Color = Color.Black, FontName = FontNameValues.Arial },
             new Fill(System.Drawing.ColorTranslator.FromHtml("#FFFF99"))
@@ -177,7 +177,7 @@ public class CreationTest : SpreadsheetTestBase
 
         var headers = new List<string> { "p.�.", "Id m�sta", "Hodnota 1", "Hodnota 2" };
 
-        using var w = CreateTestee(filepath);
+        using var w = CreateNewSpreadsheet(filepath);
         var ws = w.AddWorksheet("MySheet - 1");
 
         var s = w.CreateStyle(new Font { FontSize = 20, Color = Color.Blue, FontName = FontNameValues.Tahoma });
@@ -265,7 +265,7 @@ public class CreationTest : SpreadsheetTestBase
 
         var headers = new List<string> { "p.�.", "Id m�sta", "Hodnota 1", "Hodnota 2" };
 
-        using var w = CreateTestee(filepath);
+        using var w = CreateNewSpreadsheet(filepath);
         var sheetName = "MySheet - 1";
         var ws = w.AddWorksheet(sheetName);
         ICell startCell, endCell;
@@ -342,7 +342,7 @@ public class CreationTest : SpreadsheetTestBase
     public void OpenAndAdjustCustomFile1()
     {
         var filepath = GetFilepath("doc4.xlsx");
-        using (var writer = CreateTestee(filepath))
+        using (var writer = CreateNewSpreadsheet(filepath))
         {
             var s = writer.CreateStyle(
                 font: new Font { FontName = FontNameValues.Arial, FontSize = 20, Bold = true, Color = Color.DarkBlue, Underline = UnderlineValues.Double },
@@ -379,7 +379,7 @@ public class CreationTest : SpreadsheetTestBase
             }
         }
 
-        using (var writer = CreateOpenTestee(filepath))
+        using (var writer = OpenExistingSpreadsheet(filepath))
         {
             var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -407,7 +407,7 @@ public class CreationTest : SpreadsheetTestBase
         using var fileStream = File.Create(filepath, Resources.Example_1.Length);
         fileStream.Write(Resources.Example_1, 0, Resources.Example_1.Length);
 
-        using var writer = CreateOpenTestee(fileStream);
+        using var writer = OpenExistingSpreadsheet(fileStream);
         var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
         Assert.NotNull(sheet);
 
@@ -433,7 +433,7 @@ public class CreationTest : SpreadsheetTestBase
         using var fileStream = File.Create(filepath, Resources.Example_1.Length);
         fileStream.Write(Resources.Example_1, 0, Resources.Example_1.Length);
 
-        using var writer = CreateOpenTestee(fileStream);
+        using var writer = OpenExistingSpreadsheet(fileStream);
         var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
         Assert.NotNull(sheet);
 
@@ -456,22 +456,22 @@ public class CreationTest : SpreadsheetTestBase
     public void CreateInMemoryStream()
     {
         var memory = new MemoryStream();
-        var cellIndex = -1;
+        uint cellIndex;
         var textValue = "12300";
-        using (var writer = CreateTestee(memory))
+        using (var writer = CreateNewSpreadsheet(memory))
         {
             var sheet = writer.AddWorksheet();
             var cell = sheet.AddCell(textValue);
-            cellIndex = (int) cell.ColumnIndex;
+            cellIndex = cell.ColumnIndex;
         }
 
-        Assert.True(cellIndex >= 0);
+        Assert.True(cellIndex >= 1);
 
-        using (var writer = CreateOpenTestee(memory))
+        using (var writer = OpenExistingSpreadsheet(memory))
         {
             var sheet = writer.GetWorksheet(writer.GetWorksheetsName().First());
-            var cell = sheet.GetCell((uint)cellIndex);
-            Console.WriteLine(cell.CellReference);
+            var cell = sheet?.GetCell(cellIndex);
+            Assert.NotNull(cell);
             Assert.Equal(textValue, cell.Value);
         }
     }

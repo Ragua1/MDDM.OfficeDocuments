@@ -56,6 +56,26 @@ public interface ICell : IBase, IOpenXmlWrapper<Cell>
     void SetFormula(string formula);
 
     /// <summary>
+    /// Adds or updates a hyperlink for the cell.
+    /// </summary>
+    void SetHyperlink(string target, string? displayText = null);
+
+    /// <summary>
+    /// Gets the hyperlink target if present.
+    /// </summary>
+    string? GetHyperlink();
+
+    /// <summary>
+    /// Adds or updates a plain text comment for the cell.
+    /// </summary>
+    void SetComment(string text, string? author = null);
+
+    /// <summary>
+    /// Gets the comment text if present.
+    /// </summary>
+    string? GetComment();
+
+    /// <summary>
     /// Gets the formula.
     /// </summary>
     string? GetFormula();

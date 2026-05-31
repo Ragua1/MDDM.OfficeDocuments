@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using DocumentFormat.OpenXml;
-using OfficeDocuments.Excel.Extensions;
 
 namespace OfficeDocuments.Excel.Styles;
 
@@ -13,6 +12,7 @@ public class NumberingFormat
     /// Instance of NumberingFormat element
     /// </summary>
     public DocumentFormat.OpenXml.Spreadsheet.NumberingFormat Element { get; }
+    internal const uint FirstCustomNumberFormatId = 170;
     private static readonly Dictionary<string, uint> DefaultNumberFormats = new()
     {
         { "General", 0 },
@@ -44,7 +44,6 @@ public class NumberingFormat
         { "##0.0E+0", 48 },
         { "@", 49 },
     };
-    private static uint excelIndex = 170;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NumberingFormat"/> class.
@@ -57,24 +56,44 @@ public class NumberingFormat
     /// Initializes a new instance of the <see cref="NumberingFormat"/> class.
     /// </summary>
     /// <param name="numberFormat">Spreadsheet number format.</param>
-    public NumberingFormat(DocumentFormat.OpenXml.Spreadsheet.NumberingFormat numberFormat = null)
+    public NumberingFormat(DocumentFormat.OpenXml.Spreadsheet.NumberingFormat? numberFormat = null)
     {
         Element = numberFormat ?? new DocumentFormat.OpenXml.Spreadsheet.NumberingFormat();
 
-        if (string.IsNullOrEmpty(Element.FormatCode.Value))
+        var formatCode = Element.FormatCode?.Value;
+
+        if (string.IsNullOrEmpty(formatCode))
         {
-            Element.FormatCode = StringValue.FromString("General");
+            formatCode = "General";
+            Element.FormatCode = StringValue.FromString(formatCode);
         }
 
-        if (DefaultNumberFormats.ContainsKey(Element.FormatCode.Value))
+        if (TryGetBuiltInId(formatCode, out var numberFormatId))
         {
-            Element.NumberFormatId = DefaultNumberFormats[Element.FormatCode.Value];
+            Element.NumberFormatId = numberFormatId;
         }
-        else
+    }
+
+    internal static bool TryGetBuiltInId(string? formatCode, out uint numberFormatId)
+    {
+        var normalizedFormatCode = string.IsNullOrEmpty(formatCode) ? "General" : formatCode;
+        return DefaultNumberFormats.TryGetValue(normalizedFormatCode, out numberFormatId);
+    }
+
+    internal static uint GetNextCustomId(DocumentFormat.OpenXml.Spreadsheet.NumberingFormats numberingFormats)
+    {
+        var nextNumberFormatId = FirstCustomNumberFormatId;
+
+        foreach (var existingNumberFormat in numberingFormats.Elements<DocumentFormat.OpenXml.Spreadsheet.NumberingFormat>())
         {
-            DefaultNumberFormats.Add(Element.FormatCode.Value, excelIndex);
-            Element.NumberFormatId = excelIndex++;
+            var existingNumberFormatId = existingNumberFormat.NumberFormatId?.Value;
+            if (existingNumberFormatId >= nextNumberFormatId)
+            {
+                nextNumberFormatId = existingNumberFormatId.Value + 1;
+            }
         }
+
+        return nextNumberFormatId;
     }
 
     /// <summary>
@@ -83,6 +102,10 @@ public class NumberingFormat
     /// <param name="numberFormat">Spreadsheet number format for compare</param>
     public bool IsContentSame(DocumentFormat.OpenXml.Spreadsheet.NumberingFormat numberFormat)
     {
-        return numberFormat.OuterXml.CompareXml(Element.OuterXml);
+        return string.Equals(
+            numberFormat.FormatCode?.Value ?? "General",
+            Element.FormatCode?.Value ?? "General",
+            StringComparison.Ordinal
+        );
     }
 }

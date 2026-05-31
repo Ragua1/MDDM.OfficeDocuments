@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using OfficeDocuments.Excel.Interfaces;
 using Color = System.Drawing.Color;
 using Styles_Font = OfficeDocuments.Excel.Styles.Font;
@@ -12,7 +12,7 @@ public class CellTest : SpreadsheetTestBase
     public void CreateCell()
     {
         var filePath = GetFilepath("doc1.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var cell = sheet.AddCell();
         Assert.NotNull(cell);
@@ -27,7 +27,7 @@ public class CellTest : SpreadsheetTestBase
     public void CreateCellWithValue()
     {
         var filePath = GetFilepath("doc2.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             const string value = "Aloha";
@@ -41,7 +41,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetString()
     {
         var filePath = GetFilepath("doc3.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = "Aloha";
         var cell1 = sheet.AddCell(value);
@@ -58,7 +58,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetInteger()
     {
         var filePath = GetFilepath("doc4.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = 165752313;
         var cell1 = sheet.AddCell(value);
@@ -81,7 +81,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetIntegerWithStyle()
     {
         var filePath = GetFilepath("doc5.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0x"));
         var value = 98435123;
@@ -99,14 +99,15 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(cell1.Value, cell2.Value);
 
         var excelUserFormatsIndex = 170;
-        Assert.True(cell1.Style.NumberFormatId >= excelUserFormatsIndex);
+        Assert.NotNull(cell1.Style);
+        Assert.Equal(excelUserFormatsIndex, cell1.Style.NumberFormatId);
     }
 
     [Fact]
     public void SetDouble()
     {
         var filePath = GetFilepath("doc6.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = 165752313.216546;
         var cell1 = sheet.AddCell(value);
@@ -127,7 +128,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetDoubleWithStyle()
     {
         var filePath = GetFilepath("doc7.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0.##x"));
         var value = 645.541;
@@ -145,14 +146,15 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(cell1.Value, cell2.Value);
 
         var excelUserFormatsIndex = 170;
-        Assert.True(cell1.Style.NumberFormatId > excelUserFormatsIndex);
+        Assert.NotNull(cell1.Style);
+        Assert.Equal(excelUserFormatsIndex, cell1.Style.NumberFormatId);
     }
 
     [Fact]
     public void SetLong()
     {
         var filePath = GetFilepath("doc100.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = 165752313216546;
         var cell1 = sheet.AddCell(value);
@@ -173,7 +175,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetLongWithStyle()
     {
         var filePath = GetFilepath("doc101.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0x"));
         var value = 165752313216546;
@@ -191,14 +193,15 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(cell1.Value, cell2.Value);
 
         var excelUserFormatsIndex = 170;
-        Assert.True(cell1.Style.NumberFormatId >= excelUserFormatsIndex);
+        Assert.NotNull(cell1.Style);
+        Assert.Equal(excelUserFormatsIndex, cell1.Style.NumberFormatId);
     }
 
     [Fact]
     public void SetDecimal()
     {
         var filePath = GetFilepath("doc102.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = 165752313216546.6516511m;
         var cell1 = sheet.AddCell(value);
@@ -219,7 +222,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetDecimalWithStyle()
     {
         var filePath = GetFilepath("doc103.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("#,##0.##0x"));
         var value = 16575231321654.6565465426m;
@@ -237,14 +240,15 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(cell1.Value, cell2.Value);
 
         var excelUserFormatsIndex = 170;
-        Assert.True(cell1.Style.NumberFormatId >= excelUserFormatsIndex);
+        Assert.NotNull(cell1.Style);
+        Assert.Equal(excelUserFormatsIndex, cell1.Style.NumberFormatId);
     }
 
     [Fact]
     public void SetDate()
     {
         var filePath = GetFilepath("doc8.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = DateTime.Now;
         var cell1 = sheet.AddCell(value);
@@ -267,7 +271,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetDateWithStyle()
     {
         var filePath = GetFilepath("doc9.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(numberFormat: new Styles_NumberingFormat("d/m/yyyy H:mm:ss"));
         var value = DateTime.Now;
@@ -285,14 +289,15 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(cell1.Value, cell2.Value);
 
         var excelUserFormatsIndex = 170;
-        Assert.True(cell1.Style.NumberFormatId >= excelUserFormatsIndex);
+        Assert.NotNull(cell1.Style);
+        Assert.Equal(excelUserFormatsIndex, cell1.Style.NumberFormatId);
     }
 
     [Fact]
     public void SetBoolean()
     {
         var filePath = GetFilepath("doc10.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var value = true;
         var cell1 = sheet.AddCell(value);
@@ -307,7 +312,7 @@ public class CellTest : SpreadsheetTestBase
     public void SetFormula()
     {
         var filePath = GetFilepath("doc11.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(A1:A5)";
         var cell = sheet.AddCell();
@@ -326,7 +331,7 @@ public class CellTest : SpreadsheetTestBase
         }
 
         var filePath = GetFilepath("doc30.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(B1:D1)";
 
@@ -351,7 +356,7 @@ public class CellTest : SpreadsheetTestBase
         }
 
         var filePath = GetFilepath("doc31.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(B1:H1)";
 
@@ -378,7 +383,7 @@ public class CellTest : SpreadsheetTestBase
         string text = "Lorem Ipsum";
 
         var filePath = GetFilepath("doc32.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(B1:D1)";
 
@@ -403,7 +408,7 @@ public class CellTest : SpreadsheetTestBase
         string formula2 = "SUM(E1:F1)";
 
         var filePath = GetFilepath("doc33.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(B1:D1)";
 
@@ -430,7 +435,7 @@ public class CellTest : SpreadsheetTestBase
         string formula2 = "SUM(E1:F1)";
 
         var filePath = GetFilepath("doc34.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var formula = "SUM(B1:D1)";
 
@@ -450,7 +455,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellInheritStyleFromRow()
     {
         var filePath = GetFilepath("doc12.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var s = w.CreateStyle(new Styles_Font { Color = Color.DarkGoldenrod });
         var row = sheet.AddRow(s);
@@ -463,7 +468,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellInheritStyleFromSheet()
     {
         var filePath = GetFilepath("doc13.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var s = w.CreateStyle(new Styles_Font { Color = Color.DarkGoldenrod });
         var sheet = w.AddWorksheet("Sheet 1", s);
         var cell = sheet.AddCell();
@@ -475,7 +480,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellHasCorrectIndexes1()
     {
         var filePath = GetFilepath("doc14.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var cell = sheet.AddCellOnIndex(5, 3);
 
@@ -488,7 +493,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellHasCorrectIndexes2()
     {
         var filePath = GetFilepath("doc15.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         var row = sheet.AddRow(3);
         row.AddCell();
@@ -506,7 +511,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellHasCorrectIndexes3()
     {
         var filePath = GetFilepath("doc16.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -516,7 +521,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal("E3", cell.CellReference);
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -540,7 +545,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellSetAndGetBoolValue()
     {
         var filePath = GetFilepath("doc17.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -549,7 +554,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.True(cell.GetBoolValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -568,7 +573,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellSetAndGetIntValue()
     {
         var filePath = GetFilepath("doc18.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -577,7 +582,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(int.MaxValue, cell.GetIntValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -596,7 +601,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellSetAndGetLongValue()
     {
         var filePath = GetFilepath("doc19.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -605,7 +610,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(long.MaxValue, cell.GetLongValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -625,7 +630,7 @@ public class CellTest : SpreadsheetTestBase
     {
         var filePath = GetFilepath("doc19.xlsx");
         var value = 16831231.1564d;
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -634,7 +639,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(value, cell.GetDoubleValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -653,7 +658,7 @@ public class CellTest : SpreadsheetTestBase
     public void CellSetAndGetDecimalValue()
     {
         var filePath = GetFilepath("doc20.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -662,7 +667,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(decimal.MaxValue, cell.GetDecimalValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -682,7 +687,7 @@ public class CellTest : SpreadsheetTestBase
     {
         var filePath = GetFilepath("doc21.xlsx");
         var value = "Alohomora";
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -691,7 +696,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(value, cell.GetStringValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -708,7 +713,7 @@ public class CellTest : SpreadsheetTestBase
         var filePath = GetFilepath("doc22.xlsx");
         var value = DateTime.Now;
         var format = "dd.MM.yyyy hh:mm:ss";
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -717,7 +722,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(value.ToString(format), cell.GetDateValue().ToString(format));
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -737,7 +742,7 @@ public class CellTest : SpreadsheetTestBase
     {
         var filePath = GetFilepath("doc23.xlsx");
         var value = "Aika";
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var cell = sheet.AddCellOnIndex(5, 3);
@@ -746,7 +751,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(value, cell.GetStringValue());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -763,7 +768,7 @@ public class CellTest : SpreadsheetTestBase
     {
         var filePath = GetFilepath("doc24.xlsx");
         var formula = "SUM(C1:C4)";
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var row = sheet.AddRow(3);
@@ -776,7 +781,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(formula, cell.GetFormula());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -793,7 +798,7 @@ public class CellTest : SpreadsheetTestBase
     {
         var filePath = GetFilepath("doc25.xlsx");
         var formula = "SUM(C1:C4)";
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet();
             var row = sheet.AddRow(3);
@@ -806,7 +811,7 @@ public class CellTest : SpreadsheetTestBase
             Assert.Equal(formula, cell.GetFormula());
         }
 
-        using (var w = CreateOpenTestee(filePath))
+        using (var w = OpenExistingSpreadsheet(filePath))
         {
             var sheet = w.GetWorksheet(w.GetWorksheetsName().First());
             Assert.NotNull(sheet);
@@ -824,7 +829,7 @@ public class CellTest : SpreadsheetTestBase
     public void CreateMultipleCellsWithValue()
     {
         var filePath = GetFilepath("doc27.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             for (int i = 0; i < 10; i++)
@@ -840,7 +845,7 @@ public class CellTest : SpreadsheetTestBase
     public void CreateMultipleCellsWithStyle()
     {
         var filePath = GetFilepath("doc28.xlsx");
-        using (var w = CreateTestee(filePath))
+        using (var w = CreateNewSpreadsheet(filePath))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             for (int i = 0; i < 10; i++)
@@ -863,7 +868,7 @@ public class CellTest : SpreadsheetTestBase
     public void CreateRandomCellsInRange()
     {
         var filePath = GetFilepath("doc29.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
         for (int i = 0; i < 10; i++)
         {
@@ -891,7 +896,7 @@ public class CellTest : SpreadsheetTestBase
     public void CountCellsWithValueInRange()
     {
         var filePath = GetFilepath("doc35.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "COUNT(B1:G1)";
@@ -915,7 +920,7 @@ public class CellTest : SpreadsheetTestBase
     public void CountCellsByArgument()
     {
         var filePath = GetFilepath("doc36.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "COUNTIF(B1:G1,\"car\")";
@@ -938,7 +943,7 @@ public class CellTest : SpreadsheetTestBase
     public void CountCellsByArgument2()
     {
         var filePath = GetFilepath("doc37.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "COUNTIF(B1:G1,B1)";
@@ -961,7 +966,7 @@ public class CellTest : SpreadsheetTestBase
     public void CountCellsByArgument3()
     {
         var filePath = GetFilepath("doc38.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "COUNTIF(B1:G1,B1)";
@@ -984,7 +989,7 @@ public class CellTest : SpreadsheetTestBase
     public void GetMedian()
     {
         var filePath = GetFilepath("doc39.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "MEDIAN(B1:F1)";
@@ -1007,7 +1012,7 @@ public class CellTest : SpreadsheetTestBase
     public void GetMedian2()
     {
         var filePath = GetFilepath("doc40.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "MEDIAN(B1:G1)";
@@ -1031,7 +1036,7 @@ public class CellTest : SpreadsheetTestBase
     public void GetMedian3()
     {
         var filePath = GetFilepath("doc41.xlsx");
-        using var w = CreateTestee(filePath);
+        using var w = CreateNewSpreadsheet(filePath);
         var sheet = w.AddWorksheet("Sheet 1");
 
         var formula = "MEDIAN(B1:G1)";

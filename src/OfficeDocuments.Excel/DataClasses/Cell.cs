@@ -1,47 +1,59 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
-using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Extensions;
+using OfficeDocuments.Excel.Interfaces;
 using OpenXml = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.DataClasses;
 
 internal class Cell : Base, ICell
 {
-    private delegate T ParseDelegate<out T>(string s, IFormatProvider provider);
-
     public OpenXml.Cell Element { get; }
-
     public string CellReference { get; }
     public uint RowIndex => _rowIndex > 0
         ? _rowIndex
-        : _rowIndex = uint.Parse(new string(CellReference.Where(char.IsDigit).ToArray()));
-
+        : GetOrCacheCellIndices().rowIndex;
     public uint ColumnIndex => _columnIndex > 0
         ? _columnIndex
-        : _columnIndex = new string(CellReference.Where(char.IsLetter).ToArray()).GetExcelColumnIndex();
-    // : _columnIndex = GetExcelColumnIndex(new string(CellReference.Where(char.IsLetter).ToArray()));
+        : GetOrCacheCellIndices().columnIndex;
 
     public string Value
     {
-        get => GetStringValue();
+        get => GetStringValue() ?? string.Empty;
         set => SetValue(value);
     }
 
     private uint _rowIndex;
     private uint _columnIndex;
 
+    private (uint rowIndex, uint columnIndex) GetOrCacheCellIndices()
+    {
+        if (_rowIndex > 0 && _columnIndex > 0)
+        {
+            return (_rowIndex, _columnIndex);
+        }
+
+        if (!CellExtension.TryParseCellReference(CellReference.AsSpan(), out var rowIndex, out var columnIndex))
+        {
+            throw new InvalidOperationException($"The cell reference '{CellReference}' is invalid.");
+        }
+
+        _rowIndex = rowIndex;
+        _columnIndex = columnIndex;
+        return (_rowIndex, _columnIndex);
+    }
+
     internal Cell(IWorksheet worksheet, uint column, uint row, IStyle? cellStyle = null)
-        : this(worksheet, GetExcelColumnName(column) + row, cellStyle)
+        : this(worksheet, CellExtension.GetExcelCellReference(column, row), cellStyle)
     {
         _rowIndex = row;
         _columnIndex = column;
     }
-    internal Cell(IWorksheet worksheet, string cellReference, IStyle cellStyle)
+
+    internal Cell(IWorksheet worksheet, string cellReference, IStyle? cellStyle)
         : base(worksheet, cellStyle)
     {
         CellReference = cellReference;
-
         Element = new OpenXml.Cell
         {
             CellReference = cellReference
@@ -52,15 +64,13 @@ internal class Cell : Base, ICell
             Element.StyleIndex = Convert.ToUInt32(Style.StyleIndex);
         }
     }
+
     internal Cell(IWorksheet worksheet, OpenXml.Cell element)
         : base(worksheet, element.StyleIndex ?? 0)
     {
-        CellReference = element.CellReference;
-
+        CellReference = element.CellReference?.Value ?? throw new InvalidOperationException("The cell reference is missing.");
         Element = element;
     }
-
-    #region Set value/formula
 
     public void SetValue(object? value)
     {
@@ -74,7 +84,6 @@ internal class Cell : Base, ICell
             case TypeCode.Boolean:
                 SetValue((bool)value);
                 break;
-
             case TypeCode.Byte:
             case TypeCode.SByte:
             case TypeCode.UInt16:
@@ -83,51 +92,37 @@ internal class Cell : Base, ICell
             case TypeCode.UInt32:
             case TypeCode.UInt64:
             case TypeCode.Int64:
-                SetNumberValue(value, 1); // value 1 as number format "0"
+                SetNumberValue(value, 1);
                 break;
             case TypeCode.Decimal:
             case TypeCode.Double:
             case TypeCode.Single:
-                SetNumberValue(value, 4); // value 4 as number format "#,##0.00"
+                SetNumberValue(value, 4);
                 break;
-
             case TypeCode.DateTime:
                 SetValue((DateTime)value);
                 break;
-
-            case TypeCode.String:
             default:
-                SetValue(value.ToString());
+                SetValue(value.ToString() ?? string.Empty);
                 break;
         }
     }
+
     public void SetValue(bool value)
     {
         SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Boolean);
-    }
-
-    private void SetNumberValue<TNumber>(TNumber value, int numberFormatId) where TNumber : class
-    {
-        if (Style == null || Style.NumberFormatId == 0)
-        {
-            var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, numberFormatId: numberFormatId); // "0"
-            AddStyle(s);
-        }
-
-        SetCellValue(((IConvertible)value).ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Number);
     }
 
     public void SetValue(DateTime value)
     {
         if (Style == null || Style.NumberFormatId == 0)
         {
-            var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 14); // "d/m/yyyy"
-            AddStyle(s);
+            AddStyle(new Style(OwnerSpreadsheet.StylesheetInternal, 0, 0, 0, 14));
         }
 
-        // cell with date needs Number format for DateTime, not DataType
         SetCellValue(value.ToOADate().ToString(CultureInfo.InvariantCulture));
     }
+
     public void SetValue(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -137,8 +132,7 @@ internal class Cell : Base, ICell
 
         if (Style == null || Style.NumberFormatId == 0)
         {
-            var s = new Style(Worksheet.Spreadsheet.WorkbookStylesPart.Stylesheet, 0, 0, 0, 49); // "@"
-            AddStyle(s);
+            AddStyle(new Style(OwnerSpreadsheet.StylesheetInternal, 0, 0, 0, 49));
         }
 
         SetCellValue(value, OpenXml.CellValues.String);
@@ -146,50 +140,62 @@ internal class Cell : Base, ICell
 
     public void SetFormula(string formula)
     {
-        if (string.IsNullOrEmpty(formula))
+        if (string.IsNullOrWhiteSpace(formula))
         {
             return;
         }
-        Element.CellFormula = new OpenXml.CellFormula(formula);
-    }
-    #endregion
 
-    #region Get value/formula
-    public string? GetFormula()
-    {
-        return Element.CellFormula?.Text;
+        Element.CellFormula = new OpenXml.CellFormula(formula);
+        Element.CellValue = null;
+        Element.DataType = null;
     }
+
+    public void SetHyperlink(string target, string? displayText = null)
+    {
+        OwnerWorksheet.SetCellHyperlink(this, target, displayText);
+    }
+
+    public string? GetHyperlink() => OwnerWorksheet.GetCellHyperlink(CellReference);
+
+    public void SetComment(string text, string? author = null)
+    {
+        OwnerWorksheet.SetCellComment(this, text, author);
+    }
+
+    public string? GetComment() => OwnerWorksheet.GetCellComment(CellReference);
+
+    public string? GetFormula() => Element.CellFormula?.Text;
 
     public int GetFormulaValue()
     {
-        if (!HasFormula())
-            return -1;
-
-        return GetFormula() switch
+        var formula = GetFormula();
+        if (string.IsNullOrEmpty(formula))
         {
-            var f when f.StartsWith("SUM") && false => FormulaSum(f), // if any cell is double
-            var f when f.StartsWith("SUM") => FormulaSum(f),
-            var f when f.StartsWith("COUNTIF") => CountCellsIf(f),
-            var f when f.StartsWith("COUNT") => CountCellsWithValue(f),
-            var f when f.StartsWith("MEDIAN") => GetMedian(f),
+            return -1;
+        }
+
+        return formula switch
+        {
+            var currentFormula when currentFormula.StartsWith("SUM", StringComparison.Ordinal) => FormulaSum(currentFormula),
+            var currentFormula when currentFormula.StartsWith("COUNTIF", StringComparison.Ordinal) => CountCellsIf(currentFormula),
+            var currentFormula when currentFormula.StartsWith("COUNT", StringComparison.Ordinal) => CountCellsWithValue(currentFormula),
+            var currentFormula when currentFormula.StartsWith("MEDIAN", StringComparison.Ordinal) => GetMedian(currentFormula),
             _ => throw new NotImplementedException(),
         };
     }
 
     public int FormulaSum(string formula)
     {
-        // Split formula to cell names in string array
-        var subs = formula.Split('(', ')', ':');
-        var sum = 0;
+        var parts = formula.Split('(', ')', ':');
         const string methodName = "SUM";
-        var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
-
+        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
         var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
         var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+        var sum = 0;
 
-        for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
         {
-            var cell = Worksheet.GetCell(i);
+            var cell = Worksheet.GetCell(columnIndex);
             if (cell == null)
             {
                 continue;
@@ -201,16 +207,9 @@ internal class Cell : Base, ICell
                 continue;
             }
 
-            // TODO get cell; if cell is formula => get formula value       DONE
-            // TODO get cell; if cell is text => throw exception            DONE
-            // TODO get cell; if any of cell is double => return double
-
-            sum += 1 switch
-            {
-                _ when cell.TryGetValue(out int val) => val,
-                // when cell.TryGetValue(out double val) => val,
-                _ => throw new ArgumentException($"Invalid cell '{cell.CellReference}' content."),
-            };
+            sum += cell.TryGetValue(out int value)
+                ? value
+                : throw new ArgumentException($"Invalid cell '{cell.CellReference}' content.");
         }
 
         return sum;
@@ -218,21 +217,16 @@ internal class Cell : Base, ICell
 
     public int CountCellsWithValue(string formula)
     {
-        // Split formula to cell names in string array
-        string[] subs = formula.Split('(', ')', ':');
-        var sum = 0;
-
+        var parts = formula.Split('(', ')', ':');
         const string methodName = "COUNT";
-        var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
-
+        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
         var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
         var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+        var sum = 0;
 
-        for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
         {
-            var cell = Worksheet.GetCell(i);
-
-            if (cell.HasValue())
+            if (Worksheet.GetCell(columnIndex)?.HasValue() == true)
             {
                 sum++;
             }
@@ -243,48 +237,25 @@ internal class Cell : Base, ICell
 
     public int CountCellsIf(string formula)
     {
-        // Split formula to cell names in string array
-        string[] subs = formula.Split('(', ')', ':', ',');
-        var sum = 0;
-
+        var parts = formula.Split('(', ')', ':', ',');
         const string methodName = "COUNTIF";
-        var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
-
+        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
         var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
         var (_, toColumnIndex) = range[1].GetExcelCellIndex();
         var argument = range[2];
-        var argumentValue = string.Empty;
+        var argumentValue = argument.StartsWith("\"", StringComparison.Ordinal) && argument.EndsWith("\"", StringComparison.Ordinal)
+            ? argument.Trim('"')
+            : ResolveArgumentValue(argument);
+        var sum = 0;
 
-        if (argument.StartsWith("\"") && argument.EndsWith("\""))
+        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
         {
-            argumentValue = argument.Trim('\"');
-        }
-        else
-        {
-            var cell = Worksheet.GetCellByReference(argument);
-            if (cell != null)
-            {
-                argumentValue = cell.HasFormula()
-                    ? cell.GetFormulaValue().ToString()
-                    : cell.HasValue()
-                        ? cell.Value
-                        : string.Empty;
-            }
-            else
-            {
-                argumentValue = argument;
-            }
-        }
-
-        for (var i = fromColumnIndex; i <= toColumnIndex; i++)
-        {
-            var cell = Worksheet.GetCell(i);
-
-            if (cell.HasValue() && cell.Value == argumentValue)
+            var cell = Worksheet.GetCell(columnIndex);
+            if (cell?.HasValue() == true && cell.Value == argumentValue)
             {
                 sum++;
             }
-            else if (!cell.HasValue() && argumentValue == string.Empty)
+            else if (cell?.HasValue() != true && argumentValue == string.Empty)
             {
                 sum++;
             }
@@ -295,69 +266,40 @@ internal class Cell : Base, ICell
 
     public int GetMedian(string formula)
     {
-        string[] subs = formula.Split('(', ')', ':');
-
+        var parts = formula.Split('(', ')', ':');
         const string methodName = "MEDIAN";
-        var range = subs.Where(x => !string.IsNullOrEmpty(x) && x != methodName).ToArray();
-
-
+        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
         var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
         var (_, toColumnIndex) = range[1].GetExcelCellIndex();
+        var values = new List<int>();
 
-        // Check if value is a number
-        // If true, add coordinates to list
-        var columns = new List<int>();
-
-        for (var i = fromColumnIndex; i <= toColumnIndex; i++)
+        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
         {
-            var cell = Worksheet.GetCell(i);
-            if (cell != null)
+            var cell = Worksheet.GetCell(columnIndex);
+            if (cell == null)
             {
-                int value;
-                switch (1)
-                {
-                    case 1 when cell.HasFormula():
-                        value = cell.GetFormulaValue();
-                        break;
-                    case 1 when cell.TryGetValue(out int v):
-                        value = v;
-                        break;
-                    default:
-                        continue;
-                }
+                continue;
+            }
 
-                columns.Add(value);
+            if (cell.HasFormula())
+            {
+                values.Add(cell.GetFormulaValue());
+            }
+            else if (cell.TryGetValue(out int value))
+            {
+                values.Add(value);
             }
         }
-        /*
 
-        // Calculate median
-        var middleCell = columns.Count / 2;
-        var median = 0;
-
-        if (columns.Count % 2 == 0)
-        {
-            var cell1 = Worksheet.GetCell(columns[middleCell - 1]);
-            var cell2 = Worksheet.GetCell(columns[middleCell - 2]);
-
-            median = cell1.GetIntValue() + cell2.GetIntValue() / 2;
-        }
-        else
-        {
-            median = Worksheet.GetCell(columns[middleCell - 1]).GetIntValue();
-        }*/
-
-        return Median(columns.ToArray());
+        return Median(values.ToArray());
     }
 
     public static int Median(int[] data)
     {
         Array.Sort(data);
-
-        if (data.Length % 2 == 0)
-            return (data[data.Length / 2 - 1] + data[data.Length / 2]) / 2;
-        else
-            return data[data.Length / 2];
+        return data.Length % 2 == 0
+            ? (data[data.Length / 2 - 1] + data[data.Length / 2]) / 2
+            : data[data.Length / 2];
     }
 
     public string? GetStringValue()
@@ -367,131 +309,115 @@ internal class Cell : Base, ICell
             throw new InvalidOperationException($"Cell '{CellReference}': Cannot get value of formula");
         }
 
-        var value = Element.CellValue?.Text;
-
-        if (!string.IsNullOrEmpty(value) && Element.DataType?.Value == OpenXml.CellValues.SharedString)
+        if (Element.InlineString?.Text != null)
         {
-            var stringId = -1;
+            return Element.InlineString.Text.Text;
+        }
 
-            if (int.TryParse(value.Trim(), out stringId))
+        var value = Element.CellValue?.Text;
+        if (!string.IsNullOrEmpty(value) && Element.DataType?.Value == OpenXml.CellValues.SharedString && int.TryParse(value.Trim(), out var stringId))
+        {
+            var item = GetSharedStringItemById(stringId);
+            if (item.Text != null)
             {
-                var item = GetSharedStringItemById(stringId);
+                return item.Text.Text;
+            }
 
-                if (item.Text != null)
-                {
-                    value = item.Text.Text;
-                }
+            if (item.InnerText != null)
+            {
+                return item.InnerText;
             }
         }
+
         return value;
     }
 
-    public bool GetBoolValue()
-    {
-        return GetValue(bool.Parse);
-    }
+    public bool GetBoolValue() => GetValue(bool.Parse);
 
-    public int GetIntValue()
-    {
-        return GetValue(int.Parse);
-    }
+    public int GetIntValue() => GetValue(int.Parse);
 
-    public long GetLongValue()
-    {
-        return GetValue(long.Parse);
-    }
+    public long GetLongValue() => GetValue(long.Parse);
 
-    public double GetDoubleValue()
-    {
-        return GetInvariantValue(double.Parse);
-    }
+    public double GetDoubleValue() => GetInvariantValue(double.Parse);
 
-    public decimal GetDecimalValue()
-    {
-        return GetInvariantValue(decimal.Parse);
-    }
+    public decimal GetDecimalValue() => GetInvariantValue(decimal.Parse);
 
     public DateTime GetDateValue(string? format = null)
     {
         var cellValue = GetStringValue();
+        if (string.IsNullOrEmpty(cellValue))
+        {
+            throw new InvalidOperationException($"Cell '{CellReference}' does not contain a value.");
+        }
 
         return format == null
             ? DateTime.FromOADate(double.Parse(cellValue, CultureInfo.InvariantCulture))
             : DateTime.ParseExact(cellValue, format, CultureInfo.InvariantCulture);
     }
 
-    public bool TryGetValue(out bool value)
-    {
-        return bool.TryParse(GetStringValue(), out value);
-    }
+    public bool TryGetValue(out bool value) => bool.TryParse(GetStringValue(), out value);
 
-    public bool TryGetValue(out int value)
-    {
-        return int.TryParse(GetStringValue(), out value);
-    }
+    public bool TryGetValue(out int value) => int.TryParse(GetStringValue(), out value);
 
-    public bool TryGetValue(out long value)
-    {
-        return long.TryParse(GetStringValue(), out value);
-    }
+    public bool TryGetValue(out long value) => long.TryParse(GetStringValue(), out value);
 
-    public bool TryGetValue(out double value)
-    {
-        return double.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
-    }
+    public bool TryGetValue(out double value) => double.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
-    public bool TryGetValue(out decimal value)
-    {
-        return decimal.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
-    }
+    public bool TryGetValue(out decimal value) => decimal.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
     public bool TryGetValue(out string value)
     {
         value = string.Empty;
-        try
-        {
-            value = GetStringValue();
-            return true;
-        }
-        catch
+        if (HasFormula())
         {
             return false;
         }
+
+        var stringValue = GetStringValue();
+        if (stringValue == null)
+        {
+            return false;
+        }
+
+        value = stringValue;
+        return true;
     }
 
     public bool TryGetValue(out DateTime value, string? format = null)
     {
         value = DateTime.MinValue;
-        try
-        {
-            value = GetDateValue(format);
-            return true;
-        }
-        catch
+        if (HasFormula())
         {
             return false;
         }
+
+        var stringValue = GetStringValue();
+        if (string.IsNullOrEmpty(stringValue))
+        {
+            return false;
+        }
+
+        if (format == null && double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var oaValue))
+        {
+            value = DateTime.FromOADate(oaValue);
+            return true;
+        }
+
+        return DateTime.TryParseExact(stringValue, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out value);
     }
 
-    public bool HasValue()
-    {
-        return !string.IsNullOrEmpty(Element.CellValue?.Text);
-    }
+    public bool HasValue() => !string.IsNullOrEmpty(Element.CellValue?.Text) || Element.InlineString != null;
 
-    public bool HasFormula()
-    {
-        return !string.IsNullOrEmpty(Element.CellFormula?.Text);
-    }
-    #endregion
+    public bool HasFormula() => !string.IsNullOrEmpty(Element.CellFormula?.Text);
 
     public override IStyle? AddStyle(params IStyle?[] styles)
     {
-        foreach (var style in styles.Where(s => s != null))
+        foreach (var style in styles.Where(currentStyle => currentStyle != null))
         {
             Style = Style?.CreateMergedStyle(style) ?? style;
         }
 
-        if (Style != null && Element != null)
+        if (Style != null)
         {
             Element.StyleIndex = Convert.ToUInt32(Style.StyleIndex);
         }
@@ -499,47 +425,82 @@ internal class Cell : Base, ICell
         return Style;
     }
 
-    private static string GetExcelColumnName(uint columnIndex)
-    {
-        var dividend = columnIndex; // A column is column number 1
-        var columnName = string.Empty;
+    internal OpenXml.Cell? CloneElement() => (OpenXml.Cell)Element.CloneNode(true);
 
-        while (dividend > 0)
+    internal void ReplaceFrom(OpenXml.Cell? sourceCell)
+    {
+        Element.RemoveAllChildren();
+        Element.CellFormula = null;
+        Element.CellValue = null;
+        Element.InlineString = null;
+        Element.DataType = null;
+        Element.StyleIndex = null;
+
+        if (sourceCell != null)
         {
-            var modulo = (dividend - 1) % 26;
-            columnName = Convert.ToChar(64 + 1 + modulo) + columnName;
-            dividend = (uint)((dividend - modulo) / 26);
+            foreach (var child in sourceCell.ChildElements)
+            {
+                Element.Append(child.CloneNode(true));
+            }
+
+            Element.DataType = sourceCell.DataType?.Value;
+            Element.StyleIndex = sourceCell.StyleIndex?.Value;
         }
 
-        return columnName;
+        Element.CellReference = CellReference;
+        Style = Element.StyleIndex == null ? null : new Style(OwnerSpreadsheet.StylesheetInternal, Convert.ToInt32(Element.StyleIndex.Value));
     }
-    /*
-    private static uint GetExcelColumnIndex(string columnName)
+
+    private void SetNumberValue(object value, int numberFormatId)
     {
-        return (uint)columnName
-            .ToUpper()
-            .Aggregate(0, (column, letter) => 26 * column + letter - 'A' + 1);
-    }*/
+        if (Style == null || Style.NumberFormatId == 0)
+        {
+            AddStyle(new Style(OwnerSpreadsheet.StylesheetInternal, numberFormatId: numberFormatId));
+        }
+
+        SetCellValue(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty, OpenXml.CellValues.Number);
+    }
+
+    private string ResolveArgumentValue(string argument)
+    {
+        var cell = Worksheet.GetCellByReference(argument);
+        if (cell == null)
+        {
+            return argument;
+        }
+
+        return cell.HasFormula()
+            ? cell.GetFormulaValue().ToString(CultureInfo.InvariantCulture)
+            : cell.HasValue()
+                ? cell.Value
+                : string.Empty;
+    }
 
     private void SetCellValue(string value, OpenXml.CellValues? dataType = null)
     {
+        Element.CellFormula = null;
         Element.CellValue = new OpenXml.CellValue(value);
         if (dataType != null && dataType != OpenXml.CellValues.Error)
         {
             Element.DataType = dataType;
         }
-    }
-    private OpenXml.SharedStringItem GetSharedStringItemById(int id)
-    {
-        return Worksheet.Spreadsheet.WorkbookPart.SharedStringTablePart.SharedStringTable.Elements<OpenXml.SharedStringItem>().ElementAt(id);
+        else
+        {
+            Element.DataType = null;
+        }
     }
 
-    private T GetValue<T>(Func<string, T> parse) where T : IConvertible
+    private OpenXml.SharedStringItem GetSharedStringItemById(int id)
     {
-        return parse(GetStringValue());
+        var sharedStringTable = OwnerSpreadsheet.WorkbookPartInternal.SharedStringTablePart?.SharedStringTable
+            ?? throw new InvalidOperationException("The workbook does not contain a shared string table.");
+
+        return sharedStringTable.Elements<OpenXml.SharedStringItem>().ElementAt(id);
     }
-    private T GetInvariantValue<T>(Func<string, IFormatProvider, T> parse) where T : IConvertible
-    {
-        return parse(GetStringValue(), CultureInfo.InvariantCulture);
-    }
+
+    private T GetValue<T>(Func<string, T> parse) where T : IConvertible => parse(GetRequiredStringValue());
+
+    private T GetInvariantValue<T>(Func<string, IFormatProvider, T> parse) where T : IConvertible => parse(GetRequiredStringValue(), CultureInfo.InvariantCulture);
+
+    private string GetRequiredStringValue() => GetStringValue() ?? throw new InvalidOperationException($"Cell '{CellReference}' does not contain a value.");
 }

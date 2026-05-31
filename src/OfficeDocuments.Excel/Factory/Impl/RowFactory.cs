@@ -3,9 +3,9 @@ using OfficeDocuments.Excel.Interfaces;
 
 namespace OfficeDocuments.Excel.Factory.Impl;
 
-public class RowFactory : IRowFactory
+internal class RowFactory : IRowFactory
 {
-    public IRow CreateRow(IWorksheet worksheet, uint rowIndex, IStyle cellStyle = null)
+    public IRow CreateRow(IWorksheet worksheet, uint rowIndex, IStyle? cellStyle = null)
     {
         return new Row(worksheet, rowIndex, cellStyle);
     }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -8,8 +9,8 @@ namespace OfficeDocuments.Word;
 
 public class Wordprocessing : IWordprocessing
 {
-    private readonly WordprocessingDocument document;
-    private bool IsEditable = true;
+    private readonly WordprocessingDocument _document;
+    private bool _isEditable = true;
 
 
     public Wordprocessing(Stream stream, bool createNew) :
@@ -59,12 +60,12 @@ public class Wordprocessing : IWordprocessing
             //document.
         }
 
-        this.document = document;
+        _document = document;
     }
 
     public IBody GetBody()
     {
-        var doc = document.MainDocumentPart.Document;
+        var doc = GetDocument();
 
         Body bodyElement;
         if (doc.Body == null)
@@ -83,6 +84,23 @@ public class Wordprocessing : IWordprocessing
         return new DataClasses.Body(bodyElement);
     }
 
+    private Document GetDocument()
+    {
+        var mainPart = _document.MainDocumentPart;
+        if (mainPart is null)
+        {
+            throw new InvalidOperationException("The word document does not contain a main document part.");
+        }
+
+        var wordDocument = mainPart.Document;
+        if (wordDocument is null)
+        {
+            throw new InvalidOperationException("The word document does not contain a root document element.");
+        }
+
+        return wordDocument;
+    }
+
     #region IDisposable implementation
 
     /// <summary>
@@ -90,11 +108,11 @@ public class Wordprocessing : IWordprocessing
     /// </summary>
     public void Close(bool saveDocument = true)
     {
-        if (IsEditable && saveDocument)
+        if (_isEditable && saveDocument)
         {
-            document.Save();
+            _document.Save();
         }
-        document?.Dispose();
+        _document.Dispose();
     }
 
     /// <summary>
@@ -102,7 +120,7 @@ public class Wordprocessing : IWordprocessing
     /// </summary>
     public void Dispose()
     {
-        using (document)
+        using (_document)
         {
             Close();
         }

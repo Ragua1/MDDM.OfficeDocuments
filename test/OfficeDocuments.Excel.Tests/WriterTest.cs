@@ -1,4 +1,4 @@
-﻿using OfficeDocuments.Excel.Enums;
+using OfficeDocuments.Excel.Enums;
 using OfficeDocuments.Excel.Styles;
 using Color = System.Drawing.Color;
 
@@ -10,12 +10,8 @@ public class WriterTest : SpreadsheetTestBase
     public void CreateNewFile()
     {
         var filePath = GetFilepath("doc1.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
-        {
-            ;
-        }
+        using var _ = CreateNewSpreadsheet(filePath);
 
         Assert.True(File.Exists(filePath), $"File not exist on filePath: '{filePath}'");
     }
@@ -24,9 +20,8 @@ public class WriterTest : SpreadsheetTestBase
     public void CreateStyleWithDefaultSettings()
     {
         var filePath = GetFilepath("doc2.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
+        using (var writer = CreateNewSpreadsheet(filePath))
         {
             var style = writer.CreateStyle();
 
@@ -43,9 +38,8 @@ public class WriterTest : SpreadsheetTestBase
     public void CreateStyle()
     {
         var filePath = GetFilepath("doc3.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
+        using (var writer = CreateNewSpreadsheet(filePath))
         {
             var style = writer.CreateStyle(
                 new Font { FontSize = 12, Color = Color.Aqua, FontName = FontNameValues.Tahoma },
@@ -65,15 +59,12 @@ public class WriterTest : SpreadsheetTestBase
     [Fact]
     public void NotCreateFileOnNonExistDirectory()
     {
-        var filePath = GetFilepath("doc4.xlsx");
-        DeleteDirectory(Path.GetDirectoryName(filePath));
+        var filePath = Path.Combine(GetFilepath("missing"), "doc4.xlsx");
 
-        var exception = Assert.Throws<DirectoryNotFoundException>(() =>
+        Assert.Throws<DirectoryNotFoundException>(() =>
         {
-            using (var writer = CreateTestee(filePath))
-            {
-                Assert.True(false, "Should not reach this point");
-            }
+            using var _ = CreateNewSpreadsheet(filePath);
+            Assert.Fail("Should not reach this point");
         });
 
         Assert.False(File.Exists(filePath), $"File should not exist on filePath: '{filePath}'");
@@ -83,9 +74,8 @@ public class WriterTest : SpreadsheetTestBase
     public void GetExistedWorksheet()
     {
         var filePath = GetFilepath("doc5.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
+        using (var writer = CreateNewSpreadsheet(filePath))
         {
             var sheetName = "Test1";
             var sheet1 = writer.AddWorksheet(sheetName);
@@ -101,14 +91,13 @@ public class WriterTest : SpreadsheetTestBase
     public void OpenExistedDocument()
     {
         var filePath = GetFilepath("doc6.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
+        using (var writer = CreateNewSpreadsheet(filePath))
         {
             writer.AddWorksheet("Test1");
         }
 
-        using (var writer = CreateOpenTestee(filePath))
+        using (var writer = OpenExistingSpreadsheet(filePath))
         {
             Assert.True(writer.GetWorksheetsName().Any());
         }
@@ -118,14 +107,13 @@ public class WriterTest : SpreadsheetTestBase
     public void OpenTryFindNonExistedWorksheet()
     {
         var filePath = GetFilepath("doc7.xlsx");
-        DeleteFile(filePath);
 
-        using (var writer = CreateTestee(filePath))
+        using (var writer = CreateNewSpreadsheet(filePath))
         {
             writer.AddWorksheet("Test1");
         }
 
-        using (var writer = CreateOpenTestee(filePath))
+        using (var writer = OpenExistingSpreadsheet(filePath))
         {
             Assert.True(writer.GetWorksheetsName().Any());
             Assert.Null(writer.GetWorksheet("Test"));
@@ -137,7 +125,7 @@ public class WriterTest : SpreadsheetTestBase
     {
         var stream = new MemoryStream();
 
-        using (var writer = CreateTestee(stream))
+        using (var writer = CreateNewSpreadsheet(stream))
         {
             writer.AddWorksheet("Test1");
         }
@@ -148,30 +136,14 @@ public class WriterTest : SpreadsheetTestBase
     {
         var stream = new MemoryStream();
 
-        using (var writer = CreateTestee(stream))
+        using (var writer = CreateNewSpreadsheet(stream))
         {
             writer.AddWorksheet("Test1");
         }
 
-        using (var writer = CreateOpenTestee(stream))
+        using (var writer = OpenExistingSpreadsheet(stream))
         {
             Assert.True(writer.GetWorksheetsName().Any());
-        }
-    }
-
-    private void DeleteFile(string filePath)
-    {
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-        }
-    }
-
-    private void DeleteDirectory(string dirPath)
-    {
-        if (Directory.Exists(dirPath))
-        {
-            Directory.Delete(dirPath, true);
         }
     }
 }
