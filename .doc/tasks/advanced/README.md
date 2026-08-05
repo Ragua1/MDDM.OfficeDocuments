@@ -4,12 +4,8 @@ Date: 2026-05-31
 
 This section captures backlog areas that sit outside the strict minimal core or need further architecture validation.
 
-Typical advanced characteristics:
-
-- materially wider API surface than common consumer scenarios need
-- higher implementation or test complexity
-- good candidate for an optional layer or a follow-up library
-- not required for the basic, efficient business-data workflows that define the core value proposition
+What qualifies as advanced is defined in
+[../../architecture/minimal-core-pr-guidelines.md](../../architecture/minimal-core-pr-guidelines.md#core-vs-advanced-decisions).
 
 ## Excel
 

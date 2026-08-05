@@ -1,0 +1,19 @@
+<Solution>
+  <!--
+    Excel module only. This solution is also a boundary check: OfficeDocuments.Excel and its test
+    tiers must never depend on the Word module, so no Word project appears here. If a Word
+    reference is ever added, this solution stops building — that is the point.
+  -->
+  <Folder Name="/src/">
+    <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/OfficeDocuments.Excel.TestKit/OfficeDocuments.Excel.TestKit.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.UnitTests/OfficeDocuments.Excel.UnitTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.IntegrationTests/OfficeDocuments.Excel.IntegrationTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.VerificationTests/OfficeDocuments.Excel.VerificationTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.PerformanceTests/OfficeDocuments.Excel.PerformanceTests.csproj" />
+    <!-- Not a test project. It is here so it keeps compiling; `dotnet test` skips it. -->
+    <Project Path="test/OfficeDocuments.Excel.Benchmarks/OfficeDocuments.Excel.Benchmarks.csproj" />
+  </Folder>
+</Solution>

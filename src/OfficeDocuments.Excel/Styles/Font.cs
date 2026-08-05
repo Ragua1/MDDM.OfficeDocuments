@@ -70,11 +70,13 @@ public class Font
         set { Element.Color = new DocumentFormat.OpenXml.Spreadsheet.Color { Rgb = new HexBinaryValue { Value = Utils.ArgbHexConverter(value) } }; }
     }
     /// <summary>
-    /// Sets the color with the ARGB value.
+    /// Sets the color with the ARGB value. Accepts 6 (RGB) or 8 (ARGB) hexadecimal digits,
+    /// optionally prefixed with '#'; the value is normalized to the 8-digit form OOXML requires.
     /// </summary>
+    /// <exception cref="ArgumentException">The value is not a valid hex color.</exception>
     public string ArgbHexColor
     {
-        set { Element.Color = new DocumentFormat.OpenXml.Spreadsheet.Color { Rgb = new HexBinaryValue { Value = value } }; }
+        set { Element.Color = new DocumentFormat.OpenXml.Spreadsheet.Color { Rgb = new HexBinaryValue { Value = Utils.NormalizeArgbHex(value, nameof(ArgbHexColor)) } }; }
     }
 
     /// <summary>

@@ -23,25 +23,64 @@ jobs:
             **/*.csproj
             **/packages.lock.json
 
+      # The Excel-only solution deliberately contains no Word project, so this job cannot be
+      # broken by in-flight work in the Word module — and a cross-module reference would fail
+      # here rather than reaching review.
       - name: Restore
-        run: dotnet restore OfficeDocuments.sln
+        run: dotnet restore OfficeDocuments.Excel.slnx
 
-      - name: Build Excel project
-        run: dotnet build src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj --configuration Release --no-restore
+      - name: Build Excel solution
+        run: dotnet build OfficeDocuments.Excel.slnx --configuration Release --no-restore
 
-      - name: Test Excel project
+      # Unit tier first: it is the fastest and its failures point at a single function.
+      - name: Test Excel unit tier
         run: |
-          dotnet test test/OfficeDocuments.Excel.Tests/OfficeDocuments.Excel.Tests.csproj \
+          dotnet test test/OfficeDocuments.Excel.UnitTests/OfficeDocuments.Excel.UnitTests.csproj \
             --configuration Release \
             --logger "trx;LogFileName=test-results.trx" \
             --collect "XPlat Code Coverage"
+
+      - name: Test Excel integration tier
+        run: |
+          dotnet test test/OfficeDocuments.Excel.IntegrationTests/OfficeDocuments.Excel.IntegrationTests.csproj \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect "XPlat Code Coverage"
+
+      # Verification: whole documents validated against the schema. The last tier whose failure
+      # means "users would get a broken file".
+      - name: Test Excel verification tier
+        run: |
+          dotnet test test/OfficeDocuments.Excel.VerificationTests/OfficeDocuments.Excel.VerificationTests.csproj \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect "XPlat Code Coverage"
+
+      # Performance last, and only once the others are green: a failure here means "the algorithm
+      # changed shape", which is only worth reading when the behaviour is known to be correct.
+      # Every assertion is a ratio or an allocation count, never a duration, so a slower runner
+      # moves both sides of the comparison and the verdict holds.
+      #
+      # Two deliberate differences from the tiers above, and reverting either silently ruins the
+      # measurements rather than failing loudly:
+      #   * no --collect "XPlat Code Coverage". Coverage rewrites the assembly to count every
+      #     branch, which changes both the timings and the allocation figures being asserted on.
+      #   * --logger console;verbosity=detailed, because these tests print what they measured even
+      #     when they pass. That output is the trend line; without it a slow drift is invisible
+      #     until the day it crosses a threshold.
+      - name: Test Excel performance guards
+        run: |
+          dotnet test test/OfficeDocuments.Excel.PerformanceTests/OfficeDocuments.Excel.PerformanceTests.csproj \
+            --configuration Release \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=detailed"
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: excel-test-results
-          path: test/OfficeDocuments.Excel.Tests/TestResults/**/*.trx
+          path: test/**/TestResults/**/*.trx
           if-no-files-found: warn
 
       - name: Upload coverage (Cobertura)
@@ -49,14 +88,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: excel-coverage-cobertura
-          path: test/OfficeDocuments.Excel.Tests/TestResults/**/coverage.cobertura.xml
+          path: test/**/TestResults/**/coverage.cobertura.xml
           if-no-files-found: warn
 
       - name: Coverage Summary
         if: always()
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: test/OfficeDocuments.Excel.Tests/TestResults/**/coverage.cobertura.xml
+          filename: test/**/TestResults/**/coverage.cobertura.xml
           badge: true
           format: markdown
           output: both

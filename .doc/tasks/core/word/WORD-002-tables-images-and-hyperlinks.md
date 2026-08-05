@@ -38,7 +38,7 @@ The most important conclusions are:
 - hyperlinks will need document context and likely a more stable run seam from `WORD-001`
 - images are the most demanding slice and should come last within `WORD-002`
 
-## Technical guidance for GHC
+## Technical guidance
 
 ### Public API direction
 

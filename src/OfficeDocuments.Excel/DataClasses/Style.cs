@@ -73,6 +73,11 @@ internal class Style : IStyle
 
         var sourceStylesheet = GetStylesheet(style);
         var sourceElement = GetElement(style);
+
+        // Ids only mean the same thing inside one stylesheet. When merging across workbooks,
+        // "same id" says nothing about "same content", so the skip-if-equal shortcut must not
+        // apply — otherwise a facet is silently dropped whenever the two indexes coincide.
+        var sameStylesheet = ReferenceEquals(sourceStylesheet, StylesheetInternal);
         var targetFonts = StylesheetInternal.Fonts;
         var sourceFonts = sourceStylesheet.Fonts;
         var targetFills = StylesheetInternal.Fills;
@@ -80,7 +85,7 @@ internal class Style : IStyle
         var targetBorders = StylesheetInternal.Borders;
         var sourceBorders = sourceStylesheet.Borders;
 
-        if (fontId != style.FontId && style.FontId > 0) // Id == 0 is default style
+        if (style.FontId > 0 && (!sameStylesheet || fontId != style.FontId))
         {
             var font1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Font>(
                 targetFonts ?? throw new InvalidOperationException("The stylesheet does not contain fonts."),
@@ -94,7 +99,7 @@ internal class Style : IStyle
             fontId = GetFontId(StylesheetInternal, font);
         }
 
-        if (fillId != style.FillId && style.FillId > 0) // Id == 0 is default style
+        if (style.FillId > 0 && (!sameStylesheet || fillId != style.FillId))
         {
             var fill1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Fill>(
                 targetFills ?? throw new InvalidOperationException("The stylesheet does not contain fills."),
@@ -108,7 +113,7 @@ internal class Style : IStyle
             fillId = GetFillId(StylesheetInternal, fill);
         }
 
-        if (borderId != style.BorderId && style.BorderId > 0) // Id == 0 is default style
+        if (style.BorderId > 0 && (!sameStylesheet || borderId != style.BorderId))
         {
             var border1 = GetElementAt<DocumentFormat.OpenXml.Spreadsheet.Border>(
                 targetBorders ?? throw new InvalidOperationException("The stylesheet does not contain borders."),
@@ -122,7 +127,7 @@ internal class Style : IStyle
             borderId = GetBorderId(StylesheetInternal, border);
         }
 
-        if (numberFormatId != style.NumberFormatId && style.NumberFormatId > 0) // Id == 0 is default style
+        if (style.NumberFormatId > 0 && (!sameStylesheet || numberFormatId != style.NumberFormatId))
         {
             if (style.NumberFormatId < NumberingFormat.FirstCustomNumberFormatId)
             {
@@ -161,7 +166,7 @@ internal class Style : IStyle
             var fonts = stylesheet.Fonts ?? (stylesheet.Fonts = new DocumentFormat.OpenXml.Spreadsheet.Fonts());
             fontId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Font>(fonts, font.IsContentSame);
 
-            if (fontId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
+            if (fontId < 0) // not found; a match at index 0 is the default entry and must be reused
             {
                 fonts.Append(font.Element);
                 fontId = fonts.ChildElements.Count - 1;
@@ -178,7 +183,7 @@ internal class Style : IStyle
             var fills = stylesheet.Fills ?? (stylesheet.Fills = new DocumentFormat.OpenXml.Spreadsheet.Fills());
             fillId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Fill>(fills, fill.IsContentSame);
 
-            if (fillId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
+            if (fillId < 0) // not found; a match at index 0 is the default entry and must be reused
             {
                 fills.Append(fill.Element);
                 fillId = fills.ChildElements.Count - 1;
@@ -195,7 +200,7 @@ internal class Style : IStyle
             var borders = stylesheet.Borders ?? (stylesheet.Borders = new DocumentFormat.OpenXml.Spreadsheet.Borders());
             borderId = FindElementIndex<DocumentFormat.OpenXml.Spreadsheet.Border>(borders, border.IsContentSame);
 
-            if (borderId <= 0) // Id == 0 is default style, Id < 0 element not exist yet
+            if (borderId < 0) // not found; a match at index 0 is the default entry and must be reused
             {
                 borders.Append(border.Element);
                 borderId = borders.ChildElements.Count - 1;

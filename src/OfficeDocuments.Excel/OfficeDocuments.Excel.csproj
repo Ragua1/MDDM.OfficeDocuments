@@ -11,6 +11,11 @@
         <PackageReference Include="DocumentFormat.OpenXml" />
     </ItemGroup>
 
+    <!-- The unit tier tests the internal collaborators extracted by EXCEL-010 directly. -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="OfficeDocuments.Excel.UnitTests" />
+    </ItemGroup>
+
     <PropertyGroup>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>

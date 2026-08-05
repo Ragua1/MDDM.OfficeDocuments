@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>4.0.0</Version>
     <Title>OfficeDocuments.Word</Title>
     <Description>Library designed to streamline the manipulation and creation of Word documents using the OpenXml library.</Description>
     <PackageTags>Office;Word;C#</PackageTags>
@@ -9,6 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" />
+  </ItemGroup>
+
+  <!-- The image header parser is pure logic worth testing directly, without a document around it. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="OfficeDocuments.Word.Tests" />
   </ItemGroup>
 
   <PropertyGroup>

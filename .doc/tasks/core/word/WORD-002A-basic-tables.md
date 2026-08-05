@@ -2,7 +2,7 @@
 
 - Module: `OfficeDocuments.Word`
 - Priority: `P0`
-- Status: `Open`
+- Status: `Delivered` (2026-07-27 — see [Progress log](#progress-log))
 
 ## Business goal
 
@@ -21,7 +21,7 @@ The library should support:
 - writing text into cells
 - applying basic formatting such as width, borders, and simple alignment
 
-## Technical guidance for GHC
+## Technical guidance
 
 ### Public API direction
 
@@ -61,14 +61,48 @@ The library should support:
 
 ## Subtasks
 
-- [ ] Finalize the first table API.
-- [ ] Implement create and fill behavior.
-- [ ] Add basic formatting options.
-- [ ] Add focused tests.
-- [ ] Update detailed Word documentation.
+- [x] Finalize the first table API.
+- [x] Implement create and fill behavior.
+- [x] Add basic formatting options.
+- [x] Add focused tests.
+- [x] Update detailed Word documentation.
 
 ## Acceptance criteria
 
 - Consumers can create and populate a basic table without using OpenXml directly.
 - The first API stays small, readable, and extensible.
 - Tests verify the expected table structure and persisted core settings.
+
+## Progress log
+
+### 2026-07-27 — delivered
+
+API: `IBlockContainer.AddTable(rowCount, columnCount, format?)` and
+`AddTable(IEnumerable<IEnumerable<string>> rows, format?)`, with `ITable → ITableRow → ITableCell`.
+Formatting through the `TableFormat` and `TableCellFormat` records, matching the pattern `WORD-001`
+established.
+
+**A block container was extracted first.** A table cell holds the same block content as the body, and
+so does a header, so `IBlockContainer` / `DataClasses/BlockContainer.cs` now implements paragraphs,
+headings, lists, and tables once for the body, headers, footers, and cells. Building tables into `Body`
+directly would have meant duplicating that API for `WORD-003`. `IBody` is now an empty marker over
+`IBlockContainer`.
+
+Deliberate choices:
+
+- `AddTable(rows)` sizes the grid to the **longest** row and pads shorter ones, because a row narrower
+  than the grid renders as a broken table rather than as a short row.
+- New tables default to full width with all borders. A table with no borders is rarely what a caller
+  producing a business document wants, and `TableFormat` overrides it.
+- `TableBorders.Outline` writes the inside borders as an explicit "none", so a table style cannot
+  reinstate the grid lines the caller asked not to have.
+- Cell shading writes an explicit `w:val="clear"` pattern; a fill colour without one has no effect.
+- `TableCell.CreateElement` always creates a paragraph, because `CT_Tc` requires block content and Word
+  offers to repair a document with an empty cell.
+- `GetAllTexts()` now walks blocks in document order, so a table between two paragraphs reads between
+  them. Rows join with `\n`, cells with `\t`.
+
+Column spanning is supported through `TableCellFormat.ColumnSpan`. Row height, cell-level borders, and
+table styles beyond passing a `StyleId` through are not implemented.
+
+24 tests added.

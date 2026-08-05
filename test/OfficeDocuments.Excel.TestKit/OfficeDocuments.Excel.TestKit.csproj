@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        Shared helpers for the Excel test tiers. Not a test project: it declares no test SDK and
+        holds no [Fact], so `dotnet test` never tries to run it.
+
+        Only tiers that legitimately touch the packaging layer or the file system reference this
+        (integration, verification). The unit tier deliberately does NOT reference it — see
+        .doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
+    -->
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+    </ItemGroup>
+
+</Project>

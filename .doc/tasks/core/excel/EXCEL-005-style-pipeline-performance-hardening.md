@@ -1,6 +1,15 @@
 # EXCEL-005 Style pipeline performance hardening
 
-Date: 2026-05-31
+Date: 2026-05-31 · Baseline measured 2026-07-27
+
+> **Start here: [`excel-performance-baseline.md`](../../../excel-performance-baseline.md).** As of
+> `EXCEL-011` phase 5 the hot spots are measured rather than asserted, and CI guards pin them so
+> they cannot get worse while this task is open. Two numbers set the target for the style work:
+> 1 000 distinct styles cost **3.1 s and 1.2 GB**, and reusing eight styles across the same number
+> of calls is **87× faster** — so the cost is entirely the O(N²) scan, not the per-call work.
+>
+> Definition of done for each fix: move the corresponding guard from `KnownHotSpotGuards` to
+> `LinearScalingGuards` and update the baseline table.
 
 ## Business goal
 
@@ -14,7 +23,7 @@ Core. Styling is already part of the default Excel workflow and directly affects
 
 The Excel library should keep current style behavior while reducing repeated OpenXml DOM serialization, repeated XML parsing, and repeated full stylesheet scans during style creation and style merging.
 
-## Technical guidance for GHC
+## Technical guidance
 
 Current hotspots are concentrated in the style merge and equality path:
 

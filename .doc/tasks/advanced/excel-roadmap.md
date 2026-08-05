@@ -21,10 +21,15 @@ This document groups Excel backlog slices that are broader, heavier, or more arc
 
 ## EXCEL-007 Factory and raw style plumbing extraction
 
-- Status: Open
+- Status: Partially delivered (updated 2026-07-24)
 - Goal: remove historical factory and raw style seams from the public default story
 - Why advanced:
   - these are architecture seams rather than primary consumer workflows
+- Current state:
+  - the public factory layer has been removed entirely (see EXCEL-009)
+  - raw style plumbing still leaks: the `Styles.*` wrappers (`Font`, `Fill`, `Border`, `Alignment`, `NumberingFormat`) still expose a public, non-obsolete `Element` of a raw OpenXml type, and `Utils.MergeFonts/MergeFills/MergeBorders` remain public
+- Remaining follow-up:
+  - hide or wrap the raw `Element` getters and OpenXml-typed constructors on `Styles.*`, and internalize the `Utils.Merge*` helpers
 
 ## EXCEL-008A Table create and lookup hardening
 
@@ -51,7 +56,11 @@ This document groups Excel backlog slices that are broader, heavier, or more arc
 
 ## EXCEL-009 Factory internalization and entry-point simplification
 
-- Status: In progress
+- Status: Delivered (updated 2026-07-24)
 - Goal: continue simplifying construction entry points so the preferred API relies on direct workbook and worksheet flows
 - Why advanced:
   - this is part of the broader public-surface cleanup story rather than a standalone business feature
+- Current state:
+  - the factory interfaces had already been made `internal`, but were unused dead code
+  - the entire `Factory/*` layer (`ICellFactory`, `IRowFactory`, `ISpreadSheetFactory`, `IStyleFactory` and their implementations) has been removed
+  - the preferred construction entry points are the `Spreadsheet` constructors and the `Spreadsheet.CreateDocument` / `Spreadsheet.OpenDocument` static factories

@@ -25,10 +25,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\OfficeDocuments.Word\OfficeDocuments.Word.csproj" />
+    <ProjectReference Include="..\OfficeDocuments.Word.TestKit\OfficeDocuments.Word.TestKit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Using Include="OfficeDocuments.Word.TestKit.Validation" />
   </ItemGroup>
 
   <ItemGroup>

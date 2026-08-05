@@ -8,15 +8,10 @@ The main roadmap view is in [roadmap-overview.md](roadmap-overview.md).
 
 ## Product guardrails
 
-These task documents should follow the current product scope:
-
-- the library targets XML Office formats only, primarily `.xlsx` and `.docx`
-- legacy binary formats such as `.xls` and `.doc` are out of scope for the minimal core
-- the library should remain a wrapper over `DocumentFormat.OpenXml`, with a simpler and more consumer-friendly API than raw OpenXml usage
-- `DocumentFormat.OpenXml` remains the default implementation foundation, but not a dogma for every internal helper
-- the core library should stay small, fast, and easy to adopt
-- the main business value is efficient work with business data plus straightforward document generation and reading
-- broader or heavier features should stay explicitly separable from the minimal core story
+Every task document must fit the product scope and the dependency policy defined in
+[../architecture/minimal-core-pr-guidelines.md](../architecture/minimal-core-pr-guidelines.md).
+That document is the single source for what belongs in the library at all, and for the core-versus-advanced
+decision. A task that cannot answer its checklist does not belong in the backlog yet.
 
 ## What a task document should contain
 
@@ -25,7 +20,7 @@ Each task should capture:
 - `Business goal`: why the feature matters
 - `Why core or advanced`: why the feature belongs in that backlog layer
 - `Functional description`: what the library should be able to do
-- `Technical guidance for GHC`: concrete implementation guidance for GitHub Copilot or another coding agent workflow
+- `Technical guidance`: concrete implementation guidance for whoever implements it, human or coding agent
 - `Complexity`: a rough delivery estimate
 - `Risks`: main technical or architectural risks
 - `Dependencies`: prerequisites or related tasks
@@ -44,6 +39,11 @@ Each task should capture:
 - [../architecture/target-package-boundaries-and-instantiation.md](../architecture/target-package-boundaries-and-instantiation.md)
 - [../architecture/word-002-readiness-audit.md](../architecture/word-002-readiness-audit.md)
 
-## Note on GHC
+## Who implements a task
 
-`GHC` in these task documents means GitHub Copilot or another coding-agent workflow. The technical sections are written to reduce repository rediscovery during implementation.
+Task documents are tool-neutral: `Technical guidance` addresses whoever picks the task up, human or
+coding agent. Its purpose is to reduce repository rediscovery during implementation, not to prescribe
+a tool.
+
+The working rules a coding agent follows are in [../../AGENTS.md](../../AGENTS.md) and
+[../ai-instructions/](../ai-instructions/README.md).

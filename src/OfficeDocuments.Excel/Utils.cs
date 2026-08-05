@@ -21,6 +21,48 @@ public static class Utils
     }
 
     /// <summary>
+    /// Normalizes a user-supplied color string into the 8-digit uppercase ARGB form that the
+    /// OOXML <c>rgb</c> attribute requires (it is typed as hexBinary, so a leading '#' or a
+    /// 6-digit RGB value produces a file Excel refuses to open).
+    /// </summary>
+    /// <param name="value">A 6- or 8-digit hex color, optionally prefixed with '#'.</param>
+    /// <param name="parameterName">Name reported when <paramref name="value"/> is rejected.</param>
+    internal static string NormalizeArgbHex(string value, string parameterName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+
+        var hex = value.AsSpan().Trim();
+        if (hex.Length > 0 && hex[0] == '#')
+        {
+            hex = hex[1..];
+        }
+
+        if (hex.Length is not (6 or 8) || !IsHexDigits(hex))
+        {
+            throw new ArgumentException(
+                $"'{value}' is not a valid color. Expected 6 (RGB) or 8 (ARGB) hexadecimal digits, optionally prefixed with '#'.",
+                parameterName);
+        }
+
+        var normalized = hex.ToString().ToUpperInvariant();
+
+        return hex.Length == 6 ? $"FF{normalized}" : normalized;
+    }
+
+    private static bool IsHexDigits(ReadOnlySpan<char> value)
+    {
+        foreach (var character in value)
+        {
+            if (!char.IsAsciiHexDigit(character))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// Create new font by merging two fonts
     /// </summary>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -141,7 +183,62 @@ public static class Utils
             }
         }
 
+        ApplySchemaChildOrder(mergedComposite);
+
         return merged;
+    }
+
+    /// <summary>
+    /// Style child elements are declared as an xsd:sequence, so a merged-in child appended at the
+    /// end produces a schema-invalid file whenever it belongs before a child the base already had
+    /// (for example a bold merged onto a font that only carried a size).
+    /// </summary>
+    private static readonly Dictionary<string, string[]> ChildOrderByParent = new(StringComparer.Ordinal)
+    {
+        // CT_Font (ECMA-376 Part 1, 18.8.22)
+        ["font"] =
+        [
+            "b", "i", "strike", "condense", "extend", "outline", "shadow", "u", "vertAlign",
+            "sz", "color", "name", "family", "charset", "scheme"
+        ],
+        // CT_Border (18.8.4)
+        ["border"] = ["left", "right", "top", "bottom", "diagonal", "vertical", "horizontal"],
+        // CT_PatternFill (18.8.32)
+        ["patternFill"] = ["fgColor", "bgColor"]
+    };
+
+    private static void ApplySchemaChildOrder(OpenXmlCompositeElement element)
+    {
+        if (!ChildOrderByParent.TryGetValue(element.LocalName, out var order))
+        {
+            return;
+        }
+
+        var children = element.ChildElements.ToList();
+        if (children.Count < 2)
+        {
+            return;
+        }
+
+        // OrderBy is stable, so children outside the known sequence keep their relative order.
+        var sorted = children.OrderBy(child => PositionOf(child.LocalName, order)).ToList();
+        if (sorted.SequenceEqual(children))
+        {
+            return;
+        }
+
+        element.RemoveAllChildren();
+        foreach (var child in sorted)
+        {
+            element.AppendChild(child);
+        }
+    }
+
+    private static int PositionOf(string localName, string[] order)
+    {
+        var index = Array.IndexOf(order, localName);
+
+        return index < 0 ? int.MaxValue : index;
     }
 
     private static void ApplyAttributes(OpenXmlElement target, OpenXmlElement source)

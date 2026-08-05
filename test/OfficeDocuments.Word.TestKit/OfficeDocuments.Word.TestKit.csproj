@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        Shared helpers for the Word tests. Not a test project: it declares no test SDK and holds no
+        [Fact], so `dotnet test` never tries to run it.
+    -->
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>false</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\OfficeDocuments.Word\OfficeDocuments.Word.csproj" />
+    </ItemGroup>
+
+</Project>

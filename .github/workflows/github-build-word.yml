@@ -23,11 +23,14 @@ jobs:
             **/*.csproj
             **/packages.lock.json
 
+      # The Word-only solution deliberately contains no Excel project, so this job cannot be
+      # broken by in-flight work in the Excel module — and a cross-module reference would fail
+      # here rather than reaching review.
       - name: Restore
-        run: dotnet restore OfficeDocuments.sln
+        run: dotnet restore OfficeDocuments.Word.slnx
 
-      - name: Build Word project
-        run: dotnet build src/OfficeDocuments.Word/OfficeDocuments.Word.csproj --configuration Release --no-restore
+      - name: Build Word solution
+        run: dotnet build OfficeDocuments.Word.slnx --configuration Release --no-restore
 
       - name: Test Word project
         run: |

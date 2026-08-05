@@ -21,16 +21,16 @@ Goals:
 
 | Order | Task | Scope | Module | Priority | Complexity | Status | Dependencies | Primary goal |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | [WORD-001](core/word/WORD-001-text-formatting-and-paragraph-model.md) | Core | Word | P0 | M | Open | none | Add minimal text and paragraph formatting so `.docx` creation becomes practically usable |
-| 2 | [WORD-002A](core/word/WORD-002A-basic-tables.md) | Core | Word | P0 | M | Open | `WORD-001` recommended | Add the first small but practical Word table workflow |
-| 3 | [WORD-002B](core/word/WORD-002B-hyperlinks.md) | Core | Word | P0 | M | Open | `WORD-001` strongly recommended | Add hyperlink support without breaking the paragraph or text model |
-| 4 | [WORD-002C](core/word/WORD-002C-images.md) | Core | Word | P0 | M-L | Open | `WORD-001` strongly recommended, `WORD-002B` recommended | Add basic inline image support with minimal media infrastructure |
-| 5 | [WORD-003](core/word/WORD-003-headers-footers-sections-and-metadata.md) | Core | Word | P0 | M-L | Open | `WORD-001` recommended, `WORD-002` partial | Add branded document structure and document metadata |
+| 1 | [WORD-001](core/word/WORD-001-text-formatting-and-paragraph-model.md) | Core | Word | P0 | M | Delivered | none | Add minimal text and paragraph formatting so `.docx` creation becomes practically usable |
+| 2 | [WORD-002A](core/word/WORD-002A-basic-tables.md) | Core | Word | P0 | M | Delivered | `WORD-001` recommended | Add the first small but practical Word table workflow |
+| 3 | [WORD-002B](core/word/WORD-002B-hyperlinks.md) | Core | Word | P0 | M | Delivered | `WORD-001` strongly recommended | Add hyperlink support without breaking the paragraph or text model |
+| 4 | [WORD-002C](core/word/WORD-002C-images.md) | Core | Word | P0 | M-L | Delivered | `WORD-001` strongly recommended, `WORD-002B` recommended | Add basic inline image support with minimal media infrastructure |
+| 5 | [WORD-003](core/word/WORD-003-headers-footers-sections-and-metadata.md) | Core | Word | P0 | M-L | Delivered | `WORD-001` recommended, `WORD-002` partial | Add branded document structure and document metadata |
 | 6 | [EXCEL-001](core/excel-roadmap.md#excel-001-range-centric-api-and-public-surface-cleanup) | Core | Excel | P0 | M-L | Delivered | none | Establish range-centric spreadsheet workflows and reduce public OpenXml leakage |
 | 7 | [EXCEL-002](core/excel-roadmap.md#excel-002-bulk-insert-and-tabular-import-workflows) | Core | Excel | P1 | M | Delivered | `EXCEL-001` recommended | Add efficient data import and bulk insert workflows |
 | 8 | [EXCEL-003](core/excel-roadmap.md#excel-003-worksheet-operations-and-workbook-usability) | Core | Excel | P1 | L | Delivered | `EXCEL-001` recommended | Add worksheet lifecycle and workbook usability features |
 | 9 | [EXCEL-004](core/excel-roadmap.md#excel-004-validation-formatting-and-annotations) | Core | Excel | P1 | L | Delivered | `EXCEL-001` recommended, `EXCEL-003` partial | Add validation, annotations, worksheet images, and protection features |
-| 10 | [WORD-004](core/word/WORD-004-search-navigation-and-test-hardening.md) | Core | Word | P1 | M | Open | `WORD-001` to `WORD-003` recommended | Strengthen read and edit scenarios and stabilize test coverage |
+| 10 | [WORD-004](core/word/WORD-004-search-navigation-and-test-hardening.md) | Core | Word | P1 | M | Delivered | `WORD-001` to `WORD-003` recommended | Strengthen read and edit scenarios and stabilize test coverage |
 | 11 | [EXCEL-006](advanced/excel-roadmap.md#excel-006-openxml-interop-surface-extraction) | Advanced | Excel | P2 | L | In Progress | `EXCEL-001`, architecture decision | Extract raw OpenXml-oriented compatibility surface from the minimal core |
 | 12 | [EXCEL-007](advanced/excel-roadmap.md#excel-007-factory-and-raw-style-plumbing-extraction) | Advanced | Excel | P2 | M-L | Open | `EXCEL-001`, `EXCEL-006` partial | Remove public factory and raw style plumbing from the preferred consumer surface |
 | 13 | [EXCEL-009](advanced/excel-roadmap.md#excel-009-factory-internalization-and-entry-point-simplification) | Advanced | Excel | P2 | M | In Progress | `EXCEL-007` recommended | Turn the factory cleanup direction into a concrete simplification slice |
@@ -100,9 +100,9 @@ Goals:
 
 ## Planning notes
 
-- If only one short delivery window is available, prefer `WORD-001` or the remaining Excel public-surface cleanup work.
+- The Word core backlog is empty as of 2026-07-27. The remaining `P0` is the Excel public-surface cleanup, so a single short delivery window should go there.
 - If the next release should strengthen Excel exports, prefer Excel cleanup and higher-level import/export ergonomics.
-- If the next release should make Word broadly usable, prefer `WORD-001` followed by `WORD-002`.
+- Further Word work is now a choice between advanced features (multiple sections, bookmarks, footnotes, a table of contents) and none. It is no longer blocked by anything.
 - Heavier Excel output features should happen only after the current core-facing API direction is considered stable enough.
 
 ## Current Excel parts that likely do not belong in the preferred minimal core
@@ -110,8 +110,8 @@ Goals:
 Based on the current code, the strongest candidates remain:
 
 - raw OpenXml-oriented compatibility members in `IWorksheet`, `IStyle`, `ICell`, `ISpreadsheet`, and `Spreadsheet`
-- public factory abstractions in `Factory/*`
-- public raw style plumbing around `Stylesheet`, `CellFormat`, style IDs, and related compatibility seams
+- ~~public factory abstractions in `Factory/*`~~ (removed 2026-07-24)
+- public raw style plumbing around `Stylesheet`, `CellFormat`, style IDs, the `Styles.*` `Element` getters, `Utils.Merge*`, and related compatibility seams
 
 These are tracked by:
 
@@ -119,6 +119,10 @@ These are tracked by:
 
 ## Current Word architecture observation
 
-Unlike Excel, the current Word module does not yet expose the same kind of strong non-core architecture seam. Public Word interfaces are still small and do not expose raw OpenXml surface to the same degree. The recommended direction is therefore not to split a `Word.Advanced` package yet, but to strengthen the Word core first.
+Unlike Excel, the Word module does not expose the same kind of strong non-core architecture seam. The public Word interfaces are small and do not leak raw OpenXml types. The recommended direction is therefore not to split a `Word.Advanced` package yet, but to strengthen the Word core first.
+
+`WORD-001` (delivered 2026-07-27) also closed the structural gaps that blocked the rest of the Word backlog: the block and run collections are now projected from the document rather than snapshotted, `DocumentContext` provides the document-scoped seam that hyperlinks and images need, and a schema-validation gate is in place. See the [WORD-001 progress log](core/word/WORD-001-text-formatting-and-paragraph-model.md#progress-log).
+
+`WORD-004` (delivered 2026-07-27) closed the Word core backlog and finished that projection work: the collections are now read from the document on every access rather than cached and hand-synchronized, which is what a read-and-update workflow needs. It also found and fixed two read-path defects that the authoring-only tests could not reach — an opened document not reporting its own headers, and `Close(saveDocument: false)` saving anyway. See the [WORD-004 progress log](core/word/WORD-004-search-navigation-and-test-hardening.md#progress-log).
 
 For a more detailed readiness assessment of `WORD-002`, see [../architecture/word-002-readiness-audit.md](../architecture/word-002-readiness-audit.md).

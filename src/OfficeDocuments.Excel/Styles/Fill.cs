@@ -35,15 +35,18 @@ public class Fill
     /// <summary>
     /// Initializes a new instance of the <see cref="Fill"/> class.
     /// </summary>
-    /// <param name="foregroundColor">Color of the foreground.</param>
+    /// <param name="foregroundColor">
+    /// Color of the foreground: 6 (RGB) or 8 (ARGB) hexadecimal digits, optionally prefixed with '#'.
+    /// </param>
     /// <param name="pattern">The pattern.</param>
+    /// <exception cref="ArgumentException"><paramref name="foregroundColor"/> is not a valid hex color.</exception>
     public Fill(string foregroundColor, DocumentFormat.OpenXml.Spreadsheet.PatternValues? pattern = null)
     {
         Element = new DocumentFormat.OpenXml.Spreadsheet.Fill
         {
             PatternFill = new DocumentFormat.OpenXml.Spreadsheet.PatternFill
             {
-                ForegroundColor = new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = foregroundColor },
+                ForegroundColor = new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor { Rgb = Utils.NormalizeArgbHex(foregroundColor, nameof(foregroundColor)) },
                 PatternType = pattern ?? DocumentFormat.OpenXml.Spreadsheet.PatternValues.Solid,
             }
         };

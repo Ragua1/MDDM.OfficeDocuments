@@ -1,0 +1,14 @@
+<Solution>
+  <!--
+    Word module only. This solution is also a boundary check: OfficeDocuments.Word and its tests
+    must never depend on the Excel module, so no Excel project appears here. If an Excel
+    reference is ever added, this solution stops building — that is the point.
+  -->
+  <Folder Name="/src/">
+    <Project Path="src/OfficeDocuments.Word/OfficeDocuments.Word.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/OfficeDocuments.Word.TestKit/OfficeDocuments.Word.TestKit.csproj" />
+    <Project Path="test/OfficeDocuments.Word.Tests/OfficeDocuments.Word.Tests.csproj" />
+  </Folder>
+</Solution>

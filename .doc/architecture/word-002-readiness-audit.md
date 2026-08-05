@@ -1,65 +1,68 @@
 # WORD-002 Readiness Audit
 
-Date: 2026-05-31
+Date: 2026-05-31. Revised 2026-07-28, after the whole Word core backlog — `WORD-002A` through
+`WORD-004` — was delivered.
 
-This document summarizes the current readiness assessment for `WORD-002` based on the present implementation of the Word module.
+**This document is now a record, not a plan.** It assessed how ready the Word module was for tables,
+hyperlinks, and images; all three shipped on 2026-07-27, along with headers, footers, page setup,
+metadata, and then search and update. It is kept because its reasoning about delivery order proved
+correct and because the conclusions it drew are worth checking against what actually happened.
 
-## Current code state
+For the state of the module now, and for what is left as advanced-layer work, see
+[../tasks/core/word/README.md](../tasks/core/word/README.md).
 
-The current public Word surface is still very small:
+For the current state of the Word API, see [../word-library.md](../word-library.md). For what was built
+and why, see the progress logs in [../tasks/core/word/](../tasks/core/word/).
 
-- `IWordprocessing -> IBody -> IParagraph -> IText`
-- `IBody` currently supports only `AddParagraph()` and paragraph reading
-- `IParagraph` currently supports only `AddText(...)`, `AddBreak(...)`, `GetTextElements()`, and `GetTexts()`
-- `Run` is an internal wrapper rather than a public run-oriented API
+## What the audit got right
 
-Current architectural gaps relevant for `WORD-002`:
+- **Tables first.** They needed no media parts and no relationships, so they were the cheapest way to
+  reach useful block-level content — and extracting a block container for them is what made headers,
+  footers, and table cells nearly free afterwards.
+- **Stabilise the run seam before hyperlinks.** The audit said hyperlinks "should not force a second,
+  parallel fluent model", and the specific defect it named — `IParagraph.Runs` enumerating only direct
+  children — was exactly what had to be fixed, because a hyperlink wraps its run in a container.
+- **Images last.** They did need the most infrastructure: a media part, a relationship, a four-namespace
+  drawing structure, and a sizing decision.
 
-- `Body` currently holds only a paragraph model, not a general block model for paragraph and table mixes
-- neither `Body` nor `Paragraph` carries document-context access such as `MainDocumentPart`
-- hyperlink relationship helpers are missing
-- media and image infrastructure for `ImagePart`, sizing, and inline placement is missing
-- the current test surface is still minimal and does not cover document relationships or richer block structures
+## What the audit did not anticipate
 
-## Readiness conclusions
+- **Relationships are per-part.** The audit treated "document-context access such as
+  `MainDocumentPart`" as the requirement. That was necessary but not sufficient: an image or hyperlink
+  inside a header must register on the `HeaderPart`, not on the main document part. Registering on the
+  wrong part produces a document that round-trips through this library perfectly and is rejected by
+  Word. Only schema validation caught it. `DocumentContext` now derives the owning part from the
+  element's position in the tree.
+- **The block model mattered more than the media infrastructure.** The audit's main structural concern
+  was `Body` holding "only a paragraph model, not a general block model". That turned out to be the
+  load-bearing item, but for a reason it did not state: the same block model is needed by table cells
+  and by headers and footers, so extracting it once removed most of the work from the two later tasks.
+- **A reference is not a feature.** Three of the delivered features are only a pointer in the paragraph,
+  with the appearance defined in another part: styles, list numbering, and first- or even-page headers.
+  Writing the pointer alone produces a document where nothing appears to have happened. Each needed a
+  definition to be materialised on first use.
+- **The audit assessed writing, and every remaining defect was on the read side.** It judged readiness
+  by what the module could produce, which is why it declared the collection model fixed once
+  `ElementWrapperList` existed. `WORD-004` found that the list was still cached and hand-synchronized,
+  so it went stale the moment anything *removed* an element — invisible to a suite that only appends.
+  It also found an opened document reporting none of its own headers, and a `Close(saveDocument: false)`
+  that saved anyway. A readiness audit for an authoring surface does not tell you whether the reading
+  surface is ready; those are different questions and want different evidence.
 
-### Tables
+## Original readiness conclusions, for the record
 
-Tables are the most realistic next slice because they can be added as body-level blocks without media parts. Even here, the first iteration should stay small:
+The audit recommended delivering `WORD-002` as three slices in the order tables → hyperlinks → images,
+rather than as one large PR, and keeping the scope materially smaller than a full Word authoring engine.
+Both held: each slice landed separately with its own tests, and the delivered surface stops well short
+of footnotes, bookmarks, tracked changes, and multiple sections.
 
-- `IBody.AddTable(...)`
-- a minimal `ITable` model only if it is truly necessary
-- create-and-fill workflow before advanced styling
+## Guidance that still applies
 
-### Hyperlinks
-
-Hyperlinks are moderately ready. They are less complex than images, but they still need relationship creation on the document part and consistent integration with the paragraph or run model. That strongly suggests stabilizing the run-oriented seam first.
-
-### Images
-
-Images are the least ready slice. They require:
-
-- access to `MainDocumentPart`
-- media-part creation
-- relationship IDs
-- a sizing API
-- a clear decision on whether the first scope is inline only or also covers layout options
-
-For that reason, images should remain the last delivery slice inside `WORD-002`.
-
-## Recommended delivery order for `WORD-002`
-
-1. basic tables
-2. hyperlinks
-3. images
-
-## Backlog impact
-
-`WORD-002` should stay a core backlog area, but it should not be delivered as one large PR. It should be handled as an umbrella item with three smaller delivery slices. The main technical dependency is still the paragraph and run model: hyperlinks and images should not force a second, parallel fluent model.
-
-## Implementation recommendations
-
-- Do not introduce a full Word block-tree framework immediately.
-- Start tables with a simple body-level append model.
-- Introduce document context for hyperlinks and images only to the degree that is required.
-- Keep `WORD-002` materially smaller than a full Word authoring engine.
+- Do not introduce a full Word block-tree framework. `IBlockContainer` covers the four containers that
+  genuinely share a content model; anything beyond that needs a concrete requirement.
+- Reuse `DocumentContext` for relationship, media, style, and numbering work instead of adding a second
+  document-access path.
+- Reuse the format-record pattern (`IsEmpty`, `Merge`, nullable properties meaning "inherited") for any
+  new formatting surface, so the library keeps one formatting idiom.
+- End every test that produces a complete document with `OpenXmlValidation.AssertValid(...)`. It has now
+  caught defects in both modules that no round-trip test could see.

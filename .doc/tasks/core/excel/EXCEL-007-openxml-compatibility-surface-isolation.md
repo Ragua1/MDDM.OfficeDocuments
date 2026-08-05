@@ -14,7 +14,7 @@ Core. The default value of the library is a smaller and more consumer-friendly A
 
 The Excel library should keep existing compatibility members available where needed, but all raw OpenXml exposure should be clearly marked as compatibility-oriented and discouraged on the main consumer path.
 
-## Technical guidance for GHC
+## Technical guidance
 
 Relevant files include:
 

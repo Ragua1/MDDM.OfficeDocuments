@@ -1,6 +1,6 @@
 # OfficeDocuments Library Benchmark Report
 
-Date: 2026-05-31
+Baseline: 2026-05-31 · Last reconciled against the code: 2026-07-27
 
 ## Purpose
 
@@ -21,7 +21,7 @@ Internal evidence reviewed:
 - `src/OfficeDocuments.Word/Interfaces/*`
 - `src/OfficeDocuments.Word/DataClasses/*`
 - `src/OfficeDocuments.Word/Wordprocessing.cs`
-- `test/OfficeDocuments.Excel.Tests/*`
+- `test/OfficeDocuments.Excel.*Tests/*`
 - `test/OfficeDocuments.Word.Tests/*`
 
 External reference libraries reviewed:
@@ -38,9 +38,9 @@ External reference libraries reviewed:
 
 `OfficeDocuments.Excel` is already practical for a broad set of report-style spreadsheet workflows. It now supports ranges, bulk insert, worksheet lifecycle operations, sorting, auto-filter, validation, conditional formatting, hyperlinks, comments, named ranges, protection, structured tables, and worksheet images in addition to the original workbook, row, cell, formula, and style workflows.
 
-`OfficeDocuments.Word` remains intentionally small. It covers document creation, paragraph authoring, text runs, breaks, and paragraph-text reading, but it still lacks the richer authoring primitives expected from a broadly usable Word library.
+`OfficeDocuments.Word` closed most of its baseline gap during the `WORD-001` to `WORD-003` sequence. It now covers run and paragraph formatting, built-in styles, lists, tables, hyperlinks, inline images, headers and footers, page setup, and document metadata, on top of the original paragraph and text-reading workflows. What remains missing is the second tier of document features — sections, footnotes, bookmarks, comments, tracked changes, and a generated table of contents.
 
-Compared with established libraries, the biggest differentiator is still API scope rather than raw file support. `OfficeDocuments` is a focused, approachable wrapper with stronger Excel ergonomics than before, while Word is still at an earlier maturity stage.
+Compared with established libraries, the biggest differentiator is still API scope rather than raw file support. `OfficeDocuments` is a focused, approachable wrapper; Excel is the broader surface and Word is now credible for the common business-document case rather than only for plain text.
 
 ## Current state of the library
 
@@ -79,42 +79,37 @@ Verified in API, documentation, and tests:
 - Formula support writes formulas but does not provide a calculation engine.
 - Higher-level import and export helpers for common external data sources are still limited.
 - Charts, pivot tables, and broader template-oriented workflows remain out of scope today.
-- `ReaderTest` is still effectively empty, so dedicated Excel read-path validation is thinner than write-path validation.
+- Read-path validation is still thinner than write-path validation, although the verification tier now covers round-trips and foreign input workbooks.
 
 ### Word: current capabilities
 
 Verified in API and tests:
 
-- Create or open `.docx` documents from files and streams.
-- Get the document body.
-- Add paragraphs.
-- Add text runs in a fluent style.
-- Add page, column, and text-wrapping breaks.
-- Read paragraph text elements from an existing document body.
+- Create or open `.docx` documents from files and streams, including read-only open.
+- Author block content through one shared `IBlockContainer` contract, so the body, headers, footers, and table cells behave identically.
+- Add paragraphs, headings, runs, and page, column, and text-wrapping breaks.
+- Apply run formatting: bold, italic, underline, strikethrough, caps, highlight, super/subscript, font, size, colour, and character styles.
+- Apply paragraph formatting: alignment, spacing, line spacing, indentation, page-break-before, and keep-together control.
+- Use built-in styles and headings, defined in the document on first use.
+- Create bullet and numbered lists with nested levels.
+- Create tables by size or from data, with repeating header rows, borders, shading, cell padding, column spans, and nested content.
+- Add hyperlinks and inline images, with intrinsic sizing read from PNG, JPEG, GIF, and BMP headers.
+- Add headers and footers, including first-page and even-page variants.
+- Set paper size, orientation, margins, and document metadata.
+- Read paragraph, run, and table text back with whitespace and line structure preserved.
 
 ### Word: usability strengths
 
-- The fluent `GetBody().AddParagraph().AddText().AddBreak()` flow is easy to understand.
-- The API stays intentionally small and approachable for the current feature set.
+- The fluent `GetBody().AddParagraph().AddText()` flow is still easy to understand at the entry point.
+- `IBlockContainer` means a feature added once works in every place block content is allowed, instead of the body-only special case most small libraries end up with.
+- Immutable formatting records make one base format reusable across many runs and paragraphs.
+- Every generated document passes a schema-validation gate in the test suite.
 
 ### Word: limitations and design debt
 
-- The feature surface is still very small compared with mainstream Word libraries.
-- There is no public support for:
-  - run formatting
-  - paragraph formatting
-  - headings and styles
-  - tables
-  - images
-  - hyperlinks
-  - headers and footers
-  - sections and page setup
-  - bookmarks
-  - comments
-  - document properties
-  - find and replace
-  - table-of-contents groundwork
-- Word tests are still relatively sparse.
+- No public support yet for: multiple sections with different page setups, footnotes and endnotes, bookmarks and internal links, comments, tracked changes, find and replace, or a generated table of contents.
+- `IParagraph.Runs` lists direct children only, so a run nested in a hyperlink is reachable through `GetTexts()` but not through `Runs`.
+- Read and edit workflows are still thinner than authoring workflows.
 - One reading test remains skipped because it depends on an external resource file.
 
 ## Comparison with public libraries
@@ -133,8 +128,8 @@ Verified in API and tests:
 
 | Library | Platform | API style | Strong points | Gap vs `OfficeDocuments.Word` |
 | --- | --- | --- | --- | --- |
-| python-docx | Python | High-level document/paragraph/run/table/section model | Tables, styles, sections, headers/footers, comments, shapes, hyperlinks, rich text | `OfficeDocuments.Word` currently covers only a small subset of this surface |
-| DocX | .NET | High-level document authoring API | Paragraphs, lists, tables, images, bookmarks, hyperlinks, TOC, sections, protection, find/replace, properties | `OfficeDocuments.Word` is still far behind on authoring depth and document structure |
+| python-docx | Python | High-level document/paragraph/run/table/section model | Tables, styles, sections, headers/footers, comments, shapes, hyperlinks, rich text | `OfficeDocuments.Word` now overlaps on most of this; sections and comments are the remaining gaps |
+| DocX | .NET | High-level document authoring API | Paragraphs, lists, tables, images, bookmarks, hyperlinks, TOC, sections, protection, find/replace, properties | `OfficeDocuments.Word` matches the common authoring set; bookmarks, TOC, find/replace, and protection are still missing |
 | NPOI | .NET | Lower-level multi-format Office API | Supports `docx` in addition to Excel formats | Broader file-format support, but not necessarily a cleaner high-level authoring API |
 
 ## What works well elsewhere
@@ -158,33 +153,28 @@ Patterns worth reusing as inspiration:
 
 ### Highest-value Word gaps
 
-- Run formatting
-- Paragraph formatting
-- Tables
-- Images
-- Hyperlinks
-- Headers, footers, and sections
+- Read, navigate, and edit helpers — find and replace, and locating content without walking the tree by hand
+- Multiple sections with independent page setups
+- Bookmarks and internal links, which a generated table of contents also depends on
 
-Without these, the Word module is still too small for most production document scenarios.
+The authoring baseline is no longer the gap; the remaining work is on reading, editing, and document structure beyond one section.
 
 ### Structural gaps
 
 - The public Excel API is cleaner than before but still carries some compatibility members that do not fit the preferred minimal-core surface.
-- Read/edit workflows remain less mature than write workflows, especially for Word.
-- The Word test surface is not yet strong enough to support rapid feature growth as safely as the Excel module.
+- Excel read/edit workflows remain less mature than its write workflows. Word closed that gap on 2026-07-27 with `WORD-004`: navigation, search, cross-run text replacement, structural removal, and the template scenario end to end.
+- The Word test suite is still one tier, whereas Excel is split into unit, integration, and verification.
 
 ## Recommended roadmap
 
 ### Priority 0
 
-- Finish the Excel public-surface cleanup.
-- Strengthen Word into a more complete document-authoring surface.
-- Add stronger Word round-trip and read/edit tests.
+- Finish the Excel public-surface cleanup. This is now the only remaining `P0`.
 
 ### Priority 1
 
 - Improve higher-level Excel import/export ergonomics.
-- Expand Word navigation and basic edit workflows.
+- Split the Word test suite into tiers once the surface justifies it.
 
 ### Priority 2
 
@@ -198,8 +188,8 @@ The strongest current positioning is not "full Office automation suite".
 The strongest positioning is:
 
 - a simple, modern, server-friendly Office document library
-- optimized for common business spreadsheet generation
+- optimized for common business document and spreadsheet generation
 - intentionally smaller and more predictable than large general-purpose libraries
-- strongest today in Excel, emerging in Word
+- broadest today in Excel, with Word now covering the common business-document case
 
-That positioning is credible today for Excel and only partially credible for Word. The next major credibility gain comes from richer Word authoring and continued cleanup of the remaining Excel compatibility surface.
+That positioning is credible today for both modules on the authoring side. The next credibility gain comes from read and edit workflows, and from continued cleanup of the remaining Excel compatibility surface.

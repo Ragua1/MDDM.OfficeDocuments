@@ -79,7 +79,13 @@ public interface ICell : IBase, IOpenXmlWrapper<Cell>
     /// Gets the formula.
     /// </summary>
     string? GetFormula();
-    int GetFormulaValue();
+
+    /// <summary>
+    /// Evaluates the cell formula with the built-in evaluator.
+    /// Supports SUM, COUNT, COUNTIF and MEDIAN over a single rectangular range; other functions throw <see cref="NotSupportedException"/>.
+    /// This is a lightweight helper, not a full Excel calculation engine.
+    /// </summary>
+    double GetFormulaValue();
 
     /// <summary>
     /// Gets the value.

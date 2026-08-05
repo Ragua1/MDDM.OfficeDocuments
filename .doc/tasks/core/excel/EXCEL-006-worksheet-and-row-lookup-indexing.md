@@ -14,7 +14,7 @@ Core. Row and cell lookup is part of nearly every worksheet workflow, including 
 
 The Excel library should maintain fast internal lookup paths for rows and cells while preserving existing ordering rules and public API behavior.
 
-## Technical guidance for GHC
+## Technical guidance
 
 Current lookup hotspots are concentrated in:
 

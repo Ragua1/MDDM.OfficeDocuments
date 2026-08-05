@@ -1,8 +1,25 @@
 <Solution>
-  <Folder Name="/tests/">
-    <Project Path="test/OfficeDocuments.Excel.Tests/OfficeDocuments.Excel.Tests.csproj" />
+  <!--
+    Everything. Use this for a full build or a full test run.
+
+    For day-to-day work on one module, prefer the narrower solutions — they load faster and, more
+    importantly, they are what keeps the two modules independent: OfficeDocuments.Excel.slnx
+    contains no Word project and OfficeDocuments.Word.slnx contains no Excel project, so a
+    cross-module reference breaks the build instead of quietly appearing in a diff.
+  -->
+  <Folder Name="/src/">
+    <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
+    <Project Path="src/OfficeDocuments.Word/OfficeDocuments.Word.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/OfficeDocuments.Excel.TestKit/OfficeDocuments.Excel.TestKit.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.UnitTests/OfficeDocuments.Excel.UnitTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.IntegrationTests/OfficeDocuments.Excel.IntegrationTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.VerificationTests/OfficeDocuments.Excel.VerificationTests.csproj" />
+    <Project Path="test/OfficeDocuments.Excel.PerformanceTests/OfficeDocuments.Excel.PerformanceTests.csproj" />
+    <!-- Not a test project. It is here so it keeps compiling; `dotnet test` skips it. -->
+    <Project Path="test/OfficeDocuments.Excel.Benchmarks/OfficeDocuments.Excel.Benchmarks.csproj" />
+    <Project Path="test/OfficeDocuments.Word.TestKit/OfficeDocuments.Word.TestKit.csproj" />
     <Project Path="test/OfficeDocuments.Word.Tests/OfficeDocuments.Word.Tests.csproj" />
   </Folder>
-  <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
-  <Project Path="src/OfficeDocuments.Word/OfficeDocuments.Word.csproj" />
 </Solution>

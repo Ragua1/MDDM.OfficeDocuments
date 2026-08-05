@@ -37,10 +37,18 @@ This glossary defines the preferred project terminology and abbreviations used a
 | Term | Meaning | Preferred usage |
 | --- | --- | --- |
 | document | Word `.docx` file as a whole | Use for the conceptual file |
-| body | Main document content area exposed by `IBody` | Use for the top-level authoring surface in the current API |
+| block container | Anything that holds block-level content, exposed by `IBlockContainer` | Use when a rule applies to the body, headers, footers, and table cells alike |
+| block content | Paragraphs and tables — the content a block container holds | Prefer over "top-level content", which is no longer accurate |
+| body | Main document content area exposed by `IBody` | Use for the primary block container; it is one of several |
+| header, footer | Page furniture exposed by `IHeaderFooter`, in default, first-page, and even-page variants | Use `header kind` for the variant, not "type" |
 | paragraph | Word paragraph exposed by `IParagraph` | Use as the main authoring building block |
+| run | Contiguous text with one character format, exposed by `IRun` | Use for character-level formatting discussions |
 | text element | `IText` value returned when reading paragraph content | Use when documenting read workflows |
+| format record | Immutable options record such as `TextFormat` or `ParagraphFormat` | Prefer over "style object"; a Word *style* is a named definition in the package |
+| Word table | Table exposed by `ITable`, `ITableRow`, and `ITableCell` | Qualify as "Word table" when Excel structured tables are also in scope |
 | fluent API | Chained authoring style such as `GetBody().AddParagraph().AddText(...)` | Use for the current Word authoring model |
+| run splitting | Word's habit of starting a new run for reasons unrelated to the text — spell-check state, revision identifiers, editing history | Use when explaining why a search or replacement has to work on the whole paragraph |
+| template fill | Replacing placeholders in an existing document through `ReplaceText` | Prefer over "mail merge", which means something more specific in Word |
 
 ## Technology and process terms
 
@@ -48,10 +56,14 @@ This glossary defines the preferred project terminology and abbreviations used a
 | --- | --- | --- |
 | OpenXml | Short name for the Open XML SDK or raw OpenXml document model | Capitalize consistently as `OpenXml` in prose |
 | `DocumentFormat.OpenXml` | The .NET package and namespace used as the primary implementation foundation | Use the full name when precision matters |
-| GHC | GitHub Copilot or a coding agent workflow using GitHub Copilot | Use only in task-planning documents, not in consumer-facing API docs |
+| coding agent | Any AI coding tool working in this repository | Preferred term in new task documents; the working rules live in [../AGENTS.md](../AGENTS.md) |
+| GHC | Retired abbreviation for GitHub Copilot | Do not use. It was removed from the task documents on 2026-07-27; use `coding agent`, or name the tool if the tool actually matters |
 | benchmark report | Comparative analysis against other libraries | Use for `library-benchmark-report.md` |
 | backlog | Planned but not yet delivered features or engineering tasks | Use for roadmap and task documentation |
 | round-trip test | Test that creates, saves, reopens, and verifies a document | Prefer over generic phrases such as "integration test" when that exact behavior is meant |
+| projected collection | Collection read from the document on every access rather than stored, so it cannot go stale | Use for `Paragraphs`, `Runs`, `Rows`, `Cells`, and `Tables`; see `AGENTS.md` rule 10 |
+| foreign document | Input written by a producer other than this library | Use for real Excel files and for the Word markup `ForeignDocuments` builds; the point is that the library did not choose its structure |
+| inherited defect | Schema-validation error that arrived with a foreign input document | Use for `AssertValid`'s `inheritedDefects` parameter; never for a defect this library produced |
 
 ## Writing rules
 

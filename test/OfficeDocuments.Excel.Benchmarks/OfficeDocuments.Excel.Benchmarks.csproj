@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        Measurement, not gating. Nothing here fails a build: BenchmarkDotNet produces numbers a
+        human reads. The gate that runs in CI is OfficeDocuments.Excel.PerformanceTests, and the
+        thresholds it enforces are calibrated from the numbers produced here.
+
+        Run it explicitly, in Release. See test/README.md for the command line; it contains a
+        double dash that MSBuild will not accept inside an XML comment.
+
+        See .doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
+    -->
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!--
+            Single TFM on purpose. Multi-targeting would triple the run time to answer a question
+            about the runtime, when the question here is about the library's algorithmic shape.
+        -->
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>false</IsTestProject>
+        <!-- BenchmarkDotNet emits and compiles a runner per benchmark; it needs a real entry point. -->
+        <AssemblyName>OfficeDocuments.Excel.Benchmarks</AssemblyName>
+        <RootNamespace>OfficeDocuments.Excel.Benchmarks</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -110,17 +110,21 @@ internal class Cell : Base, ICell
 
     public void SetValue(bool value)
     {
-        SetCellValue(value.ToString(CultureInfo.InvariantCulture), OpenXml.CellValues.Boolean);
+        SetCellValue(value ? "1" : "0", OpenXml.CellValues.Boolean);
     }
 
     public void SetValue(DateTime value)
     {
+        // ExcelSerialDate, not ToOADate: the two disagree by a day before March 1900. See that
+        // type for why, and why using ToOADate on both sides hides the problem rather than solving it.
+        var serial = ExcelSerialDate.ToSerial(value);
+
         if (Style == null || Style.NumberFormatId == 0)
         {
             AddStyle(new Style(OwnerSpreadsheet.StylesheetInternal, 0, 0, 0, 14));
         }
 
-        SetCellValue(value.ToOADate().ToString(CultureInfo.InvariantCulture));
+        SetCellValue(serial.ToString(CultureInfo.InvariantCulture));
     }
 
     public void SetValue(string value)
@@ -129,6 +133,8 @@ internal class Cell : Base, ICell
         {
             return;
         }
+
+        XmlText.EnsureRepresentable(value, nameof(value), $"The value for cell '{CellReference}'");
 
         if (Style == null || Style.NumberFormatId == 0)
         {
@@ -166,48 +172,78 @@ internal class Cell : Base, ICell
 
     public string? GetFormula() => Element.CellFormula?.Text;
 
-    public int GetFormulaValue()
+    public double GetFormulaValue()
     {
         var formula = GetFormula();
         if (string.IsNullOrEmpty(formula))
         {
-            return -1;
+            throw new InvalidOperationException($"Cell '{CellReference}' does not contain a formula.");
         }
 
-        return formula switch
+        var functionName = GetFunctionName(formula);
+        return functionName switch
         {
-            var currentFormula when currentFormula.StartsWith("SUM", StringComparison.Ordinal) => FormulaSum(currentFormula),
-            var currentFormula when currentFormula.StartsWith("COUNTIF", StringComparison.Ordinal) => CountCellsIf(currentFormula),
-            var currentFormula when currentFormula.StartsWith("COUNT", StringComparison.Ordinal) => CountCellsWithValue(currentFormula),
-            var currentFormula when currentFormula.StartsWith("MEDIAN", StringComparison.Ordinal) => GetMedian(currentFormula),
-            _ => throw new NotImplementedException(),
+            "SUM" => FormulaSum(formula),
+            "COUNTIF" => CountCellsIf(formula),
+            "COUNT" => CountCellsWithValue(formula),
+            "MEDIAN" => GetMedian(formula),
+            _ => throw new NotSupportedException($"Formula function '{functionName}' is not supported by the built-in evaluator."),
         };
     }
 
-    public int FormulaSum(string formula)
+    private static string GetFunctionName(string formula)
     {
-        var parts = formula.Split('(', ')', ':');
-        const string methodName = "SUM";
-        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
-        var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
-        var (_, toColumnIndex) = range[1].GetExcelCellIndex();
-        var sum = 0;
+        var parenthesisIndex = formula.IndexOf('(');
+        var name = parenthesisIndex < 0 ? formula : formula[..parenthesisIndex];
+        return name.Trim().ToUpperInvariant();
+    }
 
-        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
+    private (uint fromColumn, uint fromRow, uint toColumn, uint toRow) GetFormulaRange(string formula)
+    {
+        var open = formula.IndexOf('(');
+        var close = formula.LastIndexOf(')');
+        if (open < 0 || close < open)
         {
-            var cell = Worksheet.GetCell(columnIndex);
-            if (cell == null)
-            {
-                continue;
-            }
+            throw new ArgumentException($"Malformed formula '{formula}'.");
+        }
 
+        var rangeToken = formula[(open + 1)..close].Split(',')[0].Trim();
+        if (!rangeToken.TryGetExcelRange(out var coordinates))
+        {
+            throw new ArgumentException($"Invalid range '{rangeToken}' in formula '{formula}'.");
+        }
+
+        return coordinates;
+    }
+
+    private IEnumerable<ICell> GetFormulaRangeCells(string formula)
+    {
+        var (fromColumn, fromRow, toColumn, toRow) = GetFormulaRange(formula);
+        for (var row = fromRow; row <= toRow; row++)
+        {
+            for (var column = fromColumn; column <= toColumn; column++)
+            {
+                var cell = Worksheet.GetCell(column, row);
+                if (cell != null)
+                {
+                    yield return cell;
+                }
+            }
+        }
+    }
+
+    private double FormulaSum(string formula)
+    {
+        var sum = 0d;
+        foreach (var cell in GetFormulaRangeCells(formula))
+        {
             if (cell.HasFormula())
             {
                 sum += cell.GetFormulaValue();
                 continue;
             }
 
-            sum += cell.TryGetValue(out int value)
+            sum += cell.TryGetValue(out double value)
                 ? value
                 : throw new ArgumentException($"Invalid cell '{cell.CellReference}' content.");
         }
@@ -215,91 +251,86 @@ internal class Cell : Base, ICell
         return sum;
     }
 
-    public int CountCellsWithValue(string formula)
+    private double CountCellsWithValue(string formula)
     {
-        var parts = formula.Split('(', ')', ':');
-        const string methodName = "COUNT";
-        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
-        var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
-        var (_, toColumnIndex) = range[1].GetExcelCellIndex();
-        var sum = 0;
-
-        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
+        var count = 0d;
+        foreach (var cell in GetFormulaRangeCells(formula))
         {
-            if (Worksheet.GetCell(columnIndex)?.HasValue() == true)
+            if (cell.HasValue())
             {
-                sum++;
+                count++;
             }
         }
 
-        return sum;
+        return count;
     }
 
-    public int CountCellsIf(string formula)
+    private double CountCellsIf(string formula)
     {
-        var parts = formula.Split('(', ')', ':', ',');
-        const string methodName = "COUNTIF";
-        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
-        var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
-        var (_, toColumnIndex) = range[1].GetExcelCellIndex();
-        var argument = range[2];
-        var argumentValue = argument.StartsWith("\"", StringComparison.Ordinal) && argument.EndsWith("\"", StringComparison.Ordinal)
+        var open = formula.IndexOf('(');
+        var close = formula.LastIndexOf(')');
+        var arguments = formula[(open + 1)..close].Split(',');
+        if (arguments.Length < 2)
+        {
+            throw new ArgumentException($"COUNTIF requires a range and a criterion in formula '{formula}'.");
+        }
+
+        var argument = arguments[1].Trim();
+        var argumentValue = argument.StartsWith('"') && argument.EndsWith('"')
             ? argument.Trim('"')
             : ResolveArgumentValue(argument);
-        var sum = 0;
 
-        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
+        var (fromColumn, fromRow, toColumn, toRow) = GetFormulaRange(formula);
+        var count = 0d;
+        for (var row = fromRow; row <= toRow; row++)
         {
-            var cell = Worksheet.GetCell(columnIndex);
-            if (cell?.HasValue() == true && cell.Value == argumentValue)
+            for (var column = fromColumn; column <= toColumn; column++)
             {
-                sum++;
-            }
-            else if (cell?.HasValue() != true && argumentValue == string.Empty)
-            {
-                sum++;
+                var cell = Worksheet.GetCell(column, row);
+                if (cell?.HasValue() == true && cell.Value == argumentValue)
+                {
+                    count++;
+                }
+                else if (cell?.HasValue() != true && argumentValue == string.Empty)
+                {
+                    count++;
+                }
             }
         }
 
-        return sum;
+        return count;
     }
 
-    public int GetMedian(string formula)
+    private double GetMedian(string formula)
     {
-        var parts = formula.Split('(', ')', ':');
-        const string methodName = "MEDIAN";
-        var range = parts.Where(part => !string.IsNullOrEmpty(part) && part != methodName).ToArray();
-        var (_, fromColumnIndex) = range[0].GetExcelCellIndex();
-        var (_, toColumnIndex) = range[1].GetExcelCellIndex();
-        var values = new List<int>();
-
-        for (var columnIndex = fromColumnIndex; columnIndex <= toColumnIndex; columnIndex++)
+        var values = new List<double>();
+        foreach (var cell in GetFormulaRangeCells(formula))
         {
-            var cell = Worksheet.GetCell(columnIndex);
-            if (cell == null)
-            {
-                continue;
-            }
-
             if (cell.HasFormula())
             {
                 values.Add(cell.GetFormulaValue());
             }
-            else if (cell.TryGetValue(out int value))
+            else if (cell.TryGetValue(out double value))
             {
                 values.Add(value);
             }
         }
 
-        return Median(values.ToArray());
+        return Median(values);
     }
 
-    public static int Median(int[] data)
+    private static double Median(IReadOnlyList<double> data)
     {
-        Array.Sort(data);
-        return data.Length % 2 == 0
-            ? (data[data.Length / 2 - 1] + data[data.Length / 2]) / 2
-            : data[data.Length / 2];
+        if (data.Count == 0)
+        {
+            throw new InvalidOperationException("MEDIAN requires at least one numeric value in the range.");
+        }
+
+        var sorted = data.OrderBy(value => value).ToArray();
+        var middle = sorted.Length / 2;
+        return sorted.Length % 2 == 0
+            ? (sorted[middle - 1] + sorted[middle]) / 2d
+            : sorted[middle];
     }
 
     public string? GetStringValue()
@@ -332,11 +363,11 @@ internal class Cell : Base, ICell
         return value;
     }
 
-    public bool GetBoolValue() => GetValue(bool.Parse);
+    public bool GetBoolValue() => GetValue(ParseBoolean);
 
-    public int GetIntValue() => GetValue(int.Parse);
+    public int GetIntValue() => GetInvariantValue(int.Parse);
 
-    public long GetLongValue() => GetValue(long.Parse);
+    public long GetLongValue() => GetInvariantValue(long.Parse);
 
     public double GetDoubleValue() => GetInvariantValue(double.Parse);
 
@@ -355,11 +386,25 @@ internal class Cell : Base, ICell
             : DateTime.ParseExact(cellValue, format, CultureInfo.InvariantCulture);
     }
 
-    public bool TryGetValue(out bool value) => bool.TryParse(GetStringValue(), out value);
+    public bool TryGetValue(out bool value)
+    {
+        var raw = GetStringValue();
+        switch (raw)
+        {
+            case "1":
+                value = true;
+                return true;
+            case "0":
+                value = false;
+                return true;
+            default:
+                return bool.TryParse(raw, out value);
+        }
+    }
 
-    public bool TryGetValue(out int value) => int.TryParse(GetStringValue(), out value);
+    public bool TryGetValue(out int value) => int.TryParse(GetStringValue(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
-    public bool TryGetValue(out long value) => long.TryParse(GetStringValue(), out value);
+    public bool TryGetValue(out long value) => long.TryParse(GetStringValue(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 
     public bool TryGetValue(out double value) => double.TryParse(GetStringValue(), NumberStyles.Any, CultureInfo.InvariantCulture, out value);
 
@@ -397,9 +442,9 @@ internal class Cell : Base, ICell
             return false;
         }
 
-        if (format == null && double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var oaValue))
+        if (format == null && double.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var serial))
         {
-            value = DateTime.FromOADate(oaValue);
+            value = ExcelSerialDate.FromSerial(serial);
             return true;
         }
 
@@ -453,12 +498,44 @@ internal class Cell : Base, ICell
 
     private void SetNumberValue(object value, int numberFormatId)
     {
+        EnsureFinite(value);
+
         if (Style == null || Style.NumberFormatId == 0)
         {
             AddStyle(new Style(OwnerSpreadsheet.StylesheetInternal, numberFormatId: numberFormatId));
         }
 
         SetCellValue(Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty, OpenXml.CellValues.Number);
+    }
+
+    /// <summary>
+    /// SpreadsheetML has no spelling for NaN or an infinity — a numeric cell holds a decimal
+    /// literal and nothing else. Left alone these reach the file verbatim, as
+    /// <c>&lt;v&gt;NaN&lt;/v&gt;</c> inside a cell marked <c>t="n"</c>, and Excel reports the
+    /// workbook as corrupt.
+    /// <para>
+    /// Nothing else in the suite catches this. The schema validator will not: <c>v</c> is declared
+    /// as a string and the numeric constraint comes from the cell's <c>t</c> attribute, which is a
+    /// semantic rule rather than a grammatical one. A round trip will not either, because
+    /// <c>double.Parse</c> reads "NaN" straight back. The value has to be refused at the door.
+    /// </para>
+    /// </summary>
+    private void EnsureFinite(object value)
+    {
+        var isFinite = value switch
+        {
+            double number => double.IsFinite(number),
+            float number => float.IsFinite(number),
+            _ => true
+        };
+
+        if (!isFinite)
+        {
+            throw new ArgumentException(
+                $"Cell '{CellReference}' cannot hold '{value}'. SpreadsheetML numeric cells have no representation "
+                + "for NaN or infinity; write the value as text, or as an Excel error value, if the workbook has to carry it.",
+                nameof(value));
+        }
     }
 
     private string ResolveArgumentValue(string argument)
@@ -503,4 +580,11 @@ internal class Cell : Base, ICell
     private T GetInvariantValue<T>(Func<string, IFormatProvider, T> parse) where T : IConvertible => parse(GetRequiredStringValue(), CultureInfo.InvariantCulture);
 
     private string GetRequiredStringValue() => GetStringValue() ?? throw new InvalidOperationException($"Cell '{CellReference}' does not contain a value.");
+
+    private static bool ParseBoolean(string value) => value switch
+    {
+        "1" => true,
+        "0" => false,
+        _ => bool.Parse(value),
+    };
 }

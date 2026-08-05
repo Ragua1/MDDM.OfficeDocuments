@@ -1,20 +1,22 @@
 # Target Package Boundaries and Instantiation
 
-Date: 2026-05-31
+Audit date: 2026-05-31 · Last reconciled: 2026-07-27
 
-This document summarizes the current architectural audit around package boundaries, construction patterns, and the role of factory or DI layers in `MDDM.OfficeDocuments`.
+This document records the architectural audit around package boundaries, construction patterns, and
+the role of factory or DI layers in `MDDM.OfficeDocuments`, and the direction that came out of it.
 
 ## Audit summary
 
-The current repository state shows:
+The audit found:
 
-- `OfficeDocuments.Excel` contains public factory interfaces and implementations in `Factory/*`
-- those factory classes are thin wrappers over `new Spreadsheet(...)`, `new Worksheet(...)`, `new Row(...)`, `new Cell(...)`, and `new Style(...)`
-- no real DI or container integration such as `IServiceCollection`, `AddSingleton`, `AddScoped`, or `AddTransient` is present in the repository
-- the Word module does not expose a comparable public factory or DI layer
-- the current Word public API is still small and consumer-friendly without an obvious need for an extra construction layer
+- `OfficeDocuments.Excel` exposed public factory interfaces and implementations in `Factory/*`
+- those factory classes were thin wrappers over `new Spreadsheet(...)`, `new Worksheet(...)`, `new Row(...)`, `new Cell(...)`, and `new Style(...)`
+- no real DI or container integration such as `IServiceCollection`, `AddSingleton`, `AddScoped`, or `AddTransient` was present in the repository
+- the Word module exposed no comparable public factory or DI layer
 
-The current factory layer therefore does not behave like a real runtime-composition seam. It mostly widens the public surface without a clear business payoff.
+The factory layer therefore did not behave like a real runtime-composition seam. It mostly widened the public surface without a clear business payoff.
+
+**Resolved 2026-07-24:** the entire `Factory/*` layer was removed. Nothing below asks for it back.
 
 ## Recommended direction
 
@@ -31,15 +33,14 @@ Recommended public entry points:
 
 If better internal composition is needed later, it should stay internal rather than become a consumer-facing DI seam.
 
-### 2. The factory layer should not be the default public extension surface
+### 2. No public factory layer — done
 
-If the public factory layer does not have a real usage case, it should move in one of these directions:
+The factory layer was internalized, found to be unused, and removed on 2026-07-24. Construction now
+goes through the `Spreadsheet` constructors and the `Spreadsheet.CreateDocument` /
+`Spreadsheet.OpenDocument` static factories.
 
-- internalization
-- obsoletion followed by removal in a later major release
-- relocation into an optional advanced or interop layer when a genuine integration scenario appears
-
-The preferred option for the current repository remains internalization.
+The rule this leaves behind: a construction abstraction is added back only when a real integration
+scenario needs one, not to make the surface look more extensible.
 
 ### 3. Target package boundary
 
@@ -60,7 +61,6 @@ There is currently no strong reason to create `OfficeDocuments.Word.Advanced`. T
 
 ### Excel
 
-- Public `Factory/*` remains a candidate for removal or internalization.
 - Public OpenXml-heavy members should continue to move out of the preferred core surface.
 - Structured tables and other heavier Excel features should remain clearly separated from the minimal-core story.
 - Safe cleanup usually means deprecating or hiding raw interop entry points first and extracting them later.
@@ -84,7 +84,6 @@ A new abstraction layer should not exist only because it is theoretically possib
 ## Follow-up backlog areas
 
 - Excel public-surface cleanup
-- factory cleanup and internalization
 - advanced structured-table and template workflows when justified
 
 ## Acceptance status of this proposal

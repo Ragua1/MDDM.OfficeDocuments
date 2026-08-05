@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        Performance tier. Entry rule: a test here asserts on how cost GROWS, never on an absolute
+        duration. A millisecond threshold measures the machine; a ratio between t(N) and t(4N)
+        measures the algorithm, and that is the only thing that survives moving to a CI runner.
+
+        Thresholds come from OfficeDocuments.Excel.Benchmarks. Read that project's numbers before
+        changing one here. See .doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
+    -->
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <!--
+            Single TFM on purpose. These tests ask "did the algorithm get worse", which is not a
+            per-runtime property, and running them three times triples both the wall clock and the
+            number of chances to flake.
+        -->
+        <TargetFrameworks>net10.0</TargetFrameworks>
+        <!--
+            The single largest source of noise in these measurements, before this was turned off:
+            .NET jits a method with a fast non-optimizing compiler first and only replaces it with
+            optimized code after it has been called enough times. A guard that runs early in the
+            process therefore measures tier-0 code and one that runs late measures tier-1 — the
+            same 500-row round trip was observed at 97 ms and at 23 ms depending only on which
+            test ran first. Disabling tiering costs some start-up time and makes the first call as
+            fast as the thousandth, which is the only way a handful of runs per test can mean
+            anything.
+        -->
+        <TieredCompilation>false</TieredCompilation>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit" />
+        <PackageReference Include="xunit.analyzers">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+    </ItemGroup>
+
+</Project>

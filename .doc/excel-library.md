@@ -1,6 +1,6 @@
 # OfficeDocuments.Excel
 
-Date: 2026-05-31
+Date: 2026-07-27
 
 This guide describes the current public Excel API as implemented in `src/OfficeDocuments.Excel/Interfaces/*` and exercised by the current test suite.
 
@@ -131,6 +131,7 @@ The default object model is:
 - `SetComment(...)`
 - `GetComment()`
 - `GetFormula()`
+- `GetFormulaValue()`
 - `GetStringValue()`
 - `GetBoolValue()`
 - `GetIntValue()`
@@ -276,8 +277,14 @@ using OfficeDocuments.Excel;
 using var spreadsheet = new Spreadsheet("formulas.xlsx", createNew: true);
 var worksheet = spreadsheet.AddWorksheet("Sheet1");
 
-worksheet.AddRow().AddCell(100).AddCell(200);
-worksheet.AddRow().AddCell(300).AddCell(400);
+// AddCell returns the cell, not the row, so fill a row through the row variable.
+var firstRow = worksheet.AddRow();
+firstRow.AddCell(100);
+firstRow.AddCell(200);
+
+var secondRow = worksheet.AddRow();
+secondRow.AddCell(300);
+secondRow.AddCell(400);
 
 var totalRow = worksheet.AddRow();
 totalRow.AddCell("Total");
@@ -405,9 +412,52 @@ spreadsheet.Close();
 - `AddCell(...)` is the preferred value-writing API.
 - `AddCellWithValue(...)` remains available only for compatibility and is obsolete.
 - `GetRange(...)` and `AddRows(...)` are the preferred high-level entry points for multi-cell work.
-- Formula support writes formulas to the workbook. It does not provide an Excel calculation engine.
+- Formula support writes formulas to the workbook; it does not provide a full Excel calculation engine.
+- `ICell.GetFormulaValue()` is a lightweight built-in evaluator that supports only `SUM`, `COUNT`, `COUNTIF`, and `MEDIAN` over a single rectangular range. It returns `double`; other functions throw `NotSupportedException`, and reading a cell without a formula throws `InvalidOperationException`. For anything richer, evaluate with a real spreadsheet engine.
 - The document is persisted when you call `Close()` or dispose the spreadsheet.
 - Some raw OpenXml-oriented members still exist for compatibility. They should be treated as non-preferred interop surfaces rather than the default API.
+
+## What the library refuses to write
+
+These all throw at the call that supplies the value, not later. The alternative is a workbook Excel
+offers to repair, which surfaces the mistake to your user instead of to you.
+
+| Rejected | Rule | Exception |
+| --- | --- | --- |
+| Worksheet name | 1–31 characters, none of `: \ / ? * [ ]`, no leading or trailing apostrophe, not `History` | `ArgumentException` |
+| Worksheet name | Must be unique, compared without regard to case, as Excel compares them | `ArgumentException` |
+| Cell text, comment text, comment author, worksheet name | No C0 control characters. XML 1.0 can encode only tab, newline and carriage return; the rest have no spelling at all | `ArgumentException` |
+| `double` / `float` cell value | No `NaN`, no `±Infinity`. A numeric cell holds a decimal literal and nothing else | `ArgumentException` |
+| `DateTime` cell value | Not before 1 January 1900, which is where Excel's serial numbering starts. This includes `DateTime.MinValue` | `ArgumentOutOfRangeException` |
+
+Markup characters need no special handling. `&`, `<`, `>`, `"` and `'` are ordinary text in cell
+values, comments, and worksheet names; they are escaped on write and come back unchanged on read.
+
+### Dates and the 1900 leap-year bug
+
+Excel's 1900 date system contains 29 February 1900, a day that did not exist — the year was not a
+leap year. The bug came from Lotus 1-2-3 and was kept deliberately for file compatibility, so it
+can never be removed.
+
+This matters because .NET's `DateTime.ToOADate()` counts from a different epoch and knows nothing
+about the phantom day. The two systems agree from 1 March 1900 onward and differ by exactly one day
+before it. **The library converts to Excel's serials, not to OLE Automation serials**, so a date
+written here is the date Excel shows.
+
+Two consequences worth knowing:
+
+- Dates before 1 January 1900 are rejected rather than written as a zero or negative serial, which
+  Excel renders as an error rather than a date. Store them as text if a workbook has to carry them.
+- Reading is deliberately more permissive than writing, because the read path also sees files this
+  library did not write. Serial 60 — a foreign producer's 29 February 1900 — is read as 1 March 1900,
+  the next day that exists.
+
+### Line endings
+
+A carriage return does not survive a round trip: XML requires a parser to normalize `\r\n` and a
+lone `\r` to `\n` before the application sees the text. This is the format, not the library, and
+Excel agrees — an in-cell line break is `\n`, which is what Alt+Enter inserts. Pass `\n` if you want
+what you wrote back.
 
 ## Related documents
 

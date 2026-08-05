@@ -11,7 +11,6 @@ internal sealed class Range : Base, IRange
 {
     private readonly Worksheet _worksheet;
 
-    public new IWorksheet Worksheet => _worksheet;
     public uint FromColumn { get; }
     public uint FromRow { get; }
     public uint ToColumn { get; }
@@ -25,7 +24,7 @@ internal sealed class Range : Base, IRange
     public IReadOnlyList<ICell> Cells => EnumerateCells().ToList();
 
     internal Range(Worksheet worksheet, uint fromColumn, uint fromRow, uint toColumn, uint toRow)
-        : base(null)
+        : base(worksheet)
     {
         _worksheet = worksheet;
         FromColumn = fromColumn;

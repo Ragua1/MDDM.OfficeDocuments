@@ -29,32 +29,47 @@ Legend:
 
 ### Word
 
-- [x] File and stream create/open workflows
+- [x] File and stream create/open workflows, including read-only open
 - [x] Fluent paragraph and text authoring
-- [x] Paragraph text reading
+- [x] Paragraph and run text reading, with whitespace and line structure preserved
+- [x] Run formatting: bold, italic, underline, strikethrough, caps, highlight, super/subscript, font, size, colour, character styles
+- [x] Paragraph formatting: alignment, spacing, line spacing, indentation, page-break and keep-together control
+- [x] Built-in paragraph and character styles, headings, and lists, defined in the document on first use
+- [x] Tables: header rows, borders, shading, cell padding, column spanning, nested content
+- [x] Hyperlinks with relationship handling
+- [x] Inline images with intrinsic sizing read from PNG, JPEG, GIF, and BMP headers
+- [x] Headers and footers, including first-page and even-page
+- [x] Page size, orientation, and margins
+- [x] Document core properties
+- [x] Schema-validation gate over every generated document
+- [x] Paragraph navigation and search, including inside tables
+- [x] Text replacement across the run boundaries Word inserts, per paragraph, container, or document
+- [x] Structural removal of paragraphs, tables, and table rows
 
 ## P0
 
 - [ ] Finish the cleanup of raw OpenXml-oriented compatibility members on the Excel public surface.
   Why: the library is positioned as a simpler API over OpenXml, but several compatibility members still expose implementation details.
 
-- [ ] Add Word run formatting: bold, italic, underline, font family, font size, and color.
-  Why: without text styling, the Word module still cannot cover most real business documents.
+- [x] Add Word run formatting: bold, italic, underline, font family, font size, and color.
+  Delivered 2026-07-27 by `WORD-001` as the `TextFormat` record.
 
-- [ ] Add Word paragraph formatting: alignment, spacing, indentation, and heading-like styles.
-  Why: paragraph layout is a baseline requirement for usable `.docx` generation.
+- [x] Add Word paragraph formatting: alignment, spacing, indentation, and heading-like styles.
+  Delivered 2026-07-27 by `WORD-001` as the `ParagraphFormat` record, with built-in style definitions.
 
-- [ ] Add Word tables.
-  Why: tables are a core requirement for invoices, reports, and formal business documents.
+- [x] Add Word tables.
+  Delivered 2026-07-27 by `WORD-002A`, together with the shared block-container extraction.
 
-- [ ] Add Word hyperlinks and images.
-  Why: they remain part of the practical minimum for generated Word documents.
+- [x] Add Word hyperlinks and images.
+  Delivered 2026-07-27 by `WORD-002B` and `WORD-002C`.
 
-- [ ] Add Word headers, footers, sections, and document metadata.
-  Why: branding and basic document structure are still missing from the current Word API.
+- [x] Add Word headers, footers, sections, and document metadata.
+  Delivered 2026-07-27 by `WORD-003`. Multiple sections with differing page setups remain out of scope.
 
-- [ ] Strengthen Word round-trip and read/edit test coverage.
-  Why: the Word module still has a smaller and more fragile test surface than the Excel module.
+- [x] Strengthen Word round-trip and read/edit test coverage.
+  Delivered 2026-07-27 by `WORD-004`. The read and update paths turned up three defects the
+  authoring-only tests could not reach: stale projected collections after a removal, headers that an
+  opened document did not report, and a discard-on-close that always saved.
 
 ## P1
 
@@ -64,11 +79,13 @@ Legend:
 - [ ] Add higher-level Excel import and export helpers for common tabular sources.
   Why: the new range and bulk APIs improved ergonomics, but typed import/export recipes are still thin.
 
-- [ ] Expand Word read/edit helpers for basic navigation and find/replace scenarios.
-  Why: document updates and template workflows need more than pure authoring.
+- [x] Expand Word read/edit helpers for basic navigation and find/replace scenarios.
+  Delivered 2026-07-27 by `WORD-004`: paragraph walking and search, text replacement that works across
+  the run boundaries Word inserts, and removal of paragraphs, tables, and table rows.
 
-- [ ] Replace external-resource-dependent Word tests with repository-local fixtures where possible.
-  Why: deterministic local test assets improve reliability and maintainability.
+- [x] Replace external-resource-dependent Word tests with repository-local fixtures where possible.
+  Delivered 2026-07-27 by `WORD-004`. `TestKit/ForeignDocuments.cs` builds Word-shaped markup through
+  the SDK, so the input is reviewable in a diff instead of being a binary nobody can inspect.
 
 ## P2
 
@@ -94,8 +111,9 @@ Legend:
 
 ## Suggested delivery order
 
-1. Finish the Excel public-surface cleanup.
-2. Strengthen Word formatting and tables.
-3. Add Word hyperlinks, images, headers, footers, and sections.
-4. Harden Word tests and read/edit workflows.
+1. ~~Strengthen Word formatting and tables.~~ Delivered 2026-07-27.
+2. ~~Add Word hyperlinks, images, headers, footers, and sections.~~ Delivered 2026-07-27.
+3. ~~Harden Word read and edit workflows (`WORD-004`).~~ Delivered 2026-07-27. The Word core backlog is
+   now empty.
+4. Finish the Excel public-surface cleanup — the only remaining `P0`.
 5. Revisit heavier Excel output features only after the current core remains stable.
