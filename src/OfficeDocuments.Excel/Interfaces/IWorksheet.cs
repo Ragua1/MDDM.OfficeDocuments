@@ -163,34 +163,46 @@ public interface IWorksheet : IBase
     ICell AddCellWithFormula(uint columnIndex, uint rowIndex, string formula, IStyle? style = null);
 
     /// <summary>
-    /// Create and merge cells on current row from 'beginColumn' to 'endColumn'
+    /// Create and merge cells on current row from 'beginColumn' to 'endColumn'.
+    /// A range of a single cell creates the cell without merging anything.
     /// </summary>
     /// <param name="beginColumn">Begin column index</param>
     /// <param name="endColumn">End column index</param>
     /// <param name="style">Custom style for cell</param>
-    /// <returns>Merged cell</returns>
-    ICell? AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
+    /// <returns>Top-left cell of the merged range</returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="beginColumn"/> is below 1, or <paramref name="endColumn"/> is before it.
+    /// </exception>
+    ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
 
     /// <summary>
-    /// Create and merge cells on 'rowIndex' row from 'beginColumn' to 'endColumn'
+    /// Create and merge cells on 'rowIndex' row from 'beginColumn' to 'endColumn'.
+    /// A range of a single cell creates the cell without merging anything.
     /// </summary>
     /// <param name="rowIndex">Index of row</param>
     /// <param name="beginColumn">Begin column index</param>
     /// <param name="endColumn">End column index</param>
     /// <param name="style">Custom style for cell</param>
-    /// <returns>Merged cell</returns>
-    ICell? AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null);
+    /// <returns>Top-left cell of the merged range</returns>
+    /// <exception cref="ArgumentException">
+    /// An index is below 1, or <paramref name="endColumn"/> is before <paramref name="beginColumn"/>.
+    /// </exception>
+    ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null);
 
     /// <summary>
-    /// Create and merge cells from 'beginReference' to 'endReference'
+    /// Create and merge cells from 'beginReference' to 'endReference'.
+    /// A range of a single cell creates the cell without merging anything.
     /// </summary>
     /// <param name="beginColumn">Begin column index</param>
     /// <param name="endColumn">End column index</param>
     /// <param name="beginRow">Begin row index</param>
     /// <param name="endRow">End row index</param>
     /// <param name="style">Custom style for cell</param>
-    /// <returns>Merged cell</returns>
-    ICell? AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null);
+    /// <returns>Top-left cell of the merged range</returns>
+    /// <exception cref="ArgumentException">
+    /// An index is below 1, or an end index is before its begin index.
+    /// </exception>
+    ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null);
 
     /// <summary>
     /// Gets a rectangular worksheet range.

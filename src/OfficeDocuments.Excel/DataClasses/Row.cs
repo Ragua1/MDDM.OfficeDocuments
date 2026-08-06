@@ -103,39 +103,31 @@ internal class Row : Base, IRow
         return cell;
     }
 
-    public ICell? AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null)
+    public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null)
     {
         if (beginColumn < 1)
         {
-            throw new ArgumentException($"Invalid argument column index '{beginColumn}'");
+            throw new ArgumentException($"Invalid argument column index '{beginColumn}'", nameof(beginColumn));
         }
 
-        if (beginColumn >= endColumn)
+        if (beginColumn > endColumn)
         {
-            return null;
+            throw new ArgumentException($"End column '{endColumn}' is before begin column '{beginColumn}'", nameof(endColumn));
         }
 
-        for (var i = beginColumn; i <= endColumn; i++)
+        var mergedCell = AddCellOnIndex(beginColumn, style);
+        var lastCell = mergedCell;
+        for (var i = beginColumn + 1; i <= endColumn; i++)
         {
-            AddCellOnIndex(i, style);
+            lastCell = AddCellOnIndex(i, style);
         }
 
-        var mergedCell = GetCell(beginColumn);
-        if (mergedCell == null)
+        // A range of one cell is not a merge — writing mergeCell ref="A1:A1" would put a degenerate
+        // element into the file for a request that asked for nothing to be merged.
+        if (beginColumn < endColumn)
         {
-            return null;
+            OwnerWorksheet.AppendMergeReference($"{mergedCell.CellReference}:{lastCell.CellReference}");
         }
-
-        var fromCell = mergedCell.CellReference;
-        var toCellCell = GetCell(endColumn);
-        if (toCellCell == null)
-        {
-            return null;
-        }
-        var toCell = toCellCell.CellReference;
-
-        // Create the merged cell and append it to the MergeCells collection.
-        OwnerWorksheet.AppendMergeReference($"{fromCell}:{toCell}");
 
         return mergedCell;
     }

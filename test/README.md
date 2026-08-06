@@ -104,9 +104,11 @@ declares no test SDK and holds no `[Fact]`.
 - `WorkbookParts` — resolves a `WorksheetPart` by sheet name and lists the workbook's child
   element names, for assertions made against the raw package.
 - `TestImages.MinimalPng()` — a 1×1 PNG, so image tests need no binary fixture.
-- `StylesheetProbe` — reads the `font`/`fill`/`border`/`numFmt`/`cellXfs` entry a style actually
-  points at, plus the entry counts. Assert on these, not on the allocated id: an id assertion
-  cannot tell a blue font from a red one.
+- `StylesheetProbe` — reads the `font`/`fill`/`border`/`numFmt`/`cellXfs`/`alignment` entry a style
+  actually points at, plus the entry counts and whether two styles share a stylesheet. Assert on
+  these, not on the allocated id: an id assertion cannot tell a blue font from a red one. It is also
+  the **only** place a test may touch `IStyle.Element` or `IStyle.Stylesheet` — the obsolete raw
+  access lives behind one documented suppression here so no test project carries its own.
 - `OoxmlAssert.RendersAs(...)` — compares a produced element against an expected fragment written
   without namespace declarations. `OoxmlAssert.ChildOrder(...)` pins a schema sequence.
 - `TestArtifacts` — see below.

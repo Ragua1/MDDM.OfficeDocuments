@@ -1,4 +1,4 @@
-using OfficeDocuments.Excel.Enums;
+﻿using OfficeDocuments.Excel.Enums;
 using OfficeDocuments.Excel.Styles;
 using OfficeDocuments.Excel.TestKit;
 using Color = System.Drawing.Color;
@@ -13,7 +13,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
         using var w = CreateInMemorySpreadsheet();
         var s = w.CreateStyle();
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.Equal(0, s.FillId);
         Assert.Equal(0, s.NumberFormatId);
@@ -29,7 +28,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
             new Font { FontSize = 15, Color = Color.Blue, FontName = FontNameValues.Tahoma, Bold = true, Italic = true, Underline = UnderlineValues.Double }
         );
 
-        Assert.NotNull(s.Element);
         Assert.True(s.FontId > 0);
         Assert.Equal(0, s.FillId);
         Assert.Equal(0, s.NumberFormatId);
@@ -45,7 +43,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
             fill: new Fill(Color.Blue, Color.White)
         );
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.True(s.FillId > 0);
         Assert.Equal(0, s.NumberFormatId);
@@ -69,7 +66,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
             border: b
         );
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.Equal(0, s.FillId);
         Assert.Equal(0, s.NumberFormatId);
@@ -85,7 +81,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
             border: new Border(BorderStyleValues.Medium)
         );
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.Equal(0, s.FillId);
         Assert.Equal(0, s.NumberFormatId);
@@ -101,7 +96,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
             numberFormat: new NumberingFormat("@")
         );
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.Equal(0, s.FillId);
         Assert.Equal(49, s.NumberFormatId);
@@ -124,12 +118,11 @@ public class StyleAllocationTests : SpreadsheetTestBase
             }
         );
 
-        Assert.NotNull(s.Element);
         Assert.Equal(0, s.FontId);
         Assert.Equal(0, s.FillId);
         Assert.Equal(0, s.NumberFormatId);
         Assert.Equal(0, s.BorderId);
-        Assert.NotNull(s.Element.Alignment);
+        Assert.NotNull(StylesheetProbe.Alignment(s));
         Assert.True(s.StyleIndex > 0);
     }
 
@@ -148,7 +141,6 @@ public class StyleAllocationTests : SpreadsheetTestBase
 
         var s = s1.CreateMergedStyle(s2);
 
-        Assert.NotNull(s.Element);
         Assert.True(s.FontId > 0 && s.FontId == s2.FontId);
         Assert.Equal(0, s.FillId);
         Assert.True(s.NumberFormatId > 0 && s.NumberFormatId == s2.NumberFormatId);
@@ -177,13 +169,12 @@ public class StyleAllocationTests : SpreadsheetTestBase
 
         var s = s1.CreateMergedStyle(s2);
 
-        Assert.NotNull(s.Element);
         Assert.Equal(sOld.FontId, s.FontId);
         Assert.Equal(sOld.FillId, s.FillId);
         Assert.Equal(sOld.NumberFormatId, s.NumberFormatId);
         Assert.Equal(sOld.BorderId, s.BorderId);
-        Assert.Null(s.Element.Alignment);
-        Assert.Null(sOld.Element.Alignment);
+        Assert.Null(StylesheetProbe.Alignment(s));
+        Assert.Null(StylesheetProbe.Alignment(sOld));
         Assert.Equal(sOld.StyleIndex, s.StyleIndex);
     }
 
@@ -199,13 +190,12 @@ public class StyleAllocationTests : SpreadsheetTestBase
 
         var s = sOld.CreateMergedStyle(null);
 
-        Assert.NotNull(s.Element);
         Assert.Equal(sOld.FontId, s.FontId);
         Assert.Equal(sOld.FillId, s.FillId);
         Assert.Equal(sOld.NumberFormatId, s.NumberFormatId);
         Assert.Equal(sOld.BorderId, s.BorderId);
-        Assert.Null(s.Element.Alignment);
-        Assert.Null(sOld.Element.Alignment);
+        Assert.Null(StylesheetProbe.Alignment(s));
+        Assert.Null(StylesheetProbe.Alignment(sOld));
         Assert.Equal(sOld.StyleIndex, s.StyleIndex);
     }
 
@@ -232,17 +222,17 @@ public class StyleAllocationTests : SpreadsheetTestBase
 
         var mergedStyle = targetStyle.CreateMergedStyle(sourceStyle);
 
-        Assert.Same(targetStyle.Stylesheet, mergedStyle.Stylesheet);
+        Assert.True(StylesheetProbe.ShareStylesheet(targetStyle, mergedStyle));
         Assert.NotEqual(sourceStyle.FontId, mergedStyle.FontId);
         Assert.NotEqual(sourceStyle.FillId, mergedStyle.FillId);
     Assert.Equal(firstCustomNumberFormatId + 1, mergedStyle.NumberFormatId);
 
-        var sourceFont = sourceStyle.Stylesheet.Fonts!.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ElementAt(sourceStyle.FontId);
-        var mergedFont = mergedStyle.Stylesheet.Fonts!.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ElementAt(mergedStyle.FontId);
+        var sourceFont = StylesheetProbe.Font(sourceStyle);
+        var mergedFont = StylesheetProbe.Font(mergedStyle);
         Assert.True(mergedFont.OuterXml.CompareXml(sourceFont.OuterXml));
 
-        var sourceFill = sourceStyle.Stylesheet.Fills!.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ElementAt(sourceStyle.FillId);
-        var mergedFill = mergedStyle.Stylesheet.Fills!.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ElementAt(mergedStyle.FillId);
+        var sourceFill = StylesheetProbe.Fill(sourceStyle);
+        var mergedFill = StylesheetProbe.Fill(mergedStyle);
         Assert.True(mergedFill.OuterXml.CompareXml(sourceFill.OuterXml));
     }
 
@@ -257,7 +247,7 @@ public class StyleAllocationTests : SpreadsheetTestBase
 
         var merged = sized.CreateMergedStyle(bold);
 
-        var mergedFont = merged.Stylesheet.Fonts!.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ElementAt(merged.FontId);
+        var mergedFont = StylesheetProbe.Font(merged);
 
         Assert.Equal(["b", "sz"], mergedFont.ChildElements.Select(child => child.LocalName));
     }
@@ -272,7 +262,7 @@ public class StyleAllocationTests : SpreadsheetTestBase
         using var workbook = CreateNewSpreadsheet(new MemoryStream());
 
         var style = workbook.CreateStyle(new Font { ArgbHexColor = input });
-        var font = style.Stylesheet.Fonts!.Elements<DocumentFormat.OpenXml.Spreadsheet.Font>().ElementAt(style.FontId);
+        var font = StylesheetProbe.Font(style);
 
         Assert.Equal(expected, font.Color!.Rgb!.Value);
     }
@@ -296,7 +286,7 @@ public class StyleAllocationTests : SpreadsheetTestBase
         using var workbook = CreateNewSpreadsheet(new MemoryStream());
 
         var style = workbook.CreateStyle(fill: new Fill(input));
-        var fill = style.Stylesheet.Fills!.Elements<DocumentFormat.OpenXml.Spreadsheet.Fill>().ElementAt(style.FillId);
+        var fill = StylesheetProbe.Fill(style);
 
         Assert.Equal(expected, fill.PatternFill!.ForegroundColor!.Rgb!.Value);
     }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using OfficeDocuments.Excel.Enums;
 using OfficeDocuments.Excel.Interfaces;
@@ -88,7 +88,9 @@ public class RealisticWorkbookTests : SpreadsheetTestBase
         var s_mediumBorder_top = w.CreateStyle(border: new Border { Top = BorderStyleValues.Medium });
         ws_info.AddRow(s_fill_white);
 
-        for (uint i = 1; i <= ws_info.GetRow(1).Cells.Count; i++)
+        var infoHeaderRow = ws_info.GetRow(1);
+        Assert.NotNull(infoHeaderRow);
+        for (uint i = 1; i <= infoHeaderRow.Cells.Count; i++)
         {
             ws_info.AddCell(s_mediumBorder_top);
             ws_info.SetColumnWidth(i, 22);
@@ -153,24 +155,26 @@ public class RealisticWorkbookTests : SpreadsheetTestBase
 
         timeFormat = "dd.MM.yyyy h:mm";
         var list = new List<int> { 100000, 200000, 300000, 400000 };
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
-        CreateRow2(ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
+        CreateRow2(w, ws_tydenna.AddRow(), DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture),
             DateTime.ParseExact("23.03.2015 6:00", timeFormat, CultureInfo.InvariantCulture), list);
 
         ws_tydenna.AddRow(s_fill_white);
 
-        for (uint i = 1; i <= ws_tydenna.GetRow(1).Cells.Count; i++)
+        var tydennaHeaderRow = ws_tydenna.GetRow(1);
+        Assert.NotNull(tydennaHeaderRow);
+        for (uint i = 1; i <= tydennaHeaderRow.Cells.Count; i++)
         {
             ws_tydenna.AddCell(s_mediumBorder_top);
             ws_tydenna.SetColumnWidth(i, 20);
@@ -551,9 +555,8 @@ public class RealisticWorkbookTests : SpreadsheetTestBase
         sheet.AddCell(value, valueStyle);
     }
 
-    private static void CreateRow2(IRow row, DateTime from, DateTime to, List<int> valList)
+    private static void CreateRow2(ISpreadsheet w, IRow row, DateTime from, DateTime to, List<int> valList)
     {
-        var w = row.Worksheet.Spreadsheet;
         var s_fill_green = w.CreateStyle(
             fill: new Fill(System.Drawing.ColorTranslator.FromHtml("#CCFFCC")),
             border: new Border { Right = BorderStyleValues.Medium, Left = BorderStyleValues.Medium }

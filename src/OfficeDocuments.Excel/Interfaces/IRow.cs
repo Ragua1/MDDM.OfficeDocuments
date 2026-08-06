@@ -83,13 +83,17 @@ public interface IRow : IBase
     ICell AddCellWithFormula(uint columnIndex, string formula, IStyle? style = null);
 
     /// <summary>
-    /// Create and merge cells from 'beginColumn' to 'endColumn'
+    /// Create and merge cells from 'beginColumn' to 'endColumn'.
+    /// A range of a single column creates the cell without merging anything.
     /// </summary>
     /// <param name="beginColumn">Begin column index</param>
     /// <param name="endColumn">End column index</param>
     /// <param name="style">Custom style for cell</param>
-    /// <returns>Merged cell</returns>
-    ICell? AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
+    /// <returns>Top-left cell of the merged range</returns>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="beginColumn"/> is below 1, or <paramref name="endColumn"/> is before it.
+    /// </exception>
+    ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null);
 
     /// <summary>
     /// Get cell on 'columnIndex'

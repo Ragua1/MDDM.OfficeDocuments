@@ -113,6 +113,24 @@ hardening pass. Full rationale is in
   changes what a numeric cell parses to.
 - **Dates before 1900-03-01** are written with the serial number Excel expects (v3 was one day off
   for that range).
+- **`AddCellOnRange(...)` returns a non-nullable `ICell` and throws on an inverted range.** Every
+  overload on `IWorksheet` and `IRow` is affected. In v3 an out-of-order range (`endColumn` before
+  `beginColumn`, `endRow` before `beginRow`) returned `null` while an out-of-bounds index threw, so
+  the same method reported two failure classes two different ways and forced a null check on every
+  call site. All of them now throw `ArgumentException` naming the offending parameter. A range that
+  covers exactly one cell is valid, returns that cell, and writes no `mergeCell` element — v3 either
+  returned `null` for it (the `IRow` and 3-argument `IWorksheet` overloads) or wrote a degenerate
+  one-cell merge (the 5-argument overload).
+
+  ```csharp
+  // v3 — the null was the only signal, and only for some invalid inputs
+  var cell = worksheet.AddCellOnRange(5, 4, 1);
+  if (cell is null) { /* ... */ }
+
+  // v4 — invalid input throws, valid input always returns a cell
+  var cell = worksheet.AddCellOnRange(2, 4, 1);
+  cell.SetValue("Header");
+  ```
 
 ## Version alignment
 

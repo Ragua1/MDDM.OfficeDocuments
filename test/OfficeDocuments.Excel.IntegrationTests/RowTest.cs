@@ -1,7 +1,9 @@
+﻿using DocumentFormat.OpenXml.Packaging;
 using OfficeDocuments.Excel.TestKit;
 using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
 using Color = System.Drawing.Color;
+using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.IntegrationTests;
 
@@ -15,10 +17,10 @@ public class RowTest : SpreadsheetTestBase
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
             Assert.NotNull(row);
-            Assert.NotNull(row.Element);
             Assert.IsAssignableFrom<IRow>(row);
 
             Assert.Contains(row, sheet.Rows);
+            Assert.NotNull(sheet.CurrentRow);
             Assert.Equal(sheet.CurrentRow.RowIndex, row.RowIndex);
             Assert.Null(row.CurrentCell);
         }
@@ -33,6 +35,7 @@ public class RowTest : SpreadsheetTestBase
             var s = w.CreateStyle(new Font { Color = Color.Coral }, new Fill(Color.Black));
             var row = sheet.AddRow(s);
 
+            Assert.NotNull(row.Style);
             Assert.True(row.Style.StyleIndex > 0);
         }
     }
@@ -114,12 +117,12 @@ public class RowTest : SpreadsheetTestBase
             var cell2 = row.AddCellWithFormula(5, value);
 
             Assert.Equal((uint)1, cell.ColumnIndex);
-            Assert.Equal(value, cell.Element.CellFormula.Text);
+            Assert.Equal(value, cell.GetFormula());
 
             value = "Sum(B1:B2)";
             cell = row.AddCellWithFormula(1, value);
             Assert.Equal((uint)1, cell.ColumnIndex);
-            Assert.Equal(value, cell.Element.CellFormula.Text);
+            Assert.Equal(value, cell.GetFormula());
         }
     }
 
@@ -182,16 +185,36 @@ public class RowTest : SpreadsheetTestBase
     }
 
     [Fact]
-    public void CreateRowAndCellOnWrongRange()
+    public void AddCellOnRange_EndColumnBeforeBeginColumn_ThrowsArgumentException()
     {
-        using (var w = CreateInMemorySpreadsheet())
+        using var w = CreateInMemorySpreadsheet();
+        var sheet = w.AddWorksheet("Sheet 1");
+        var row = sheet.AddRow();
+
+        var exception = Assert.Throws<ArgumentException>(() => row.AddCellOnRange(5, 4));
+
+        Assert.Equal("endColumn", exception.ParamName);
+    }
+
+    [Fact]
+    public void AddCellOnRange_SingleColumn_CreatesCellAndWritesNoMerge()
+    {
+        using var stream = new MemoryStream();
+        using (var w = CreateNewSpreadsheet(stream))
         {
             var sheet = w.AddWorksheet("Sheet 1");
             var row = sheet.AddRow();
-            var cell = row.AddCellOnRange(5, 4);
 
-            Assert.Null(cell);
+            var cell = row.AddCellOnRange(2, 2);
+
+            Assert.Equal((uint)2, cell.ColumnIndex);
         }
+
+        using var document = SpreadsheetDocument.Open(stream, false);
+        var worksheetPart = WorkbookParts.GetWorksheetPart(document, "Sheet 1");
+        var worksheetElement = worksheetPart.Worksheet ?? throw new InvalidOperationException("Worksheet element was not found.");
+        // A one-cell range is not a merge, so no MergeCells element belongs in the file at all.
+        Assert.Null(worksheetElement.GetFirstChild<SpreadsheetLib.MergeCells>());
     }
 
     [Fact]
@@ -232,6 +255,7 @@ public class RowTest : SpreadsheetTestBase
             row.AddCell(1, value);
 
             cell1 = row.GetCell("A");
+            Assert.NotNull(cell1);
             Assert.Equal((uint)1, cell1.ColumnIndex);
             Assert.Equal(value, cell1.Value);
         }

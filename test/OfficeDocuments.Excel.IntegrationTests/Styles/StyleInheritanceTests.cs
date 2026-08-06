@@ -41,6 +41,13 @@ public class StyleInheritanceTests : SpreadsheetTestBase
         return StylesheetProbe.Fill(style);
     }
 
+    private static SpreadsheetLib.Border ResolvedBorder(IStyle? style)
+    {
+        Assert.NotNull(style);
+
+        return StylesheetProbe.Border(style);
+    }
+
     private static string? ForegroundColor(IStyle? style) =>
         ResolvedFill(style).PatternFill?.ForegroundColor?.Rgb?.Value;
 
@@ -53,6 +60,8 @@ public class StyleInheritanceTests : SpreadsheetTestBase
 
         var cell = row.AddCell();
 
+        Assert.NotNull(row.Style);
+        Assert.NotNull(cell.Style);
         Assert.Equal(row.Style.StyleIndex, cell.Style.StyleIndex);
         Assert.Equal("FFB8860B", ResolvedFont(cell.Style).Color?.Rgb?.Value);
     }
@@ -65,6 +74,8 @@ public class StyleInheritanceTests : SpreadsheetTestBase
 
         var cell = worksheet.AddCell();
 
+        Assert.NotNull(worksheet.Style);
+        Assert.NotNull(cell.Style);
         Assert.Equal(worksheet.Style.StyleIndex, cell.Style.StyleIndex);
         Assert.Equal("FFB8860B", ResolvedFont(cell.Style).Color?.Rgb?.Value);
     }
@@ -132,7 +143,7 @@ public class StyleInheritanceTests : SpreadsheetTestBase
         // Cell wins the font size, the row contributes the fill, the sheet contributes the border.
         Assert.Equal(20d, ResolvedFont(cell.Style).FontSize?.Val?.Value);
         Assert.Equal("FFFFFF00", ForegroundColor(cell.Style));
-        OoxmlAssert.ChildOrder(StylesheetProbe.Border(cell.Style), "left", "right", "top", "bottom");
+        OoxmlAssert.ChildOrder(ResolvedBorder(cell.Style), "left", "right", "top", "bottom");
     }
 
     [Fact]

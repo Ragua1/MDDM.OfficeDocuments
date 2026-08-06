@@ -29,6 +29,7 @@ The root [../AGENTS.md](../AGENTS.md) is the entry point; the files in `ai-instr
 - [architecture/minimal-core-pr-guidelines.md](architecture/minimal-core-pr-guidelines.md) - contribution and PR decision rules
 - [architecture/target-package-boundaries-and-instantiation.md](architecture/target-package-boundaries-and-instantiation.md) - package-boundary and construction-model guidance
 - [architecture/word-002-readiness-audit.md](architecture/word-002-readiness-audit.md) - historical record: what the `WORD-002` readiness audit got right, and the three things it did not anticipate
+- [architecture/guide-web-app-proposal.md](architecture/guide-web-app-proposal.md) - design for the Blazor/MudBlazor guide application under `samples/`: presentation only, with snippets compiled against both libraries so they cannot drift
 
 ## Task planning
 

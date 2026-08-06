@@ -21,7 +21,23 @@ public static class StylesheetProbe
     /// The <c>cellXfs</c> entry the style resolves to.
     /// </summary>
     public static SpreadsheetLib.CellFormat CellFormat(IStyle style) => style.Element;
+
+    /// <summary>
+    /// Whether both styles were allocated in the same stylesheet — the check that a merge across
+    /// workbooks landed in the target workbook rather than the source one.
+    /// </summary>
+    public static bool ShareStylesheet(IStyle first, IStyle second) =>
+        ReferenceEquals(first.Stylesheet, second.Stylesheet);
 #pragma warning restore CS0618
+
+    /// <summary>
+    /// The <c>alignment</c> the style carries, or <see langword="null"/> when it sets none.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IStyle"/> has no alignment accessor, so this is the only way to tell "no
+    /// alignment" from "an alignment that happens to be the default".
+    /// </remarks>
+    public static SpreadsheetLib.Alignment? Alignment(IStyle style) => CellFormat(style).Alignment;
 
     /// <summary>The <c>font</c> entry the style points at.</summary>
     public static SpreadsheetLib.Font Font(IStyle style) =>

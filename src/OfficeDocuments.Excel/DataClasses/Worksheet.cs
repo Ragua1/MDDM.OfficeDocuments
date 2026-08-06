@@ -139,32 +139,21 @@ internal partial class Worksheet : Base, IWorksheet
         return row.AddCellWithFormula(columnIndex, formula, style);
     }
 
-    public ICell? AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null) => AddCellOnRange(beginColumn, endColumn, _currentRow, style);
+    public ICell AddCellOnRange(uint beginColumn, uint endColumn, IStyle? style = null) => AddCellOnRange(beginColumn, endColumn, _currentRow, style);
 
-    public ICell? AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null)
+    public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint rowIndex, IStyle? style = null)
     {
-        if (beginColumn < 1)
-        {
-            throw new ArgumentException($"Invalid argument column index '{beginColumn}'", nameof(beginColumn));
-        }
-
         if (rowIndex < 1)
         {
             throw new ArgumentException($"Invalid argument row index '{rowIndex}'", nameof(rowIndex));
         }
 
-        if (beginColumn >= endColumn)
-        {
-            return null;
-        }
-
-        var range = GetRange(beginColumn, rowIndex, endColumn, rowIndex);
-        range.ApplyStyle(style);
-        range.Merge();
-        return GetCell(beginColumn, rowIndex);
+        // Delegating rather than repeating the body: the two overloads disagreed on whether a
+        // single-column range was valid for as long as they each had their own copy of the checks.
+        return AddCellOnRange(beginColumn, endColumn, rowIndex, rowIndex, style);
     }
 
-    public ICell? AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null)
+    public ICell AddCellOnRange(uint beginColumn, uint endColumn, uint beginRow, uint endRow, IStyle? style = null)
     {
         if (beginColumn < 1)
         {
@@ -176,15 +165,30 @@ internal partial class Worksheet : Base, IWorksheet
             throw new ArgumentException($"Invalid argument row index '{beginRow}'", nameof(beginRow));
         }
 
-        if (beginColumn > endColumn || beginRow > endRow)
+        if (beginColumn > endColumn)
         {
-            return null;
+            throw new ArgumentException($"End column '{endColumn}' is before begin column '{beginColumn}'", nameof(endColumn));
+        }
+
+        if (beginRow > endRow)
+        {
+            throw new ArgumentException($"End row '{endRow}' is before begin row '{beginRow}'", nameof(endRow));
         }
 
         var range = GetRange(beginColumn, beginRow, endColumn, endRow);
         range.ApplyStyle(style);
-        range.Merge();
-        return GetCell(beginColumn, beginRow);
+
+        // A range of one cell is not a merge — writing mergeCell ref="A1:A1" would put a degenerate
+        // element into the file for a request that asked for nothing to be merged.
+        if (beginColumn < endColumn || beginRow < endRow)
+        {
+            range.Merge();
+        }
+
+        // ApplyStyle and Merge both create the cells they touch, but neither runs for a
+        // single-cell range with no style, so the top-left cell is fetched through the
+        // creating accessor rather than GetCell.
+        return AddCellOnIndex(beginColumn, beginRow);
     }
 
     public IRange GetRange(uint fromColumn, uint fromRow, uint toColumn, uint toRow)

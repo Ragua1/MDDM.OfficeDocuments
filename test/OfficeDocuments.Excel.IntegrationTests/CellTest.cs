@@ -1,4 +1,4 @@
-using OfficeDocuments.Excel.TestKit;
+﻿using OfficeDocuments.Excel.TestKit;
 using System.Globalization;
 using OfficeDocuments.Excel.Interfaces;
 using Color = System.Drawing.Color;
@@ -16,9 +16,9 @@ public class CellTest : SpreadsheetTestBase
         var sheet = w.AddWorksheet("Sheet 1");
         var cell = sheet.AddCell();
         Assert.NotNull(cell);
-        Assert.NotNull(cell.Element);
         Assert.IsAssignableFrom<ICell>(cell);
 
+        Assert.NotNull(sheet.CurrentRow);
         Assert.Contains(cell, sheet.CurrentRow.Cells);
         Assert.Equal(sheet.CurrentRow.RowIndex, cell.RowIndex);
     }
@@ -50,6 +50,7 @@ public class CellTest : SpreadsheetTestBase
         Assert.Equal(value, cell2.Value);
         Assert.Equal(cell1.Value, cell2.Value);
 
+        Assert.NotNull(cell1.Style);
         Assert.Equal(49, cell1.Style.NumberFormatId);
     }
 
@@ -72,6 +73,7 @@ public class CellTest : SpreadsheetTestBase
         );
         Assert.Equal(cell1.Value, cell2.Value);
 
+        Assert.NotNull(cell1.Style);
         Assert.Equal(1, cell1.Style.NumberFormatId);
     }
 
@@ -254,6 +256,7 @@ public class CellTest : SpreadsheetTestBase
         );
         Assert.Equal(cell1.Value, cell2.Value);
 
+        Assert.NotNull(cell1.Style);
         Assert.Equal(14, cell1.Style.NumberFormatId);
     }
 
@@ -306,7 +309,7 @@ public class CellTest : SpreadsheetTestBase
         var formula = "SUM(A1:A5)";
         var cell = sheet.AddCell();
         cell.SetFormula(formula);
-        Assert.Equal(formula, cell.Element.CellFormula.Text);
+        Assert.Equal(formula, cell.GetFormula());
     }
 
     [Fact]
@@ -444,6 +447,8 @@ public class CellTest : SpreadsheetTestBase
         var row = sheet.AddRow(s);
         var cell = row.AddCell();
 
+        Assert.NotNull(row.Style);
+        Assert.NotNull(cell.Style);
         Assert.Equal(row.Style.StyleIndex, cell.Style.StyleIndex);
     }
 
@@ -455,6 +460,8 @@ public class CellTest : SpreadsheetTestBase
         var sheet = w.AddWorksheet("Sheet 1", s);
         var cell = sheet.AddCell();
 
+        Assert.NotNull(sheet.Style);
+        Assert.NotNull(cell.Style);
         Assert.Equal(sheet.Style.StyleIndex, cell.Style.StyleIndex);
     }
 
