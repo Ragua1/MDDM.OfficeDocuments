@@ -499,25 +499,6 @@ internal partial class Worksheet : Base, IWorksheet
         }
     }
 
-    public void Protect(string? password = null)
-    {
-        var protection = WorksheetElement.GetFirstChild<SpreadsheetLib.SheetProtection>();
-        if (protection == null)
-        {
-            protection = new SpreadsheetLib.SheetProtection();
-            WorksheetElement.InsertAfter(protection, Element);
-        }
-
-        protection.Sheet = true;
-        protection.Objects = true;
-        protection.Scenarios = true;
-
-        if (!string.IsNullOrEmpty(password))
-        {
-            protection.Password = WorkbookProtector.ComputeProtectionPassword(password);
-        }
-    }
-
     internal void AppendMergeReference(string reference)
     {
         if (MergeCells.Elements<SpreadsheetLib.MergeCell>().Any(mergeCell => mergeCell.Reference?.Value == reference))

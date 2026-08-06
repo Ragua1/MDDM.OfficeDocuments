@@ -10,7 +10,10 @@ Date: 2026-07-24
 - Tier 1 Step B (collaborator extraction): **Delivered 2026-07-27.** Nine internal collaborators;
   the coordinator partials are now pure lazy-field + delegation. Verified green across all TFMs
   (174 tests). See the progress log at the end.
-- Tier 2 (interface split → `Excel.Advanced`): Open.
+- Tier 2 (physical split → `Excel.Advanced`): **Delivered 2026-08-06.** The advanced features moved
+  into a new `OfficeDocuments.Excel.Advanced` package as extension methods over the core interfaces;
+  the core `ISpreadsheet` / `IWorksheet` no longer declare them (breaking, v4). Verified green across
+  all TFMs (183 unit / 252 integration / 27 verification / 14 perf). See the progress log at the end.
 
 ## Business goal
 
@@ -158,7 +161,14 @@ internal sealed class CommentWriter(WorksheetPart worksheetPart)
 - Each advanced feature lives in its own tested collaborator.
 - The public API is byte-for-byte the same.
 
-## Tier 2 — breaking-change follow-up (optional, later)
+## Tier 2 — breaking-change follow-up
+
+> **Delivered 2026-08-06.** The plan below described a role-interface split with the concrete classes
+> implementing every role interface. Doing the *physical* package split changed that: `Excel.Advanced`
+> references the core, so the core `Spreadsheet` / `Worksheet` cannot implement an interface that
+> lives in `Excel.Advanced` (that would be a circular reference). The advanced surface is therefore
+> **extension methods** on `ISpreadsheet` / `IWorksheet`, not role interfaces implemented by the core
+> types. See the 2026-08-06 progress-log entry for what was actually built.
 
 Only after Tier 1 is stable. These change the public surface (major version) and align with the
 `Excel.Advanced` direction:
@@ -294,5 +304,41 @@ nine focused, independently constructible collaborators. The advanced writers/ma
 only on OpenXml parts and small delegate seams — exactly the units that move to
 `OfficeDocuments.Excel.Advanced` in Tier 2.
 
-Next: Tier 2 — split the fat `IWorksheet`/`ISpreadsheet` interfaces into role interfaces, then
-relocate the advanced collaborators into `OfficeDocuments.Excel.Advanced` (breaking; major version).
+### 2026-08-06 — Tier 2 (physical `Excel.Advanced` split) delivered
+
+A new package, `src/OfficeDocuments.Excel.Advanced`, now carries the heavier, less-common Excel
+features. The core `ISpreadsheet` / `IWorksheet` no longer declare them — **breaking, v4**. Verified
+green across `net8.0`/`net9.0`/`net10.0` (183 unit / 252 integration / 27 verification / 14 perf),
+and the full `OfficeDocuments.slnx` (incl. Word) builds clean.
+
+**Design correction.** The original plan (subtask 1) was role interfaces implemented by the concrete
+classes. The physical split rules that out: `Excel.Advanced` references the core, so a core class
+cannot implement an interface defined in `Excel.Advanced` without a circular reference. The advanced
+API is therefore **extension methods** on the core `ISpreadsheet` / `IWorksheet`. Each extension
+casts to the built-in `Spreadsheet` / `Worksheet` (reachable via `InternalsVisibleTo`), reads the
+internal part/seam it needs, and constructs the (stateless) collaborator — so no document state is
+duplicated (rule 10) and the element-order knowledge still lives in one place.
+
+**What moved to `OfficeDocuments.Excel.Advanced`** (namespace `OfficeDocuments.Excel.Advanced`,
+flat layout):
+
+| Moved | Kind | Notes |
+| --- | --- | --- |
+| `TableManager`, `NamedRangeManager`, `WorkbookProtector`, `WorksheetImageWriter` | internal collaborators | unchanged bodies |
+| `WorkbookElementOrderer`, `TableInfo` | internal support | `WorkbookElementOrderer` still unit-tested (IVT to `UnitTests`) |
+| `ITableInfo`, `TableCreateOptions`, `TableStyleOptions`, `ImageType` | public types | namespace changed to `OfficeDocuments.Excel.Advanced` |
+| `SpreadsheetAdvancedExtensions`, `WorksheetAdvancedExtensions` | new | the public advanced API (tables, named ranges, workbook/worksheet protection, images) |
+
+**Core changes.** Removed `AddTable`/`GetTable`/`GetTables`/`RenameTable`/`ResizeTable`/`RemoveTable`,
+`AddNamedRange`, `ProtectWorkbook` from `ISpreadsheet`; removed `Protect`, `AddImage` from
+`IWorksheet`; deleted the `Spreadsheet.Tables`/`.NamedRanges`/`.Protection` and `Worksheet.Drawing`
+partials and `Worksheet.Protect`. Added internal seams on `Spreadsheet` for the extensions
+(`GetWorksheetOrThrow` widened to internal, plus `WorksheetCatalog` and
+`GetSheetIndexByWorksheetName`) and `InternalsVisibleTo("OfficeDocuments.Excel.Advanced")`.
+
+**What stayed in core:** data validation and conditional formatting (`IRange`), hyperlinks and
+comments (`ICell`) — those interfaces were kept fluent, so `DataValidationWriter`,
+`ConditionalFormattingWriter`, `HyperlinkStore`, `CommentWriter`, and `WorksheetElementOrderer`
+remain in the core package.
+
+Migration guide: [../../../migration-v3-to-v4.md](../../../migration-v3-to-v4.md).

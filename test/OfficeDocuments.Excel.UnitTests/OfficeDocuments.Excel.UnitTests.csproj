@@ -34,6 +34,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+        <!-- WorkbookElementOrderer moved to the advanced layer (EXCEL-010 Tier 2); it is still a
+             pure-logic unit worth testing directly, so the unit tier references Advanced too. -->
+        <ProjectReference Include="..\..\src\OfficeDocuments.Excel.Advanced\OfficeDocuments.Excel.Advanced.csproj" />
     </ItemGroup>
 
 </Project>

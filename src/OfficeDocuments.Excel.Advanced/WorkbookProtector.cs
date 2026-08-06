@@ -3,7 +3,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Owns workbook-structure protection and the legacy Excel password hash.

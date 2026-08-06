@@ -1,4 +1,4 @@
-namespace OfficeDocuments.Excel.Options;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Style and behavior options for a structured table.

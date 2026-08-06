@@ -1,4 +1,4 @@
-using OfficeDocuments.Excel.DataClasses;
+using OfficeDocuments.Excel.Advanced;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.UnitTests;

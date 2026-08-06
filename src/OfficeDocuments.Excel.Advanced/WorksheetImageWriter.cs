@@ -1,11 +1,10 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using OfficeDocuments.Excel.Enums;
 using Drw = DocumentFormat.OpenXml.Drawing;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 using XdrSpr = DocumentFormat.OpenXml.Drawing.Spreadsheet;
 
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Owns worksheet image embedding: the drawings part, the two-cell anchor, and the

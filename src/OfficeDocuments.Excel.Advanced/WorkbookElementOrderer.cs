@@ -1,7 +1,7 @@
 using DocumentFormat.OpenXml;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Centralizes insertion of workbook-level elements so new children honor the CT_Workbook child

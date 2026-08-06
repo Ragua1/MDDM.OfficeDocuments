@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Collections.Generic;
-using OfficeDocuments.Excel.Enums;
-using OfficeDocuments.Excel.Options;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.Interfaces;
@@ -291,34 +289,4 @@ public interface IWorksheet : IBase
     /// Auto fits columns in a specific range.
     /// </summary>
     void AutoFitColumns(IRange range);
-
-    /// <summary>
-    /// Protects the worksheet.
-    /// </summary>
-    void Protect(string? password = null);
-
-    /// <summary>
-    /// Embeds an image from a stream into the worksheet anchored across a rectangular range.
-    /// Both column and row indexes are 1-based.
-    /// The image stretches to fill the range defined by the anchor corners.
-    /// </summary>
-    /// <param name="imageStream">The image content stream.</param>
-    /// <param name="imageType">The format of the image.</param>
-    /// <param name="fromColumn">1-based start column of the anchor.</param>
-    /// <param name="fromRow">1-based start row of the anchor.</param>
-    /// <param name="toColumn">1-based end column of the anchor (inclusive right edge).</param>
-    /// <param name="toRow">1-based end row of the anchor (inclusive bottom edge).</param>
-    void AddImage(Stream imageStream, ImageType imageType, uint fromColumn, uint fromRow, uint toColumn, uint toRow);
-
-    /// <summary>
-    /// Embeds an image file into the worksheet anchored across a rectangular range.
-    /// The image type is inferred from the file extension (.png, .jpg/.jpeg, .gif, .bmp, .tiff/.tif).
-    /// Both column and row indexes are 1-based.
-    /// </summary>
-    /// <param name="filePath">Path to the image file.</param>
-    /// <param name="fromColumn">1-based start column of the anchor.</param>
-    /// <param name="fromRow">1-based start row of the anchor.</param>
-    /// <param name="toColumn">1-based end column of the anchor (inclusive right edge).</param>
-    /// <param name="toRow">1-based end row of the anchor (inclusive bottom edge).</param>
-    void AddImage(string filePath, uint fromColumn, uint fromRow, uint toColumn, uint toRow);
 }

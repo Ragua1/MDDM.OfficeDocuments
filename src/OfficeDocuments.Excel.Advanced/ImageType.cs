@@ -1,4 +1,4 @@
-namespace OfficeDocuments.Excel.Enums;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Specifies the image format for worksheet image embedding.

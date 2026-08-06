@@ -9,6 +9,7 @@
   -->
   <Folder Name="/src/">
     <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
+    <Project Path="src/OfficeDocuments.Excel.Advanced/OfficeDocuments.Excel.Advanced.csproj" />
     <Project Path="src/OfficeDocuments.Word/OfficeDocuments.Word.csproj" />
   </Folder>
   <Folder Name="/test/">

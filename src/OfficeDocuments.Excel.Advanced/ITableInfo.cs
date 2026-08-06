@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace OfficeDocuments.Excel.Interfaces;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Read-only metadata about a structured table in a worksheet.

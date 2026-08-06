@@ -8,6 +8,7 @@ All links inside `.doc/` use relative paths so the documentation stays portable 
 
 - [excel-library.md](excel-library.md) - current Excel API, usage guidance, and examples
 - [word-library.md](word-library.md) - current Word API, usage guidance, and examples
+- [migration-v3-to-v4.md](migration-v3-to-v4.md) - what breaks upgrading Excel from v3 to v4: the `OfficeDocuments.Excel.Advanced` package split and the correctness-hardening behaviour changes
 - [terminology.md](terminology.md) - shared terminology and abbreviations used across the project
 
 ## Product analysis

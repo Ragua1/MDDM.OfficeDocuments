@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <Version>4.0.0</Version>
-        <Title>OfficeDocuments.Excel</Title>
-        <Description>Library designed to streamline the manipulation and creation of Excel documents using the OpenXml library.</Description>
+        <Title>OfficeDocuments.Excel.Advanced</Title>
+        <Description>Optional advanced layer for OfficeDocuments.Excel: structured tables, named ranges, workbook/worksheet protection, and image embedding. Adds these as extension methods over the minimal core so a consumer who only needs the core does not pay for them.</Description>
         <PackageTags>Office;Excel;C#</PackageTags>
     </PropertyGroup>
 
@@ -11,14 +11,13 @@
         <PackageReference Include="DocumentFormat.OpenXml" />
     </ItemGroup>
 
-    <!-- The unit tier tests the internal collaborators extracted by EXCEL-010 directly. -->
+    <ItemGroup>
+        <ProjectReference Include="..\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+    </ItemGroup>
+
+    <!-- The unit tier tests WorkbookElementOrderer (a pure-logic collaborator) directly. -->
     <ItemGroup>
         <InternalsVisibleTo Include="OfficeDocuments.Excel.UnitTests" />
-        <!--
-          The advanced layer (EXCEL-010 Tier 2) ships as a separate package but drives the same
-          internal coordinators, so it needs access to the internal Worksheet/Spreadsheet seams.
-        -->
-        <InternalsVisibleTo Include="OfficeDocuments.Excel.Advanced" />
     </ItemGroup>
 
     <PropertyGroup>

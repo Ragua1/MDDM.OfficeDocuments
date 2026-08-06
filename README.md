@@ -3,6 +3,7 @@
 [![Excel build](https://github.com/Ragua1/MDDM.OfficeDocuments/actions/workflows/github-build-excel.yml/badge.svg)](https://github.com/Ragua1/MDDM.OfficeDocuments/actions/workflows/github-build-excel.yml)
 [![Word build](https://github.com/Ragua1/MDDM.OfficeDocuments/actions/workflows/github-build-word.yml/badge.svg)](https://github.com/Ragua1/MDDM.OfficeDocuments/actions/workflows/github-build-word.yml)
 [![NuGet Excel](https://img.shields.io/nuget/v/OfficeDocuments.Excel.svg?label=OfficeDocuments.Excel)](https://www.nuget.org/packages/OfficeDocuments.Excel/)
+[![NuGet Excel.Advanced](https://img.shields.io/nuget/v/OfficeDocuments.Excel.Advanced.svg?label=OfficeDocuments.Excel.Advanced)](https://www.nuget.org/packages/OfficeDocuments.Excel.Advanced/)
 [![NuGet Word](https://img.shields.io/nuget/v/OfficeDocuments.Word.svg?label=OfficeDocuments.Word)](https://www.nuget.org/packages/OfficeDocuments.Word/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
@@ -48,14 +49,17 @@ on that basis, not on a feature-count table.
 
 ## Install
 
-The two packages are independent. Install only what you need — neither drags in the other.
+The Excel and Word packages are independent — neither drags in the other. Install only what you need.
+Excel's heavier, less-common features live in an optional add-on, `OfficeDocuments.Excel.Advanced`.
 
 ```sh
 dotnet add package OfficeDocuments.Excel
+dotnet add package OfficeDocuments.Excel.Advanced   # optional: tables, named ranges, protection, images
 dotnet add package OfficeDocuments.Word
 ```
 
 Targets `net8.0`, `net9.0`, and `net10.0`. The only runtime dependency is `DocumentFormat.OpenXml`.
+Upgrading from v3? See the [migration guide](.doc/migration-v3-to-v4.md).
 
 ## Excel
 
@@ -98,9 +102,11 @@ using var spreadsheet = Spreadsheet.CreateDocument(stream);
 spreadsheet.Close();
 ```
 
-Beyond the basics: ranges, bulk insert from object collections, typed reads with `TryGetValue`,
-formulas, hyperlinks, comments, sorting, auto-filter, data validation, conditional formatting,
-freeze panes, named ranges, structured tables, worksheet images, and worksheet/workbook protection.
+Beyond the basics, in the core package: ranges, bulk insert from object collections, typed reads with
+`TryGetValue`, formulas, hyperlinks, comments, sorting, auto-filter, data validation, conditional
+formatting, and freeze panes. In the optional `OfficeDocuments.Excel.Advanced` package: structured
+tables, named ranges, worksheet images, and worksheet/workbook protection — added as extension
+methods over the same objects, so a `using OfficeDocuments.Excel.Advanced;` is all it takes.
 Full guide: [.doc/excel-library.md](.doc/excel-library.md).
 
 ## Word

@@ -6,6 +6,7 @@
   -->
   <Folder Name="/src/">
     <Project Path="src/OfficeDocuments.Excel/OfficeDocuments.Excel.csproj" />
+    <Project Path="src/OfficeDocuments.Excel.Advanced/OfficeDocuments.Excel.Advanced.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/OfficeDocuments.Excel.TestKit/OfficeDocuments.Excel.TestKit.csproj" />

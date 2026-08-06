@@ -73,14 +73,6 @@ The default object model is:
 - `SetWorksheetHidden(...)`
 - `RemoveWorksheet(...)`
 - `CreateStyle(...)`
-- `AddTable(...)`
-- `GetTable(...)`
-- `GetTables(...)`
-- `RenameTable(...)`
-- `ResizeTable(...)`
-- `RemoveTable(...)`
-- `AddNamedRange(...)`
-- `ProtectWorkbook(...)`
 - `Close()`
 
 ### `IWorksheet`
@@ -99,8 +91,15 @@ The default object model is:
 - `FreezePanes(...)`
 - `ClearFrozenPanes()`
 - `AutoFitColumns()`
-- `Protect(...)`
-- `AddImage(...)`
+
+### Advanced package (`OfficeDocuments.Excel.Advanced`)
+
+Heavier, less-common features ship in a separate, optional package as extension methods over the core
+interfaces. Add `using OfficeDocuments.Excel.Advanced;` to use them.
+
+- On `ISpreadsheet`: `AddTable(...)`, `GetTable(...)`, `GetTables(...)`, `RenameTable(...)`,
+  `ResizeTable(...)`, `RemoveTable(...)`, `AddNamedRange(...)`, `ProtectWorkbook(...)`
+- On `IWorksheet`: `Protect(...)`, `AddImage(...)`
 
 ### `IRange`
 
@@ -320,10 +319,14 @@ spreadsheet.Close();
 
 ### Add validation, formatting, hyperlinks, comments, named ranges, and protection
 
+Validation, conditional formatting, hyperlinks, and comments are in the core package. Named ranges
+and protection are in `OfficeDocuments.Excel.Advanced` — hence the extra `using`.
+
 ```csharp
 using OfficeDocuments.Excel;
 using OfficeDocuments.Excel.Options;
 using OfficeDocuments.Excel.Styles;
+using OfficeDocuments.Excel.Advanced;
 using Color = System.Drawing.Color;
 
 using var spreadsheet = new Spreadsheet("advanced.xlsx", createNew: true);
@@ -353,9 +356,12 @@ spreadsheet.Close();
 
 ### Create and manage structured tables
 
+Structured tables are in `OfficeDocuments.Excel.Advanced`. `TableCreateOptions` and
+`TableStyleOptions` live there too.
+
 ```csharp
 using OfficeDocuments.Excel;
-using OfficeDocuments.Excel.Options;
+using OfficeDocuments.Excel.Advanced;
 
 using var spreadsheet = new Spreadsheet("table.xlsx", createNew: true);
 var worksheet = spreadsheet.AddWorksheet("Scores");
@@ -391,9 +397,11 @@ spreadsheet.Close();
 
 ### Embed images in a worksheet
 
+Image embedding is in `OfficeDocuments.Excel.Advanced`. `ImageType` lives there too.
+
 ```csharp
 using OfficeDocuments.Excel;
-using OfficeDocuments.Excel.Enums;
+using OfficeDocuments.Excel.Advanced;
 
 using var spreadsheet = new Spreadsheet("report.xlsx", createNew: true);
 var worksheet = spreadsheet.AddWorksheet("Sheet1");

@@ -1,4 +1,4 @@
-namespace OfficeDocuments.Excel.Options;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Options for creating a structured table.

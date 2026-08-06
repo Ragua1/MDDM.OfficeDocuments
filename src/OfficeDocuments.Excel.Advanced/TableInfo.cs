@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using OfficeDocuments.Excel.Interfaces;
-
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 internal sealed class TableInfo : ITableInfo
 {

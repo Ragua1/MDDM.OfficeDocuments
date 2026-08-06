@@ -30,6 +30,7 @@
     <ItemGroup>
         <Using Include="System.Drawing" />
         <Using Include="Xunit" />
+        <Using Include="OfficeDocuments.Excel.Advanced" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,6 +50,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\OfficeDocuments.Excel\OfficeDocuments.Excel.csproj" />
+        <ProjectReference Include="..\..\src\OfficeDocuments.Excel.Advanced\OfficeDocuments.Excel.Advanced.csproj" />
         <ProjectReference Include="..\OfficeDocuments.Excel.TestKit\OfficeDocuments.Excel.TestKit.csproj" />
     </ItemGroup>
 

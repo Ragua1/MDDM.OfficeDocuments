@@ -346,10 +346,16 @@ public partial class Spreadsheet : ISpreadsheet
         return state == SpreadsheetLib.SheetStateValues.Hidden || state == SpreadsheetLib.SheetStateValues.VeryHidden;
     }
 
-    private Worksheet GetWorksheetOrThrow(string name)
+    // Internal seams consumed by the OfficeDocuments.Excel.Advanced layer (EXCEL-010 Tier 2), which
+    // drives the same internal state but ships as a separate package. Kept internal, not public.
+    internal Worksheet GetWorksheetOrThrow(string name)
     {
         return GetWorksheet(name) as Worksheet ?? throw new ArgumentException($"Cannot find worksheet with name '{name}'.", nameof(name));
     }
+
+    internal IEnumerable<Worksheet> WorksheetCatalog => _worksheets.OfType<Worksheet>();
+
+    internal int GetSheetIndexByWorksheetName(string name) => GetSheetIndex(GetSheet(GetWorksheetOrThrow(name)));
 
     private SpreadsheetLib.Sheet GetSheet(Worksheet worksheet)
     {

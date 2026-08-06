@@ -3,7 +3,7 @@ using OfficeDocuments.Excel.Extensions;
 using OfficeDocuments.Excel.Interfaces;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Owns workbook defined names (named ranges). The sheet index for worksheet-scoped names is

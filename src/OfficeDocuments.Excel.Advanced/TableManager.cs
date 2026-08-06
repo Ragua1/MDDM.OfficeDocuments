@@ -1,10 +1,10 @@
 using DocumentFormat.OpenXml.Packaging;
+using OfficeDocuments.Excel.DataClasses;
 using OfficeDocuments.Excel.Extensions;
 using OfficeDocuments.Excel.Interfaces;
-using OfficeDocuments.Excel.Options;
 using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
-namespace OfficeDocuments.Excel.DataClasses;
+namespace OfficeDocuments.Excel.Advanced;
 
 /// <summary>
 /// Owns structured-table create/lookup/lifecycle over the workbook. Depends only on the
