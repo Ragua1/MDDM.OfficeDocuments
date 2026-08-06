@@ -2,7 +2,7 @@
 
 This folder contains the canonical repository documentation for `OfficeDocuments`.
 
-All links inside `.doc/` use relative paths so the documentation stays portable inside the repository.
+All links inside `.docs/` use relative paths so the documentation stays portable inside the repository.
 
 ## Consumer documentation
 
@@ -29,7 +29,7 @@ The root [../AGENTS.md](../AGENTS.md) is the entry point; the files in `ai-instr
 - [architecture/minimal-core-pr-guidelines.md](architecture/minimal-core-pr-guidelines.md) - contribution and PR decision rules
 - [architecture/target-package-boundaries-and-instantiation.md](architecture/target-package-boundaries-and-instantiation.md) - package-boundary and construction-model guidance
 - [architecture/word-002-readiness-audit.md](architecture/word-002-readiness-audit.md) - historical record: what the `WORD-002` readiness audit got right, and the three things it did not anticipate
-- [architecture/guide-web-app-proposal.md](architecture/guide-web-app-proposal.md) - design for the Blazor/MudBlazor guide application under `samples/`: presentation only, with snippets compiled against both libraries so they cannot drift
+- [architecture/guide-web-app-proposal.md](architecture/guide-web-app-proposal.md) - design for the public documentation site: DocFX to GitHub Pages, the page tree, and the source-to-guide derivation model
 
 ## Task planning
 
@@ -46,4 +46,4 @@ The root [../AGENTS.md](../AGENTS.md) is the entry point; the files in `ai-instr
 
 ## Relationship to the root README
 
-The root [../README.md](../README.md) stays intentionally short and product-oriented. Detailed guidance, API notes, and planning material live here in `.doc/`.
+The root [../README.md](../README.md) stays intentionally short and product-oriented. Detailed guidance, API notes, and planning material live here in `.docs/`.

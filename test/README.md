@@ -4,7 +4,7 @@ Tests are split by **what a failure tells you**, not by how fast they run. That 
 dependencies each tier is allowed to take, which is what keeps the split from eroding.
 
 The full rationale, the migration plan, and the open blind-spot catalogue live in
-[../.doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md](../.doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md).
+[../.docs/tasks/core/excel/EXCEL-011-test-suite-restructuring.md](../.docs/tasks/core/excel/EXCEL-011-test-suite-restructuring.md).
 
 ## Where does my new test go?
 
@@ -81,7 +81,7 @@ dotnet run -c Release --project test/OfficeDocuments.Excel.Benchmarks -- --filte
 ```
 
 Current baseline and the four known hot spots:
-[../.doc/excel-performance-baseline.md](../.doc/excel-performance-baseline.md).
+[../.docs/excel-performance-baseline.md](../.docs/excel-performance-baseline.md).
 
 ## `OfficeDocuments.Excel.TestKit`
 
@@ -157,7 +157,7 @@ is still the right tool for structure, such as the presence of `xml:space="prese
 
 How to write a Word test once you know it belongs here — including the negative-assertion rule that
 three Word defects got past — is in
-[../.doc/ai-instructions/testing.md](../.doc/ai-instructions/testing.md).
+[../.docs/ai-instructions/testing.md](../.docs/ai-instructions/testing.md).
 
 ## Running
 

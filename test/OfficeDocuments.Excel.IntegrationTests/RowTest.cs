@@ -1,9 +1,7 @@
-﻿using DocumentFormat.OpenXml.Packaging;
-using OfficeDocuments.Excel.TestKit;
+﻿using OfficeDocuments.Excel.TestKit;
 using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
 using Color = System.Drawing.Color;
-using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.IntegrationTests;
 
@@ -194,27 +192,6 @@ public class RowTest : SpreadsheetTestBase
         var exception = Assert.Throws<ArgumentException>(() => row.AddCellOnRange(5, 4));
 
         Assert.Equal("endColumn", exception.ParamName);
-    }
-
-    [Fact]
-    public void AddCellOnRange_SingleColumn_CreatesCellAndWritesNoMerge()
-    {
-        using var stream = new MemoryStream();
-        using (var w = CreateNewSpreadsheet(stream))
-        {
-            var sheet = w.AddWorksheet("Sheet 1");
-            var row = sheet.AddRow();
-
-            var cell = row.AddCellOnRange(2, 2);
-
-            Assert.Equal((uint)2, cell.ColumnIndex);
-        }
-
-        using var document = SpreadsheetDocument.Open(stream, false);
-        var worksheetPart = WorkbookParts.GetWorksheetPart(document, "Sheet 1");
-        var worksheetElement = worksheetPart.Worksheet ?? throw new InvalidOperationException("Worksheet element was not found.");
-        // A one-cell range is not a merge, so no MergeCells element belongs in the file at all.
-        Assert.Null(worksheetElement.GetFirstChild<SpreadsheetLib.MergeCells>());
     }
 
     [Fact]

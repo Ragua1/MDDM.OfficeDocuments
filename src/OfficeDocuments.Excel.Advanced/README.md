@@ -44,5 +44,5 @@ package; they throw `ArgumentException` if handed a foreign `ISpreadsheet` / `IW
 ## Versioning
 
 Ships in lockstep with `OfficeDocuments.Excel` on the same version line. See the
-[v3 → v4 migration guide](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.doc/migration-v3-to-v4.md)
+[v3 → v4 migration guide](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.docs/migration-v3-to-v4.md)
 for what moved here in v4 and how to update your code.

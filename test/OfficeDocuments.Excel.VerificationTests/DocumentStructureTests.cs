@@ -43,6 +43,42 @@ public class DocumentStructureTests : SpreadsheetTestBase
     }
 
     [Fact]
+    public void MergedRanges_AreSchemaValidAndKeepWorksheetChildrenInOrder()
+    {
+        var filePath = GetFilepath("merged-ranges.xlsx");
+
+        using (var spreadsheet = CreateNewSpreadsheet(filePath))
+        {
+            var worksheet = spreadsheet.AddWorksheet("Sheet1");
+            var banner = spreadsheet.CreateStyle(new Styles.Font { Bold = true });
+
+            worksheet.AddCellOnRange(1, 6, 1, banner).SetValue("Header");
+            worksheet.AddCellOnRange(1, 3, 3, 5).SetValue("Block");
+            worksheet.AddCellOnRange(5, 5, 3, 6).SetValue("Vertical");
+            worksheet.AddRow(8).AddCellOnRange(2, 4).SetValue("Through the row");
+            worksheet.SetColumnWidth(1, 20);
+
+            spreadsheet.Close();
+        }
+
+        // mergeCells sits between sheetData and the elements that follow it in CT_Worksheet, and
+        // the integration tier cannot see a violation — the file still reads back correctly here
+        // and only Excel rejects it.
+        OpenXmlValidation.AssertValid(filePath);
+
+        using var document = SpreadsheetDocument.Open(filePath, false);
+        var worksheetElement = WorkbookParts.GetWorksheetPart(document, "Sheet1").Worksheet
+                               ?? throw new InvalidOperationException("Worksheet element was not found.");
+        OoxmlAssert.ChildOrder(worksheetElement, "cols", "sheetData", "mergeCells");
+
+        var mergeCells = worksheetElement.GetFirstChild<MergeCells>()
+                         ?? throw new InvalidOperationException("MergeCells element was not found.");
+        Assert.Equal(
+            ["A1:F1", "A3:C5", "E3:E6", "B8:D8"],
+            mergeCells.Elements<MergeCell>().Select(mergeCell => mergeCell.Reference?.Value));
+    }
+
+    [Fact]
     public void AddImage_DrawingElementAppearsBeforeTableParts()
     {
         var filePath = GetFilepath("image-order.xlsx");

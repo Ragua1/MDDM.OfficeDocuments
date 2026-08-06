@@ -7,7 +7,7 @@ This file adds only what is specific to Claude Code.
 
 ## Loading instructions
 
-The routing table in `AGENTS.md` points at [`.doc/ai-instructions/`](.doc/ai-instructions/README.md).
+The routing table in `AGENTS.md` points at [`.docs/ai-instructions/`](.docs/ai-instructions/README.md).
 Read the one file that matches the area you are touching, when you get there. Do not pull the whole
 folder into context up front — it exists so `AGENTS.md` can stay short.
 

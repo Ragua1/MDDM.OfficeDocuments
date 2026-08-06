@@ -59,7 +59,7 @@ dotnet add package OfficeDocuments.Word
 ```
 
 Targets `net8.0`, `net9.0`, and `net10.0`. The only runtime dependency is `DocumentFormat.OpenXml`.
-Upgrading from v3? See the [migration guide](.doc/migration-v3-to-v4.md).
+Upgrading from v3? See the [migration guide](.docs/migration-v3-to-v4.md).
 
 ## Excel
 
@@ -107,7 +107,7 @@ Beyond the basics, in the core package: ranges, bulk insert from object collecti
 formatting, and freeze panes. In the optional `OfficeDocuments.Excel.Advanced` package: structured
 tables, named ranges, worksheet images, and worksheet/workbook protection — added as extension
 methods over the same objects, so a `using OfficeDocuments.Excel.Advanced;` is all it takes.
-Full guide: [.doc/excel-library.md](.doc/excel-library.md).
+Full guide: [.docs/excel-library.md](.docs/excel-library.md).
 
 ## Word
 
@@ -139,7 +139,7 @@ Beyond the basics: run and paragraph formatting, built-in styles and headings, b
 lists, tables with repeating header rows and nested content, hyperlinks, inline images sized from the
 image itself, headers and footers, page setup, document metadata, paragraph search, and text
 replacement that survives the run boundaries Word inserts mid-word.
-Full guide: [.doc/word-library.md](.doc/word-library.md).
+Full guide: [.docs/word-library.md](.docs/word-library.md).
 
 Deliberately out of scope for now: multiple sections with differing page setups, footnotes,
 bookmarks, comments, tracked changes, and a generated table of contents.
@@ -171,12 +171,12 @@ allocation counts instead. See [test/README.md](test/README.md).
 
 | Document | Contents |
 | --- | --- |
-| [.doc/excel-library.md](.doc/excel-library.md) | Excel API guide, semantics, worked examples |
-| [.doc/word-library.md](.doc/word-library.md) | Word API guide, semantics, worked examples |
-| [.doc/library-benchmark-report.md](.doc/library-benchmark-report.md) | Capability comparison against ClosedXML, EPPlus, NPOI, openpyxl, python-docx |
-| [.doc/excel-performance-baseline.md](.doc/excel-performance-baseline.md) | Measured baselines and the known hot spots |
-| [.doc/tasks/roadmap-overview.md](.doc/tasks/roadmap-overview.md) | Planned work |
-| [.doc/README.md](.doc/README.md) | Documentation index |
+| [.docs/excel-library.md](.docs/excel-library.md) | Excel API guide, semantics, worked examples |
+| [.docs/word-library.md](.docs/word-library.md) | Word API guide, semantics, worked examples |
+| [.docs/library-benchmark-report.md](.docs/library-benchmark-report.md) | Capability comparison against ClosedXML, EPPlus, NPOI, openpyxl, python-docx |
+| [.docs/excel-performance-baseline.md](.docs/excel-performance-baseline.md) | Measured baselines and the known hot spots |
+| [.docs/tasks/roadmap-overview.md](.docs/tasks/roadmap-overview.md) | Planned work |
+| [.docs/README.md](.docs/README.md) | Documentation index |
 
 ### Known performance characteristics
 
@@ -202,7 +202,7 @@ centralized in `Directory.Packages.props`; compilation settings in `Directory.Bu
 
 Contributions are welcome. Start with [AGENTS.md](AGENTS.md) — it states the working rules that apply
 to every change, human or AI, and routes to the detailed guidance in
-[.doc/ai-instructions/](.doc/ai-instructions/README.md). The essentials:
+[.docs/ai-instructions/](.docs/ai-instructions/README.md). The essentials:
 
 - Keep diffs minimal and aimed at the root cause; no drive-by refactors.
 - The interface layer is the public API. Do not leak Open XML types across it.

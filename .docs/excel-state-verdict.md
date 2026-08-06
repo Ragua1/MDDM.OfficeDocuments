@@ -190,7 +190,7 @@ comments (steepest growth — a clean 16× for 4× the input), then the row back
 - **Culture handling in the write path and the double/decimal read path is correct**
   (`InvariantCulture` + `OADate`) — a common wrapper bug that this library mostly avoids.
 - **Solid engineering hygiene** — multi-targeting, central package management, nullable enabled,
-  a dedicated `.doc/` discipline, PR/issue templates, and a genuine roadmap.
+  a dedicated `.docs/` discipline, PR/issue templates, and a genuine roadmap.
 
 ## Direction: three paths compared
 

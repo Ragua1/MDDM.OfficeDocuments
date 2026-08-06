@@ -81,6 +81,41 @@ public class StyleInheritanceTests : SpreadsheetTestBase
     }
 
     [Fact]
+    public void RowStyle_ReachesTheCellsTheRowBackfilled()
+    {
+        using var workbook = CreateInMemorySpreadsheet();
+        var worksheet = workbook.AddWorksheet("Sheet1");
+        var row = worksheet.AddRow(workbook.CreateStyle(new Font { Color = Color.DarkGoldenrod }));
+
+        // Asking for column 4 backfills 1..3 so the cells stay in ascending order. Those cells are
+        // part of a styled row and must look like it — they used to be created bare, and only
+        // picked the row style up if something addressed them again later.
+        row.AddCellOnIndex(4);
+
+        for (uint column = 1; column <= 4; column++)
+        {
+            var cell = row.GetCell(column);
+            Assert.NotNull(cell);
+            Assert.Equal("FFB8860B", ResolvedFont(cell.Style).Color?.Rgb?.Value);
+        }
+    }
+
+    [Fact]
+    public void CellStyle_SurvivesASecondAccessToTheSameCell()
+    {
+        using var workbook = CreateInMemorySpreadsheet();
+        var worksheet = workbook.AddWorksheet("Sheet1");
+        var row = worksheet.AddRow(workbook.CreateStyle(new Font { FontSize = 8 }));
+        row.AddCell(2, "value", workbook.CreateStyle(new Font { FontSize = 20 }));
+
+        // Fetching or re-adding the cell must not re-apply the row style: the row would win the
+        // font size on the second pass, which is the opposite of the precedence above.
+        worksheet.AddCellOnIndex(2, row.RowIndex);
+
+        Assert.Equal(20d, ResolvedFont(row.GetCell(2)?.Style).FontSize?.Val?.Value);
+    }
+
+    [Fact]
     public void RowStyle_TakesPrecedenceOverSheetStyleForTheSameFacet()
     {
         using var workbook = CreateInMemorySpreadsheet();

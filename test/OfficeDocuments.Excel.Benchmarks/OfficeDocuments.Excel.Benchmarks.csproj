@@ -8,7 +8,7 @@
         Run it explicitly, in Release. See test/README.md for the command line; it contains a
         double dash that MSBuild will not accept inside an XML comment.
 
-        See .doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
+        See .docs/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
     -->
     <PropertyGroup>
         <OutputType>Exe</OutputType>

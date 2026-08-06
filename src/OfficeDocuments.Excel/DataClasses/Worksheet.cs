@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using DocumentFormat.OpenXml.Packaging;
 using OfficeDocuments.Excel.Extensions;
@@ -185,10 +185,11 @@ internal partial class Worksheet : Base, IWorksheet
             range.Merge();
         }
 
-        // ApplyStyle and Merge both create the cells they touch, but neither runs for a
-        // single-cell range with no style, so the top-left cell is fetched through the
-        // creating accessor rather than GetCell.
-        return AddCellOnIndex(beginColumn, beginRow);
+        // Look the cell up rather than going through AddCellOnIndex when it already exists:
+        // GetOrCreateCell re-applies the row's style to whatever it returns, so a second touch
+        // would stamp the row style back over the style ApplyStyle just put on this cell. Only a
+        // single-cell range with no style leaves nothing behind for ApplyStyle or Merge to create.
+        return GetCell(beginColumn, beginRow) ?? AddCellOnIndex(beginColumn, beginRow);
     }
 
     public IRange GetRange(uint fromColumn, uint fromRow, uint toColumn, uint toRow)
@@ -505,13 +506,49 @@ internal partial class Worksheet : Base, IWorksheet
 
     internal void AppendMergeReference(string reference)
     {
-        if (MergeCells.Elements<SpreadsheetLib.MergeCell>().Any(mergeCell => mergeCell.Reference?.Value == reference))
+        if (!reference.TryGetExcelRange(out var added))
         {
-            return;
+            throw new ArgumentException($"Invalid merge reference '{reference}'", nameof(reference));
+        }
+
+        // Read the existing merges without going through the MergeCells property: that property
+        // creates the element on first access, and CT_MergeCells requires at least one child, so
+        // a rejected merge would otherwise leave an empty and schema-invalid <mergeCells/> behind.
+        var mergeCells = WorksheetElement.GetFirstChild<SpreadsheetLib.MergeCells>();
+        foreach (var mergeCell in mergeCells?.Elements<SpreadsheetLib.MergeCell>() ?? [])
+        {
+            var existing = mergeCell.Reference?.Value;
+            if (existing == null)
+            {
+                continue;
+            }
+
+            if (existing == reference)
+            {
+                // Merging the same range twice is a no-op, not an error. The set stays
+                // non-overlapping, so nothing later in the list can overlap either.
+                return;
+            }
+
+            if (existing.TryGetExcelRange(out var current) && RangesOverlap(added, current))
+            {
+                throw new ArgumentException(
+                    $"Merged range '{reference}' overlaps the existing merged range '{existing}'. "
+                    + "Excel reports a workbook with overlapping merges as damaged.",
+                    nameof(reference));
+            }
         }
 
         MergeCells.Append(new SpreadsheetLib.MergeCell { Reference = reference });
     }
+
+    private static bool RangesOverlap(
+        (uint fromColumn, uint fromRow, uint toColumn, uint toRow) first,
+        (uint fromColumn, uint fromRow, uint toColumn, uint toRow) second) =>
+        first.fromColumn <= second.toColumn
+        && second.fromColumn <= first.toColumn
+        && first.fromRow <= second.toRow
+        && second.fromRow <= first.toRow;
 
     internal void SetAutoFilter(string reference)
     {
@@ -533,6 +570,7 @@ internal partial class Worksheet : Base, IWorksheet
         }
 
         var row = GetRow(rowIndex);
+        var isNewRow = row == null;
         if (row == null)
         {
             var createdRow = new Row(this, rowIndex);
@@ -566,8 +604,11 @@ internal partial class Worksheet : Base, IWorksheet
             _currentRow = rowIndex;
         }
 
-        style = Style?.CreateMergedStyle(style) ?? style;
-        row.AddStyle(style);
+        // Same rule one level up as in Row.GetOrCreateCell: the sheet style seeds a row when the
+        // row is created and is not re-applied afterwards. Every cell addition goes through here,
+        // so re-applying would stamp the sheet's value back over the row's own style on each one.
+        row.AddStyle(isNewRow ? Style?.CreateMergedStyle(style) ?? style : style);
+
         return row;
     }
 

@@ -71,6 +71,6 @@ and text replacement that works across the run boundaries Word inserts mid-word 
 
 ## Links
 
-- [Full documentation](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.doc/word-library.md)
+- [Full documentation](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.docs/word-library.md)
 - [Repository](https://github.com/Ragua1/MDDM.OfficeDocuments)
 - [Changelog / releases](https://github.com/Ragua1/MDDM.OfficeDocuments/releases)

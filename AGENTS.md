@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Primary instruction file for AI coding agents working in `MDDM.OfficeDocuments`. Keep it short;
-depth lives in [`.doc/ai-instructions/`](.doc/ai-instructions/README.md).
+depth lives in [`.docs/ai-instructions/`](.docs/ai-instructions/README.md).
 
 ## The project
 
@@ -27,7 +27,7 @@ reading `.xlsx` and `.docx`. Legacy binary `.xls` / `.doc` is out of scope, perm
 | `test/OfficeDocuments.Excel.Benchmarks/` | BenchmarkDotNet console app. Measures; never fails a build |
 | `test/OfficeDocuments.Word.Tests/` | Word behaviour through the public API |
 | `test/OfficeDocuments.*.TestKit/` | Shared helpers (schema validator, temp workspace). Not test projects |
-| `.doc/` | All documentation. Index: [`.doc/README.md`](.doc/README.md) |
+| `.docs/` | All documentation. Index: [`.docs/README.md`](.docs/README.md) |
 | `OfficeDocuments.slnx` | Everything. There is no `.sln` |
 | `OfficeDocuments.Excel.slnx` | Excel module only — contains no Word project, by design |
 | `OfficeDocuments.Word.slnx` | Word module only — contains no Excel project, by design |
@@ -47,7 +47,7 @@ Which tier a new test belongs in: [`test/README.md`](test/README.md).
 4. **Every test that produces a complete document ends with the schema validator.** A round-trip
    proves self-consistency, nothing more.
 5. **Central Package Management.** No `Version` attribute on any `PackageReference`.
-6. **Documentation is English**, the root `README.md` stays product-oriented, detail goes in `.doc/`,
+6. **Documentation is English**, the root `README.md` stays product-oriented, detail goes in `.docs/`,
    and snippets must match the real API.
 7. **Verify before reporting done.** Run the focused tier, widen for shared code. If a check did not
    run, say which one and why.
@@ -60,7 +60,7 @@ Which tier a new test belongs in: [`test/README.md`](test/README.md).
 9. **No performance test asserts on a duration.** A millisecond threshold measures the CI runner,
    not the code. Assert a growth ratio between t(N) and t(4N), or an allocation count — both cancel
    the hardware out. Thresholds are traceable to
-   [`.doc/excel-performance-baseline.md`](.doc/excel-performance-baseline.md).
+   [`.docs/excel-performance-baseline.md`](.docs/excel-performance-baseline.md).
 10. **Never keep a second copy of the document's structure.** The package is the single source of
     truth; anything a wrapper exposes about it — child order, which part owns a relationship, which
     headers exist — is derived, not stored. This bug class has now cost three defects, and the second
@@ -97,16 +97,16 @@ Read the file that matches what you are touching. Do not load all of them.
 
 | Working on | Read |
 | --- | --- |
-| Any non-trivial task | [`.doc/ai-instructions/workflow.md`](.doc/ai-instructions/workflow.md) |
-| Any `.cs` file | [`.doc/ai-instructions/csharp.md`](.doc/ai-instructions/csharp.md) |
-| Excel module | [`.doc/ai-instructions/excel.md`](.doc/ai-instructions/excel.md) |
-| Word module | [`.doc/ai-instructions/word.md`](.doc/ai-instructions/word.md) |
-| Tests | [`.doc/ai-instructions/testing.md`](.doc/ai-instructions/testing.md) + [`test/README.md`](test/README.md) |
-| Anything performance | [`.doc/excel-performance-baseline.md`](.doc/excel-performance-baseline.md) |
-| Projects, props, CI | [`.doc/ai-instructions/build-and-packaging.md`](.doc/ai-instructions/build-and-packaging.md) |
-| Any `.md` | [`.doc/ai-instructions/documentation.md`](.doc/ai-instructions/documentation.md) |
-| Deciding what to build | [`.doc/tasks/roadmap-overview.md`](.doc/tasks/roadmap-overview.md) |
-| Deciding core vs advanced | [`.doc/architecture/minimal-core-pr-guidelines.md`](.doc/architecture/minimal-core-pr-guidelines.md) |
+| Any non-trivial task | [`.docs/ai-instructions/workflow.md`](.docs/ai-instructions/workflow.md) |
+| Any `.cs` file | [`.docs/ai-instructions/csharp.md`](.docs/ai-instructions/csharp.md) |
+| Excel module | [`.docs/ai-instructions/excel.md`](.docs/ai-instructions/excel.md) |
+| Word module | [`.docs/ai-instructions/word.md`](.docs/ai-instructions/word.md) |
+| Tests | [`.docs/ai-instructions/testing.md`](.docs/ai-instructions/testing.md) + [`test/README.md`](test/README.md) |
+| Anything performance | [`.docs/excel-performance-baseline.md`](.docs/excel-performance-baseline.md) |
+| Projects, props, CI | [`.docs/ai-instructions/build-and-packaging.md`](.docs/ai-instructions/build-and-packaging.md) |
+| Any `.md` | [`.docs/ai-instructions/documentation.md`](.docs/ai-instructions/documentation.md) |
+| Deciding what to build | [`.docs/tasks/roadmap-overview.md`](.docs/tasks/roadmap-overview.md) |
+| Deciding core vs advanced | [`.docs/architecture/minimal-core-pr-guidelines.md`](.docs/architecture/minimal-core-pr-guidelines.md) |
 
 ## Precedence
 

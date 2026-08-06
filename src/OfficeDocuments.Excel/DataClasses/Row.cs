@@ -146,9 +146,13 @@ internal class Row : Base, IRow
             throw new ArgumentException($"Invalid argument column index '{columnIndex}'");
         }
 
+        // The row style seeds a cell once, when the cell is created — CreateCell does that, for
+        // the backfilled cells too. It must not be re-applied on a later access: it would stamp
+        // the row's value back over a facet the caller has since set on the cell, so a font size
+        // set on the cell would resolve to the row's size. That inverts the documented
+        // sheet -> row -> cell precedence, and it only surfaces when something touches the same
+        // cell twice — which Range.ApplyStyle followed by Range.Merge does.
         var cell = GetCell(columnIndex) ?? CreateCell(columnIndex);
-
-        style = Style?.CreateMergedStyle(style) ?? style;
 
         cell.AddStyle(style);
 
@@ -161,7 +165,9 @@ internal class Row : Base, IRow
         {
             if (!_cellsByColumnIndex.ContainsKey(i))
             {
-                InsertCell(new Cell(Worksheet, i, RowIndex));
+                var backfilledCell = new Cell(Worksheet, i, RowIndex);
+                backfilledCell.AddStyle(Style);
+                InsertCell(backfilledCell);
             }
         }
 

@@ -21,8 +21,8 @@ repository will say so.
 | Report a security issue | See [Security issues](#security-issues) — **not** a public issue |
 | Contribute a fix | Read [AGENTS.md](AGENTS.md), then open a pull request |
 
-Before opening anything, check [.doc/excel-library.md](.doc/excel-library.md) or
-[.doc/word-library.md](.doc/word-library.md). They document the actual public API and its semantics,
+Before opening anything, check [.docs/excel-library.md](.docs/excel-library.md) or
+[.docs/word-library.md](.docs/word-library.md). They document the actual public API and its semantics,
 including several behaviours that are correct but surprising — merged styles folding in the workbook
 default font, or a style reaching a cell through the sheet becoming a new stylesheet entry. A
 question answered there will be closed with a link to it.
@@ -78,8 +78,8 @@ Two standing scope decisions, so nobody spends effort on them:
 - **A formula calculation engine is not planned.** The library writes formulas; Excel evaluates them.
 
 Everything else is negotiable. The current thinking lives in
-[.doc/tasks/roadmap-overview.md](.doc/tasks/roadmap-overview.md) and
-[.doc/feature-gap-backlog.md](.doc/feature-gap-backlog.md); a request that fits a gap already
+[.docs/tasks/roadmap-overview.md](.docs/tasks/roadmap-overview.md) and
+[.docs/feature-gap-backlog.md](.docs/feature-gap-backlog.md); a request that fits a gap already
 recorded there has a much better chance of getting built.
 
 ## Versions and breaking changes

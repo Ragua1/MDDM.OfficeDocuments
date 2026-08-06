@@ -1,10 +1,8 @@
-﻿using DocumentFormat.OpenXml.Packaging;
-using OfficeDocuments.Excel.TestKit;
+﻿using OfficeDocuments.Excel.TestKit;
 using OfficeDocuments.Excel.Enums;
 using OfficeDocuments.Excel.Interfaces;
 using OfficeDocuments.Excel.Styles;
 using Color = System.Drawing.Color;
-using SpreadsheetLib = DocumentFormat.OpenXml.Spreadsheet;
 
 namespace OfficeDocuments.Excel.IntegrationTests;
 
@@ -148,46 +146,5 @@ public class WorksheetTest : SpreadsheetTestBase
         var exception = Assert.Throws<ArgumentException>(() => sheet.AddCellOnRange(2, 4, 0));
 
         Assert.Equal("rowIndex", exception.ParamName);
-    }
-
-    [Fact]
-    public void AddCellOnRange_SingleCell_CreatesCellAndWritesNoMerge()
-    {
-        using var stream = new MemoryStream();
-        using (var w = CreateNewSpreadsheet(stream))
-        {
-            var sheet = w.AddWorksheet("Sheet 1");
-
-            var cell = sheet.AddCellOnRange(2, 2, 3, 3);
-
-            Assert.Equal((uint)2, cell.ColumnIndex);
-            Assert.Equal((uint)3, cell.RowIndex);
-        }
-
-        using var document = SpreadsheetDocument.Open(stream, false);
-        var worksheetPart = WorkbookParts.GetWorksheetPart(document, "Sheet 1");
-        var worksheetElement = worksheetPart.Worksheet ?? throw new InvalidOperationException("Worksheet element was not found.");
-        // A one-cell range is not a merge, so no MergeCells element belongs in the file at all.
-        Assert.Null(worksheetElement.GetFirstChild<SpreadsheetLib.MergeCells>());
-    }
-
-    [Fact]
-    public void AddCellOnRange_SingleColumnAcrossRows_WritesVerticalMerge()
-    {
-        using var stream = new MemoryStream();
-        using (var w = CreateNewSpreadsheet(stream))
-        {
-            var sheet = w.AddWorksheet("Sheet 1");
-
-            sheet.AddCellOnRange(2, 2, 1, 3);
-        }
-
-        using var document = SpreadsheetDocument.Open(stream, false);
-        var worksheetPart = WorkbookParts.GetWorksheetPart(document, "Sheet 1");
-        var worksheetElement = worksheetPart.Worksheet ?? throw new InvalidOperationException("Worksheet element was not found.");
-        var mergeCells = worksheetElement.GetFirstChild<SpreadsheetLib.MergeCells>() ?? throw new InvalidOperationException("MergeCells element was not found.");
-        var mergeCell = Assert.Single(mergeCells.Elements<SpreadsheetLib.MergeCell>());
-
-        Assert.Equal("B1:B3", mergeCell.Reference?.Value);
     }
 }

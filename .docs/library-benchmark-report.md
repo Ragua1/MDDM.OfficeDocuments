@@ -13,8 +13,8 @@ The goal is not to copy other libraries wholesale. The goal is to identify the s
 Internal evidence reviewed:
 
 - `README.md`
-- `.doc/excel-library.md`
-- `.doc/word-library.md`
+- `.docs/excel-library.md`
+- `.docs/word-library.md`
 - `src/OfficeDocuments.Excel/Interfaces/*`
 - `src/OfficeDocuments.Excel/Spreadsheet.cs`
 - `src/OfficeDocuments.Excel/DataClasses/*`

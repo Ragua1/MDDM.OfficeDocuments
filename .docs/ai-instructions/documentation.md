@@ -18,7 +18,7 @@ applyTo: "**/*.md"
 | Test-tier rules | [`../../test/README.md`](../../test/README.md) |
 | Rules for AI agents | [`./`](README.md) |
 
-The root `README.md` stays short and product-oriented. Depth belongs in `.doc/`. When you add a
+The root `README.md` stays short and product-oriented. Depth belongs in `.docs/`. When you add a
 public API, update the detailed guide; touch the root README only if the high-level product story
 actually changed.
 
@@ -27,7 +27,7 @@ actually changed.
 - All documentation is written in **English**, in clear, technical, unambiguous prose.
 - Use the terms in [`../terminology.md`](../terminology.md). If you need a term that is not there,
   add it there rather than inventing a synonym in one document.
-- Prefer relative links between files inside `.doc/`, so the documentation stays portable.
+- Prefer relative links between files inside `.docs/`, so the documentation stays portable.
 - Dates are absolute (`2026-07-27`), never relative.
 
 ## Accuracy bar
@@ -42,5 +42,5 @@ actually changed.
 
 ## Keeping the index honest
 
-When you add a file under `.doc/`, add it to [`../README.md`](../README.md). An unlinked document
+When you add a file under `.docs/`, add it to [`../README.md`](../README.md). An unlinked document
 will not be found — by a human or by an agent — and will quietly rot.

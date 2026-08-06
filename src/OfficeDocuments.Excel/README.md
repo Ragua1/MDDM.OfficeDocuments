@@ -59,6 +59,6 @@ operations; named ranges, protection, structured tables, and worksheet images.
 
 ## Links
 
-- [Full documentation](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.doc/excel-library.md)
+- [Full documentation](https://github.com/Ragua1/MDDM.OfficeDocuments/blob/master/.docs/excel-library.md)
 - [Repository](https://github.com/Ragua1/MDDM.OfficeDocuments)
 - [Changelog / releases](https://github.com/Ragua1/MDDM.OfficeDocuments/releases)

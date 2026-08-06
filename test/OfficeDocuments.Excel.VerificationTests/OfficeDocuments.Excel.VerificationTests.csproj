@@ -6,7 +6,7 @@
         foreign producer's file read correctly.
 
         A test that asserts "feature X produced node Y" belongs in the integration tier instead.
-        See .doc/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
+        See .docs/tasks/core/excel/EXCEL-011-test-suite-restructuring.md.
     -->
     <PropertyGroup>
         <IsPackable>false</IsPackable>

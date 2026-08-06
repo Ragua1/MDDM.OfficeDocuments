@@ -62,5 +62,5 @@ For day-to-day repository use, the PR template in `.github/pull_request_template
 
 - Every meaningful feature task should explain why it belongs in the core or why it should live in an advanced layer.
 - `README.md` should stay product-oriented and concise.
-- Detailed documentation belongs in `.doc/`.
+- Detailed documentation belongs in `.docs/`.
 - The task backlog should remain split into `core` and `advanced`.
