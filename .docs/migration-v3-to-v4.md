@@ -1,4 +1,4 @@
-# Migrating OfficeDocuments.Excel from v3 to v4
+﻿# Migrating OfficeDocuments.Excel from v3 to v4
 
 Date: 2026-08-06
 
@@ -131,6 +131,36 @@ hardening pass. Full rationale is in
   var cell = worksheet.AddCellOnRange(2, 4, 1);
   cell.SetValue("Header");
   ```
+- **Overlapping merged ranges now throw `ArgumentException`.** Excel reports a workbook containing
+  two merges that share a cell as damaged and offers to repair it; v3 wrote both references without
+  complaint, so the defect only surfaced when someone opened the file. Merging the *same* range
+  twice is still a no-op, and ranges that touch without overlapping are unaffected. This applies to
+  `IRange.Merge()` and to every `AddCellOnRange(...)` overload.
+
+  ```csharp
+  worksheet.AddCellOnRange(1, 4, 1);   // A1:D1
+  worksheet.AddCellOnRange(3, 6, 1);   // v3: wrote C1:F1 too, and Excel refused the file
+                                       // v4: ArgumentException naming A1:D1
+  ```
+- **A style passed alongside a row style is no longer overwritten by it.** The style a level owns is
+  now applied to a cell or row once, when it is created, instead of on every access. Previously any
+  code path that touched the same cell twice re-applied the row's style over what the caller had
+  set, so for a facet both levels set — a font size, say — the row won. `AddCellOnRange(..., style)`
+  on a styled row hit this on every call, because merging touches each cell a second time.
+
+  ```csharp
+  var row = worksheet.AddRow(1, workbook.CreateStyle(new Font { Bold = true, FontSize = 9 }));
+  worksheet.AddCellOnRange(2, 4, 1, workbook.CreateStyle(new Font { FontSize = 20 }));
+
+  // v3: the cells came out bold at size 9 — the caller's size was dropped
+  // v4: bold from the row, size 20 from the cell style, as the precedence documents
+  ```
+
+  Two smaller consequences. Cells that a row *backfills* — the ones created to keep cell order
+  ascending when you skip a column — now carry the row's style, where before they were left bare
+  next to their styled neighbours. And cells touched by a range operation with no style no longer
+  get a redundant `s="0"` written on them; `s="0"` and no `s` attribute are the same format to
+  Excel, so this is a smaller file, not a different one.
 
 ## Version alignment
 

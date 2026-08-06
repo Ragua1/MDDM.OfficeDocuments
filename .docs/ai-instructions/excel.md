@@ -21,7 +21,12 @@ most of them exist because a bug got through.
 - `Row.CreateCell` backfills missing earlier cells on purpose — OpenXml requires ascending cell
   order within a row. Do not replace it with sparse append logic.
 - `Worksheet` creates `Columns` and `MergeCells` lazily. Preserve that; eager creation writes empty
-  elements into every sheet.
+  elements into every sheet — and an empty `<mergeCells/>` is not merely untidy, `CT_MergeCells`
+  requires at least one child, so it fails the schema validator. Read the existing merges with
+  `GetFirstChild<MergeCells>()`; touching the `MergeCells` property creates the element.
+- Merged ranges must not overlap. Excel reports a workbook whose merges share a cell as damaged, so
+  `AppendMergeReference` rejects an overlap with `ArgumentException` while treating an exact repeat
+  as a no-op. A range covering one cell is not a merge and writes no element.
 
 ## Module layout after EXCEL-010
 
@@ -65,6 +70,12 @@ Rule 3 in [AGENTS.md](../../AGENTS.md) explains why this matters. The Excel-side
   | date | `14` |
   | string | `49` |
 
+- **A parent style is applied once, when the child is created — never on a later access.**
+  `Worksheet.GetOrCreateRow` seeds a new row with the sheet style, `Row.GetOrCreateCell` seeds a new
+  cell with the row style, and `Row.CreateCell` does the same for the cells it backfills. Re-applying
+  it to something that already exists overlays the *wider* level on top of the narrower one, which
+  inverts the precedence above; it stays invisible until something touches the same cell twice, and
+  `Range.Merge()` does exactly that after `ApplyStyle`. This cost one defect already.
 - Alignment and number-format merging is intentionally shallower than font/fill/border merging.
   Do not "fix" the asymmetry as a drive-by; it is a behaviour change.
 - Colours are normalized to 8-digit ARGB hex. `Font.ArgbHexColor` and `Fill(string)` previously

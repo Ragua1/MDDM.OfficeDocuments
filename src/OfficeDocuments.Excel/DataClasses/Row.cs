@@ -166,7 +166,16 @@ internal class Row : Base, IRow
             if (!_cellsByColumnIndex.ContainsKey(i))
             {
                 var backfilledCell = new Cell(Worksheet, i, RowIndex);
-                backfilledCell.AddStyle(Style);
+
+                // A backfilled cell belongs to the row and has to look like it. The workbook
+                // default is skipped on purpose: an unstyled sheet still hands down a style whose
+                // index is 0, and s="0" means exactly what leaving the attribute off means, so
+                // applying it would only put a redundant attribute on every backfilled cell.
+                if (Style is { StyleIndex: > 0 })
+                {
+                    backfilledCell.AddStyle(Style);
+                }
+
                 InsertCell(backfilledCell);
             }
         }
